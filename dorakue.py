@@ -7,39 +7,30 @@ import glob
 import random
 import math
 
-# 勾配ベクトルの一番長いもの(終了条件で使う予定だったけど使ってない)
 
+def dorakue(pos):
+    if pos[0] < 0:
+        pos[0] = width+pos[0]
+    elif pos[0] > width:
+        pos[0] = pos[0]-width
 
-def calc_delta(pos, Delta, k, l, node_len):
-    max_delta = 0
-    max_i = 0
-    for i in range(node_len):
-        # node[i]のストレスを出してるであってる？
-        Ex = 0
-        Ey = 0
-        for j in range(node_len):
-            if i == j:
-                continue
-            norm = math.sqrt((pos[i][0]-pos[j][0]) **
-                             2 + (pos[i][1]-pos[j][1])**2)
-            dx_ij = pos[i][0]-pos[j][0]
-            dy_ij = pos[i][1]-pos[j][1]
+    if pos[1] < 0:
+        pos[1] = height+pos[1]
+    elif pos[1] > height:
+        pos[1] = pos[1]-height
 
-            Ex += k[i][j]*dx_ij*(1.0-l[i][j]/norm)
-            Ey += k[i][j]*dy_ij*(1.0-l[i][j]/norm)
-        Delta[i] = math.sqrt(Ex*Ex+Ey*Ey)
-        if Delta[i] > max_delta:
-            max_delta = Delta[i]
-            max_i = i
-    return max_i
+    return pos
 
 
 def shift_center(pos, max_i, node_len):
     diff_x = pos[max_i][0]-width/2
     diff_y = pos[max_i][1]-height/2
+
     for i in range(node_len):
         pos[i][0] -= diff_x
         pos[i][1] -= diff_y
+        pos[i] = dorakue(pos[i])
+
     return pos
 
 
@@ -47,12 +38,11 @@ def shift_flat(pos, diff_x, diff_y, node_len):
     for i in range(node_len):
         pos[i][0] += diff_x
         pos[i][1] += diff_y
+
+        pos[i] = dorakue(pos[i])
+
     return pos
 
-
-height = 800
-width = 800
-edge_len = 100
 
 filename = './graph/les_miserables.json'
 graph = json_graph.node_link_graph(json.load(open(filename)))
@@ -74,8 +64,8 @@ for x_node, y_node in graph.edges:
     # 重みがないので1
     x = node2num[x_node]
     y = node2num[y_node]
-    d[x][y] = edge_len
-    d[y][x] = edge_len
+    d[x][y] = 100
+    d[y][x] = 100
 
 # ワーシャルフロイド(最短経路)
 for k in range(node_len):
@@ -106,6 +96,10 @@ for i in range(node_len):
         l[i][j] = d[i][j]
         k[i][j] = 1/(d[i][j]*d[i][j])
 
+height = maxd*2
+width = maxd*2
+
+print("width,height", width)
 
 # posの初期化(ランダム)
 pos = []
@@ -113,11 +107,6 @@ for i in range(node_len):
     x = L0*random.uniform(0, width)
     y = L0*random.uniform(0, height)
     pos.append([x, y])
-
-
-Delta = [0]*node_len
-
-max_i = calc_delta(pos, Delta, k, l, node_len)
 
 
 for cnt1 in range(50):
@@ -130,9 +119,12 @@ for cnt1 in range(50):
             Eyy = 0
             Ex = 0
             Ey = 0
+
+            # max_iを中心に持ってくる
             diff_x = pos[max_i][0]-width/2
             diff_y = pos[max_i][1]-height/2
             pos = shift_center(pos, max_i, node_len)
+
             for i in range(node_len):
                 if i == max_i:
                     continue
@@ -154,16 +146,18 @@ for cnt1 in range(50):
             dx = Exx*Eyy-Exy*Exy
             dy = Exx*Eyy-Exy*Exy
             D = Exx*Eyy-Exy*Exy
-            # 行列を計算すれば出てくる
+            # 行列計算
             dx = - (Eyy*Ex-Exy*Ey)/D
             dy = -(-Exy*Ex+Exx*Ey)/D
 
             pos[max_i][0] += dx
             pos[max_i][1] += dy
+            pos[max_i] = dorakue(pos[max_i])
 
             pos = shift_flat(pos, diff_x, diff_y, node_len)
 
 pos0 = [(x, y) for x, y in pos]
+
 center_idx = 0
 min_edge_len = float("inf")
 # 最適な中心を選ぶ
@@ -176,9 +170,7 @@ for i in range(node_len):
         dx = pos[u][0] - pos[v][0]
         dy = pos[u][1] - pos[v][1]
         return (dx ** 2 + dy ** 2) ** 0.5
-
     max_edge_len = max(dist(node2num[u], node2num[v]) for u, v in graph.edges)
-
     if min_edge_len > max_edge_len:
         min_edge_len = max_edge_len
         center_idx = i
@@ -187,7 +179,6 @@ for i in range(node_len):
 
 fin_pos = shift_center(pos, center_idx, node_len)
 
-print(center_idx)
 
 dict_pos = {}
 cnt = 0
@@ -208,10 +199,10 @@ G.add_edges_from(graph.edges)
 
 plt.figure(figsize=(12, 12))
 nx.draw_networkx(G, dict_pos, False)
-plt.savefig('kame_result.png')
+plt.savefig('result.png')
 plt.show()
 
 plt.figure(figsize=(12, 12))
 nx.draw_networkx(G, fin_dict_pos, False)
-plt.savefig('kame_result_replace.png')
+plt.savefig('result2.png')
 plt.show()

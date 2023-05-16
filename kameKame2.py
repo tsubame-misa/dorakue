@@ -119,87 +119,56 @@ Delta = [0]*node_len
 
 max_i = calc_delta(pos, Delta, k, l, node_len)
 
+eps = 1.e-2
+while Delta[max_i] > eps:
+    for i in range(20):
+        Exx = 0
+        Exy = 0
+        Eyy = 0
+        Ex = 0
+        Ey = 0
+        diff_x = pos[max_i][0]-width/2
+        diff_y = pos[max_i][1]-height/2
+        pos = shift_center(pos, max_i, node_len)
+        for i in range(node_len):
+            if i == max_i:
+                continue
+            norm = math.sqrt((pos[max_i][0]-pos[i][0]) **
+                             2 + (pos[max_i][1]-pos[i][1])**2)
+            dx_mi = pos[max_i][0]-pos[i][0]
+            dy_mi = pos[max_i][1]-pos[i][1]
 
-for cnt1 in range(50):
-    print(cnt1)
-    # 全てのノードに対して中心に持ってきて動かす
-    for max_i in range(node_len):
-        for cnt2 in range(20):
-            Exx = 0
-            Exy = 0
-            Eyy = 0
-            Ex = 0
-            Ey = 0
-            diff_x = pos[max_i][0]-width/2
-            diff_y = pos[max_i][1]-height/2
-            pos = shift_center(pos, max_i, node_len)
-            for i in range(node_len):
-                if i == max_i:
-                    continue
-                norm = math.sqrt((pos[max_i][0]-pos[i][0]) **
-                                 2 + (pos[max_i][1]-pos[i][1])**2)
-                dx_mi = pos[max_i][0]-pos[i][0]
-                dy_mi = pos[max_i][1]-pos[i][1]
+            Ex += k[max_i][i]*dx_mi*(1.0-l[max_i][i]/norm)
+            Ey += k[max_i][i]*dy_mi*(1.0-l[max_i][i]/norm)
 
-                Ex += k[max_i][i]*dx_mi*(1.0-l[max_i][i]/norm)
-                Ey += k[max_i][i]*dy_mi*(1.0-l[max_i][i]/norm)
+            Exy += k[max_i][i]*l[max_i][i]*dx_mi*dy_mi/(norm*norm*norm)
+            Exx += k[max_i][i]*(1.0-l[max_i][i]*dy_mi *
+                                dy_mi/(norm*norm*norm))
+            Eyy += k[max_i][i]*(1.0-l[max_i][i]*dx_mi *
+                                dx_mi/(norm*norm*norm))
 
-                Exy += k[max_i][i]*l[max_i][i]*dx_mi*dy_mi/(norm*norm*norm)
-                Exx += k[max_i][i]*(1.0-l[max_i][i]*dy_mi *
-                                    dy_mi/(norm*norm*norm))
-                Eyy += k[max_i][i]*(1.0-l[max_i][i]*dx_mi *
-                                    dx_mi/(norm*norm*norm))
+        # ヘッセ行列=Exx*Eyy-Exy*Exy
+        dx = Exx*Eyy-Exy*Exy
+        dy = Exx*Eyy-Exy*Exy
+        D = Exx*Eyy-Exy*Exy
+        # 行列を計算すれば出てくる
+        dx = - (Eyy*Ex-Exy*Ey)/D
+        dy = -(-Exy*Ex+Exx*Ey)/D
 
-            # ヘッセ行列=Exx*Eyy-Exy*Exy
-            dx = Exx*Eyy-Exy*Exy
-            dy = Exx*Eyy-Exy*Exy
-            D = Exx*Eyy-Exy*Exy
-            # 行列を計算すれば出てくる
-            dx = - (Eyy*Ex-Exy*Ey)/D
-            dy = -(-Exy*Ex+Exx*Ey)/D
+        pos[max_i][0] += dx
+        pos[max_i][1] += dy
 
-            pos[max_i][0] += dx
-            pos[max_i][1] += dy
+        pos = shift_flat(pos, diff_x, diff_y, node_len)
+    max_i = calc_delta(pos, Delta, k, l, node_len)
+    print(Delta[max_i])
 
-            pos = shift_flat(pos, diff_x, diff_y, node_len)
-
-pos0 = [(x, y) for x, y in pos]
-center_idx = 0
-min_edge_len = float("inf")
-# 最適な中心を選ぶ
-for i in range(node_len):
-    diff_x = pos[i][0]-width/2
-    diff_y = pos[i][1]-height/2
-    pos = shift_center(pos, i, node_len)
-
-    def dist(u, v):
-        dx = pos[u][0] - pos[v][0]
-        dy = pos[u][1] - pos[v][1]
-        return (dx ** 2 + dy ** 2) ** 0.5
-
-    max_edge_len = max(dist(node2num[u], node2num[v]) for u, v in graph.edges)
-
-    if min_edge_len > max_edge_len:
-        min_edge_len = max_edge_len
-        center_idx = i
-
-    pos = shift_flat(pos, diff_x, diff_y, node_len)
-
-fin_pos = shift_center(pos, center_idx, node_len)
-
-print(center_idx)
 
 dict_pos = {}
 cnt = 0
 for node in graph.nodes:
-    dict_pos[node] = pos0[cnt]
+    dict_pos[node] = pos[cnt]
     cnt += 1
 
-fin_dict_pos = {}
-cnt = 0
-for node in graph.nodes:
-    fin_dict_pos[node] = fin_pos[cnt]
-    cnt += 1
 
 G = nx.DiGraph()
 
@@ -209,9 +178,4 @@ G.add_edges_from(graph.edges)
 plt.figure(figsize=(12, 12))
 nx.draw_networkx(G, dict_pos, False)
 plt.savefig('kame_result.png')
-plt.show()
-
-plt.figure(figsize=(12, 12))
-nx.draw_networkx(G, fin_dict_pos, False)
-plt.savefig('kame_result_replace.png')
 plt.show()

@@ -7,7 +7,8 @@ import glob
 import random
 import math
 
-# 勾配ベクトルの一番長いもの(終了条件で使う予定だったけど使ってない)
+# この値一番ストレス(2点間の距離？)がでかいノードを調べてる？
+# 勾配ベクトルの一番長いもの
 
 
 def calc_delta(pos, Delta, k, l, node_len):
@@ -37,9 +38,23 @@ def calc_delta(pos, Delta, k, l, node_len):
 def shift_center(pos, max_i, node_len):
     diff_x = pos[max_i][0]-width/2
     diff_y = pos[max_i][1]-height/2
+    # ここをドラクエにする
     for i in range(node_len):
         pos[i][0] -= diff_x
         pos[i][1] -= diff_y
+
+        # if pos[i][0] < 0 or pos[i][0] > width or pos[i][1] < 0 or pos[i][1] > height:
+        #     print("to center", pos[i])
+
+        if pos[i][0] < 0:
+            pos[i][0] = width+pos[i][0]
+        elif pos[i][0] > width:
+            pos[i][0] = pos[i][0]-width
+
+        if pos[i][1] < 0:
+            pos[i][1] = height+pos[i][1]
+        elif pos[i][1] > height:
+            pos[i][1] = pos[i][1]-height
     return pos
 
 
@@ -47,15 +62,34 @@ def shift_flat(pos, diff_x, diff_y, node_len):
     for i in range(node_len):
         pos[i][0] += diff_x
         pos[i][1] += diff_y
+
+        # if pos[i][0] < 0 or pos[i][0] > width or pos[i][1] < 0 or pos[i][1] > height:
+        #     print("replace", pos[i])
+
+        if pos[i][0] < 0:
+            pos[i][0] = width+pos[i][0]
+        elif pos[i][0] > width:
+            pos[i][0] = pos[i][0]-width
+
+        if pos[i][1] < 0:
+            pos[i][1] = height+pos[i][1]
+        elif pos[i][1] > height:
+            pos[i][1] = pos[i][1]-height
     return pos
 
 
-height = 800
-width = 800
-edge_len = 100
+height = 500
+width = 500
 
 filename = './graph/les_miserables.json'
 graph = json_graph.node_link_graph(json.load(open(filename)))
+
+
+print(graph)
+# ノードの一覧
+print(graph.nodes)
+# エッジの一覧
+print(graph.edges)
 
 node_len = len(graph.nodes)
 
@@ -74,8 +108,8 @@ for x_node, y_node in graph.edges:
     # 重みがないので1
     x = node2num[x_node]
     y = node2num[y_node]
-    d[x][y] = edge_len
-    d[y][x] = edge_len
+    d[x][y] = 100
+    d[y][x] = 100
 
 # ワーシャルフロイド(最短経路)
 for k in range(node_len):
@@ -120,19 +154,25 @@ Delta = [0]*node_len
 max_i = calc_delta(pos, Delta, k, l, node_len)
 
 
-for cnt1 in range(50):
+# 終了条件
+cnt1 = 50
+while cnt1 > 0:
     print(cnt1)
     # 全てのノードに対して中心に持ってきて動かす
     for max_i in range(node_len):
-        for cnt2 in range(20):
+        cnt2 = 20
+        while cnt2 > 0:
             Exx = 0
             Exy = 0
             Eyy = 0
             Ex = 0
             Ey = 0
+            # print(max_i)
+            # max_iを中心に持ってくる
             diff_x = pos[max_i][0]-width/2
             diff_y = pos[max_i][1]-height/2
             pos = shift_center(pos, max_i, node_len)
+            #
             for i in range(node_len):
                 if i == max_i:
                     continue
@@ -154,36 +194,63 @@ for cnt1 in range(50):
             dx = Exx*Eyy-Exy*Exy
             dy = Exx*Eyy-Exy*Exy
             D = Exx*Eyy-Exy*Exy
-            # 行列を計算すれば出てくる
+            # これがわからん
             dx = - (Eyy*Ex-Exy*Ey)/D
             dy = -(-Exy*Ex+Exx*Ey)/D
 
+            """
+            中心にずらした分をともとに戻す必要ってある？
+            """
+
+            # ドラクエしないといけないその2?
             pos[max_i][0] += dx
             pos[max_i][1] += dy
 
+            # if pos[i][0] < 0 or pos[i][0] > width or pos[i][1] < 0 or pos[i][1] > height:
+            #     print("add pos", pos[i])
+
+            if pos[max_i][0] < 0:
+                pos[max_i][0] = width+pos[max_i][0]
+            elif pos[max_i][0] > width:
+                pos[max_i][0] = pos[max_i][0]-width
+
+            if pos[max_i][1] < 0:
+                pos[max_i][1] = height+pos[max_i][1]
+            elif pos[max_i][1] > height:
+                pos[max_i][1] = pos[max_i][1]-height
+
             pos = shift_flat(pos, diff_x, diff_y, node_len)
 
+            Delta[max_i] = math.sqrt(Ex*Ex+Ey*Ey)
+            cnt2 -= 1
+    cnt1 -= 1
+
 pos0 = [(x, y) for x, y in pos]
+m_pos = pos
 center_idx = 0
 min_edge_len = float("inf")
 # 最適な中心を選ぶ
 for i in range(node_len):
     diff_x = pos[i][0]-width/2
     diff_y = pos[i][1]-height/2
-    pos = shift_center(pos, i, node_len)
+    m_pos = shift_center(m_pos, i, node_len)
 
     def dist(u, v):
         dx = pos[u][0] - pos[v][0]
         dy = pos[u][1] - pos[v][1]
         return (dx ** 2 + dy ** 2) ** 0.5
-
     max_edge_len = max(dist(node2num[u], node2num[v]) for u, v in graph.edges)
-
+    # max_edge_len = 0
+    # for j in range(node_len):
+    #     edge_len = math.sqrt((pos[i][0]-pos[j][0]) **
+    #                          2 + (pos[i][1]-pos[j][1])**2)
+    #     if max_edge_len < edge_len:
+    #         max_edge_len = edge_len
     if min_edge_len > max_edge_len:
         min_edge_len = max_edge_len
         center_idx = i
 
-    pos = shift_flat(pos, diff_x, diff_y, node_len)
+    m_pos = shift_flat(m_pos, diff_x, diff_y, node_len)
 
 fin_pos = shift_center(pos, center_idx, node_len)
 
@@ -208,10 +275,16 @@ G.add_edges_from(graph.edges)
 
 plt.figure(figsize=(12, 12))
 nx.draw_networkx(G, dict_pos, False)
-plt.savefig('kame_result.png')
+plt.savefig('result.png')
 plt.show()
 
 plt.figure(figsize=(12, 12))
 nx.draw_networkx(G, fin_dict_pos, False)
-plt.savefig('kame_result_replace.png')
+plt.savefig('result2.png')
 plt.show()
+
+# nx.draw_networkx(G, fin_dict_pos, False)
+# plt.show()
+
+# nx.draw_networkx(G)
+# plt.show()
