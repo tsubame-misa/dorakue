@@ -6,6 +6,40 @@ from networkx.readwrite import json_graph
 import glob
 import random
 import math
+import plotly.express as px
+from sklearn import preprocessing
+
+
+"""
+K, Lを除いた版も試してみる？
+"""
+
+# 理想の長さと実際の長さ  sum(d[u][v]-dist(u, v) )**2
+
+
+def calc_delta(pos,  k, l, node_len):
+    Delta = [0]*node_len
+    for i in range(node_len):
+        Ex = 0
+        Ey = 0
+        # 中心に持ってきてから
+        diff_x = pos[i][0]-width/2
+        diff_y = pos[i][1]-height/2
+        pos = shift_center(pos, i, node_len)
+        for j in range(node_len):
+            if i == j:
+                continue
+            norm = math.sqrt((pos[i][0]-pos[j][0]) **
+                             2 + (pos[i][1]-pos[j][1])**2)
+            dx_ij = pos[i][0]-pos[j][0]
+            dy_ij = pos[i][1]-pos[j][1]
+
+            Ex += k[i][j]*dx_ij*(1.0-l[i][j]/norm)
+            Ey += k[i][j]*dy_ij*(1.0-l[i][j]/norm)
+        Delta[i] = math.sqrt(Ex*Ex+Ey*Ey)
+        pos = shift_flat(pos, diff_x, diff_y, node_len)
+
+    return Delta
 
 
 def dorakue(pos):
@@ -96,8 +130,8 @@ for i in range(node_len):
         l[i][j] = d[i][j]
         k[i][j] = 1/(d[i][j]*d[i][j])
 
-height = maxd*2
-width = maxd*2
+height = maxd*1.5
+width = maxd*1.5
 
 print("width,height", width)
 
@@ -179,6 +213,15 @@ for i in range(node_len):
 
 fin_pos = shift_center(pos, center_idx, node_len)
 
+delta = calc_delta(pos,  k, l, node_len)
+delta01 = preprocessing.minmax_scale(delta).tolist()
+list_colors = px.colors.sequential.Plasma
+node_color = []
+for i in range(node_len):
+    c_idx = int(delta01[i]*10)
+    if c_idx >= len(list_colors):
+        c_idx = len(list_colors)-1
+    node_color.append(list_colors[c_idx])
 
 dict_pos = {}
 cnt = 0
@@ -192,17 +235,21 @@ for node in graph.nodes:
     fin_dict_pos[node] = fin_pos[cnt]
     cnt += 1
 
+# dist_score = sum((d[node2num[u]][node2num[v]] -
+#                  dist(node2num[u], node2num[v])for u, v in graph.edges))
+
+
 G = nx.DiGraph()
 
 G.add_nodes_from(graph.nodes)
 G.add_edges_from(graph.edges)
 
-plt.figure(figsize=(12, 12))
-nx.draw_networkx(G, dict_pos, False)
-plt.savefig('result.png')
-plt.show()
+# plt.figure(figsize=(12, 12))
+# nx.draw_networkx(G, dict_pos, False, node_color=node_color)
+# plt.savefig('result.png')
+# plt.show()
 
 plt.figure(figsize=(12, 12))
-nx.draw_networkx(G, fin_dict_pos, False)
+nx.draw_networkx(G, fin_dict_pos, False, node_color=node_color)
 plt.savefig('result2.png')
 plt.show()

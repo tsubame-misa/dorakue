@@ -6,6 +6,14 @@ from networkx.readwrite import json_graph
 import glob
 import random
 import math
+import plotly.express as px
+from sklearn import preprocessing
+
+
+"""
+中心に寄せてからのやつはやらない
+
+"""
 
 # 勾配ベクトルの一番長いもの(終了条件で使う予定だったけど使ってない)
 
@@ -32,22 +40,6 @@ def calc_delta(pos, Delta, k, l, node_len):
             max_delta = Delta[i]
             max_i = i
     return max_i
-
-
-def shift_center(pos, max_i, node_len):
-    diff_x = pos[max_i][0]-width/2
-    diff_y = pos[max_i][1]-height/2
-    for i in range(node_len):
-        pos[i][0] -= diff_x
-        pos[i][1] -= diff_y
-    return pos
-
-
-def shift_flat(pos, diff_x, diff_y, node_len):
-    for i in range(node_len):
-        pos[i][0] += diff_x
-        pos[i][1] += diff_y
-    return pos
 
 
 height = 800
@@ -120,7 +112,7 @@ Delta = [0]*node_len
 max_i = calc_delta(pos, Delta, k, l, node_len)
 
 
-for cnt1 in range(50):
+for cnt1 in range(10):
     print(cnt1)
     # 全てのノードに対して中心に持ってきて動かす
     for max_i in range(node_len):
@@ -130,9 +122,7 @@ for cnt1 in range(50):
             Eyy = 0
             Ex = 0
             Ey = 0
-            diff_x = pos[max_i][0]-width/2
-            diff_y = pos[max_i][1]-height/2
-            pos = shift_center(pos, max_i, node_len)
+
             for i in range(node_len):
                 if i == max_i:
                     continue
@@ -161,7 +151,6 @@ for cnt1 in range(50):
             pos[max_i][0] += dx
             pos[max_i][1] += dy
 
-            pos = shift_flat(pos, diff_x, diff_y, node_len)
 
 pos0 = [(x, y) for x, y in pos]
 center_idx = 0
@@ -170,7 +159,6 @@ min_edge_len = float("inf")
 for i in range(node_len):
     diff_x = pos[i][0]-width/2
     diff_y = pos[i][1]-height/2
-    pos = shift_center(pos, i, node_len)
 
     def dist(u, v):
         dx = pos[u][0] - pos[v][0]
@@ -183,9 +171,19 @@ for i in range(node_len):
         min_edge_len = max_edge_len
         center_idx = i
 
-    pos = shift_flat(pos, diff_x, diff_y, node_len)
 
-fin_pos = shift_center(pos, center_idx, node_len)
+calc_delta(pos, Delta, k, l, node_len)
+delta01 = preprocessing.minmax_scale(Delta).tolist()
+list_colors = px.colors.sequential.Plasma
+node_color = []
+print("delta01", delta01)
+print(list_colors)
+for i in range(node_len):
+    c_idx = int(delta01[i]*10)
+    print(c_idx)
+    if c_idx >= len(list_colors):
+        c_idx = len(list_colors)-1
+    node_color.append(list_colors[c_idx])
 
 print(center_idx)
 
@@ -195,11 +193,6 @@ for node in graph.nodes:
     dict_pos[node] = pos0[cnt]
     cnt += 1
 
-fin_dict_pos = {}
-cnt = 0
-for node in graph.nodes:
-    fin_dict_pos[node] = fin_pos[cnt]
-    cnt += 1
 
 G = nx.DiGraph()
 
@@ -207,11 +200,6 @@ G.add_nodes_from(graph.nodes)
 G.add_edges_from(graph.edges)
 
 plt.figure(figsize=(12, 12))
-nx.draw_networkx(G, dict_pos, False)
+nx.draw_networkx(G, dict_pos, False, node_color=node_color)
 plt.savefig('kame_result.png')
-plt.show()
-
-plt.figure(figsize=(12, 12))
-nx.draw_networkx(G, fin_dict_pos, False)
-plt.savefig('kame_result_replace.png')
 plt.show()
