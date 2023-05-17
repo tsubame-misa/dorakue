@@ -5,47 +5,50 @@ import networkx as nx
 from networkx.readwrite import json_graph
 import glob
 
-files = glob.glob("./tmp/*")
-for file in files:
-    print(file)
+# files = glob.glob("./tmp/*")
+# for file in files:
+#     print(file)
 
-filename = 'graph/bull.json'
-graph = json_graph.node_link_graph(json.load(open(filename)))
+# filename = 'graph/bull.json'
+# graph = json_graph.node_link_graph(json.load(open(filename)))
 
-print(graph)
-# ノードの一覧
-print(graph.nodes)
-# エッジの一覧
-print(graph.edges)
-
-
-G = nx.DiGraph()
-
-G.add_nodes_from(graph.nodes)
-G.add_edges_from(graph.edges)
-
-nx.draw_networkx(G)
-plt.show()
+# print(graph)
+# # ノードの一覧
+# print(graph.nodes)
+# # エッジの一覧
+# print(graph.edges)
 
 
 # G = nx.DiGraph()
-# nx.add_path(G, [3, 5, 4, 1, 0, 2, 7, 8, 9, 6])
-# nx.add_path(G, [3, 0, 6, 4, 2, 7, 1, 9, 8, 5])
 
+# G.add_nodes_from(graph.nodes)
+# G.add_edges_from(graph.edges)
 
-# pos = dict()
-
-# for i in range(10):
-#     pos[i] = [i, i]
-
-# print(pos)
-
-# nx.draw_networkx(G, pos)
+# nx.draw_networkx(G)
 # plt.show()
 
-# G = nx.path_graph(4)
-# pos = nx.circular_layout(G)
-# print(pos)
+
+G = nx.DiGraph()
+nx.add_path(G, [3, 5, 4, 1, 0, 2, 7, 8, 9, 6])
+nx.add_path(G, [3, 0, 6, 4, 2, 7, 1, 9, 8, 5])
+
+
+pos = dict()
+
+for i in range(10):
+    pos[i] = [i, i]
+
+pos[0][0] = - 5
+pos[0][1] = -5
+
+print(pos)
+
+nx.draw_networkx(G, pos)
+plt.show()
+
+G = nx.path_graph(4)
+pos = nx.circular_layout(G)
+print(pos)
 
 
 """
