@@ -6,10 +6,13 @@ import datetime
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import json
+import random
+
 
 list_colors = px.colors.sequential.Plasma
 image_path = []
 log = dict()
+pos = []
 
 
 def add_log(key, value):
@@ -27,6 +30,7 @@ def get_time():
 def clear():
     images = []
     log = dict()
+    pos = []
 
 
 def create_compare_fig(time):
@@ -137,3 +141,18 @@ def draw_graph(graph, pos, delta, edge_score, node_len, dir_name, width, height)
     dict_pos = convert_graph_dict(graph.nodes, pos)
     create_and_save_graph(graph, dict_pos,  node_color, edge_color,
                           dir_name, width, height)
+
+
+def init_pos(node_len, width, height):
+    L0 = 1
+    for i in range(node_len):
+        x = L0*random.uniform(0, width)
+        y = L0*random.uniform(0, height)
+        pos.append([x, y])
+
+
+def get_pos(node_len, width, height):
+    if len(pos) == 0:
+        init_pos(node_len, width, height)
+    pos0 = [[x, y] for x, y in pos]
+    return pos0

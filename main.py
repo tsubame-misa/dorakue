@@ -1,12 +1,5 @@
-import matplotlib.pyplot as plt
-import networkx as nx
 import json
-import networkx as nx
 from networkx.readwrite import json_graph
-import random
-import math
-import plotly.express as px
-from sklearn import preprocessing
 from dorakue import dorakue_choice_center
 from dorakue_bfs import dorakue_bfs
 from kameKame import kamada_kawai
@@ -35,5 +28,7 @@ kamada_kawai(graph, width, height)
 print()
 
 time = common.get_time()
+common.add_log("width", width)
+common.add_log("height", height)
 common.create_log(time)
 common.create_compare_fig(time)

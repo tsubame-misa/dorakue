@@ -2,6 +2,8 @@ import random
 import math
 import common
 
+random.seed(314)
+
 
 def kamada_kawai(graph, _width=None, _height=None):
 
@@ -86,11 +88,12 @@ def kamada_kawai(graph, _width=None, _height=None):
             k[i][j] = 1/(d[i][j]*d[i][j])
 
     # posの初期化(ランダム)
-    pos = []
-    for i in range(node_len):
-        x = L0*random.uniform(0, width)
-        y = L0*random.uniform(0, height)
-        pos.append([x, y])
+    # pos = []
+    # for i in range(node_len):
+    #     x = L0*random.uniform(0, width)
+    #     y = L0*random.uniform(0, height)
+    #     pos.append([x, y])
+    pos = common.get_pos(node_len, width, height)
 
     Delta = [0]*node_len
 
