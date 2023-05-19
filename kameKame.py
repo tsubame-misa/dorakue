@@ -14,7 +14,6 @@ def kamada_kawai(graph, _width=None, _height=None):
         max_delta = 0
         max_i = 0
         for i in range(node_len):
-            # node[i]のストレスを出してるであってる？
             Ex = 0
             Ey = 0
             for j in range(node_len):
@@ -135,18 +134,12 @@ def kamada_kawai(graph, _width=None, _height=None):
                 pos[max_i][0] += dx
                 pos[max_i][1] += dy
 
-    # ノード、エッジの色
     calc_delta(pos, Delta, k, l, node_len)
-    node_color = common.get_color(Delta, node_len)
     edge_score = [(d[node2num[u]][node2num[v]] -
                    dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
-    edge_color = common.get_color(edge_score, node_len)
-    # グラフ描画
-    fin_dict_pos = common.convert_graph_dict(graph.nodes, pos)
-    common.create_and_save_graph(graph, fin_dict_pos,  node_color, edge_color,
-                                 'kamada_kawai')
+    common.draw_graph(graph, pos, Delta, edge_score,
+                      node_len, "kamada_kawai", width, height)
+    kame_log = common.calc_evaluation_values(Delta, edge_score)
+    print(kame_log)
 
-    dist_score = [(d[node2num[u]][node2num[v]] -
-                   dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
-
-    return common.calc_evaluation_values(Delta, dist_score)
+    common.add_log("kamada_kawai", kame_log)

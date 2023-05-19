@@ -37,6 +37,30 @@ def dorakue_bfs(graph, _width=None, _height=None):
 
         return Delta
 
+    def calc_delta_around(pos,  k, l, node_len, width, height):
+        Delta = [0]*node_len
+        for i in range(node_len):
+            Ex = 0
+            Ey = 0
+            diff_x, diff_y, pos = shift_center(pos, i, node_len)
+            for j in range(node_len):
+                if i == j:
+                    continue
+                norm = math.sqrt((pos[i][0]-pos[j][0]) **
+                                 2 + (pos[i][1]-pos[j][1])**2)
+
+                dx_ij = pos[i][0] - ((pos[j][0]-(pos[i][0]-width/2) +
+                                      width) % width+(pos[j][0]-width/2))
+                dy_ij = pos[i][1] - ((pos[j][1]-(pos[i][1]-height/2) +
+                                      height) % height+(pos[i][1]-height/2))
+
+                Ex += k[i][j]*dx_ij*(1.0-l[i][j]/norm)
+                Ey += k[i][j]*dy_ij*(1.0-l[i][j]/norm)
+            Delta[i] = math.sqrt(Ex*Ex+Ey*Ey)
+            pos = shift_flat(pos, diff_x, diff_y, node_len)
+
+        return Delta
+
     def dorakue(pos):
         if pos[0] < 0:
             pos[0] = width+pos[0]
@@ -103,18 +127,15 @@ def dorakue_bfs(graph, _width=None, _height=None):
                 d[i][j] = min(d[i][j], d[i][k]+d[k][j])
 
     maxd = 0
-    mind = float("inf")
     for i in range(node_len):
         for j in range(i, node_len):
             if maxd < d[i][j]:
                 maxd = d[i][j]
 
     L0 = 1
-    L = L0/maxd
     # 隣接行列の初期化
     l = [[0]*node_len for i in range(node_len)]
 
-    K = 10
     # 隣接行列の初期化
     k = [[0]*node_len for i in range(node_len)]
 
@@ -182,8 +203,6 @@ def dorakue_bfs(graph, _width=None, _height=None):
 
                 pos = shift_flat(pos, diff_x, diff_y, node_len)
 
-    # pos0 = [(x, y) for x, y in pos]
-
     q = [0]
     visited = [0]
     while len(q) > 0:
@@ -197,45 +216,26 @@ def dorakue_bfs(graph, _width=None, _height=None):
                 visited.append(v)
                 q.append(v)
 
-    for v in range(node_len):
-        if pos[v][0] < 0 or pos[v][0] > width or pos[v][1] < 0 or pos[v][1] > height:
-            print(pos[v])
-            break
-
     pos0 = [[x, y] for x, y in pos]
+    pos1 = [[x, y] for x, y in pos]
 
-    # ノード、エッジの色
-    delta = calc_delta(pos0,  k, l, node_len)
-    node_color = common.get_color(delta, node_len)
+    print("around")
+    delta = calc_delta_around(pos0,  k, l, node_len, width, height)
+    edge_score = [(d[node2num[u]][node2num[v]] -
+                   common.dist_around(pos, node2num[u], node2num[v], width, height))**2 for u, v in graph.edges]
+    common.draw_graph(graph, pos, delta, edge_score,
+                      node_len, "dorakue_bfs_around", width, height)
+    bfs_around_log = common.calc_evaluation_values(delta, edge_score)
+    print(bfs_around_log)
+
+    print("normal")
+    delta = calc_delta(pos1,  k, l, node_len)
     edge_score = [(d[node2num[u]][node2num[v]] -
                    dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
-    edge_color = common.get_color(edge_score, node_len)
+    common.draw_graph(graph, pos, delta, edge_score,
+                      node_len, "dorakue_bfs", width, height)
+    bfs_log = common.calc_evaluation_values(delta, edge_score)
+    print(bfs_log)
 
-    for v in range(node_len):
-        if pos[v][0] < 0 or pos[v][0] > width or pos[v][1] < 0 or pos[v][1] > height:
-            print("!", pos[v], v)
-            node_color[v] = "#ff0000"
-            break
-
-    for i in range(node_len):
-        pos[i][0] += width
-        pos[i][1] += height
-
-        # グラフ描画
-    fin_dict_pos = common.convert_graph_dict(graph.nodes, pos)
-    common.create_and_save_graph(graph, fin_dict_pos,  node_color, edge_color,
-                                 'dorakue_bfs')
-
-    fin_dict_pos = common.convert_graph_dict(graph.nodes, pos0)
-    common.create_and_save_graph(graph, fin_dict_pos,  node_color, edge_color,
-                                 'dorakue_bfs')
-
-    dist_score = [(d[node2num[u]][node2num[v]] -
-                   common.dist_around(pos, node2num[u], node2num[v], width, height))**2 for u, v in graph.edges]
-    delta = calc_delta(pos,  k, l, node_len)
-    print("足した後", common.calc_evaluation_values(delta, dist_score))
-
-    dist_score = [(d[node2num[u]][node2num[v]] -
-                   dist(pos0, node2num[u], node2num[v]))**2 for u, v in graph.edges]
-    delta = calc_delta(pos0,  k, l, node_len)
-    return common.calc_evaluation_values(delta, dist_score)
+    common.add_log("bfs_around", bfs_around_log)
+    common.add_log("bfs", bfs_log)

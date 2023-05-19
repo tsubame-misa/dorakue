@@ -3,25 +3,70 @@ import networkx as nx
 import plotly.express as px
 from sklearn import preprocessing
 import datetime
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import json
 
 list_colors = px.colors.sequential.Plasma
+image_path = []
+log = dict()
 
 
-def create_and_save_graph(graph, pos, node_color, edge_color, dir_name):
+def add_log(key, value):
+    log[key] = value
+
+
+def get_time():
+    t_delta = datetime.timedelta(hours=9)
+    JST = datetime.timezone(t_delta, 'JST')
+    now = datetime.datetime.now(JST)
+    d = now.strftime('%Y%m%d%H%M%S')
+    return d
+
+
+def clear():
+    images = []
+    log = dict()
+
+
+def create_compare_fig(time):
+    fig = plt.figure(figsize=(12, 12))
+    for i in range(len(image_path)):
+        ax = fig.add_subplot(2, 3, i+1)
+
+        title = image_path[i].split("/")
+        ax.set_title(title[2], fontsize=10)
+        ax.axes.xaxis.set_visible(False)  # X軸を非表示に
+        ax.axes.yaxis.set_visible(False)  # Y軸を非表示に
+
+        img = mpimg.imread(image_path[i])
+        plt.imshow(img)
+
+        size = title[3].split("x")
+    img_path = './result/compare/' + size[0] + time + '.png'
+    plt.savefig(img_path)
+    plt.show()
+
+
+def create_log(time):
+    with open("./result/log/" + time + ".json", "w") as f:
+        json.dump(log, f)
+
+
+def create_and_save_graph(graph, pos, node_color, edge_color, dir_name, width, height, name=None):
     G = nx.DiGraph()
 
     G.add_nodes_from(graph.nodes)
     G.add_edges_from(graph.edges)
 
-    t_delta = datetime.timedelta(hours=9)
-    JST = datetime.timezone(t_delta, 'JST')
-    now = datetime.datetime.now(JST)
-    d = now.strftime('%Y%m%d%H%M%S')
-
     plt.figure(figsize=(12, 12))
     nx.draw_networkx(G, pos, False,
                      node_color=node_color, edge_color=edge_color)
-    plt.savefig('./result/' + dir_name + '/' + d + '.png')
+
+    img_path = './result/' + dir_name + '/' + \
+        str(width) + 'x' + str(height) + '-' + get_time() + '.png'
+    plt.savefig(img_path)
+    image_path.append(img_path)
 
 
 def calc_mean(array):
@@ -71,9 +116,24 @@ def dist_around(pos, u, v, width, height):
     dy = pos[u][1] - pos[v][1]
     dist = (dx ** 2 + dy ** 2) ** 0.5
 
-    ax = (pos[v][0]-(pos[u][0]-width/2) +
-          width) % width+(pos[u][0]-width/2)
-    ay = (pos[v][1]-(pos[u][1]-height/2) +
-          height) % height+(pos[u][1]-height/2)
+    ax = pos[u][0] - ((pos[v][0]-(pos[u][0]-width/2) +
+                       width) % width+(pos[u][0]-width/2))
+    ay = pos[u][1] - ((pos[v][1]-(pos[u][1]-height/2) +
+                       height) % height+(pos[u][1]-height/2))
     adist = (ax ** 2 + ay ** 2) ** 0.5
     return min(dist, adist)
+
+
+def dist(pos, u, v):
+    dx = pos[u][0] - pos[v][0]
+    dy = pos[u][1] - pos[v][1]
+    return (dx ** 2 + dy ** 2) ** 0.5
+
+
+def draw_graph(graph, pos, delta, edge_score, node_len, dir_name, width, height):
+    node_color = get_color(delta, node_len)
+    edge_color = get_color(edge_score, node_len)
+    # グラフ描画
+    dict_pos = convert_graph_dict(graph.nodes, pos)
+    create_and_save_graph(graph, dict_pos,  node_color, edge_color,
+                          dir_name, width, height)

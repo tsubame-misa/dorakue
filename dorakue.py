@@ -31,6 +31,29 @@ def dorakue_choice_center(graph, _width=None, _height=None):
 
         return Delta
 
+    def calc_delta_around(pos,  k, l, node_len, width, height):
+        Delta = [0]*node_len
+        for i in range(node_len):
+            Ex = 0
+            Ey = 0
+            diff_x, diff_y, pos = shift_center(pos, i, node_len)
+            for j in range(node_len):
+                if i == j:
+                    continue
+                norm = math.sqrt((pos[i][0]-pos[j][0]) **
+                                 2 + (pos[i][1]-pos[j][1])**2)
+
+                dx_ij = pos[i][0] - ((pos[j][0]-(pos[i][0]-width/2) +
+                                      width) % width+(pos[j][0]-width/2))
+                dy_ij = pos[i][1] - ((pos[j][1]-(pos[i][1]-height/2) +
+                                      height) % height+(pos[i][1]-height/2))
+
+                Ex += k[i][j]*dx_ij*(1.0-l[i][j]/norm)
+                Ey += k[i][j]*dy_ij*(1.0-l[i][j]/norm)
+            Delta[i] = math.sqrt(Ex*Ex+Ey*Ey)
+            pos = shift_flat(pos, diff_x, diff_y, node_len)
+        return Delta
+
     def dorakue(pos):
         if pos[0] < 0:
             pos[0] = width+pos[0]
@@ -188,18 +211,26 @@ def dorakue_choice_center(graph, _width=None, _height=None):
 
     diff_x, diff_y, fin_pos = shift_center(pos, center_idx, node_len)
 
-    # ノード、エッジの色
-    delta = calc_delta(pos,  k, l, node_len)
-    node_color = common.get_color(delta, node_len)
+    pos0 = [[x, y] for x, y in fin_pos]
+    pos1 = [[x, y] for x, y in fin_pos]
+
+    print("around")
+    delta = calc_delta_around(pos0,  k, l, node_len, width, height)
     edge_score = [(d[node2num[u]][node2num[v]] -
-                   dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
-    edge_color = common.get_color(edge_score, node_len)
-    # グラフ描画
-    fin_dict_pos = common.convert_graph_dict(graph.nodes, fin_pos)
-    common.create_and_save_graph(graph, fin_dict_pos,  node_color, edge_color,
-                                 'dorakue_choice_center')
+                   common.dist_around(fin_pos, node2num[u], node2num[v], width, height))**2 for u, v in graph.edges]
+    common.draw_graph(graph, fin_pos, delta, edge_score,
+                      node_len, "dorakue_center_around", width, height)
+    center_around_log = common.calc_evaluation_values(delta, edge_score)
+    print(center_around_log)
 
-    dist_score = [(d[node2num[u]][node2num[v]] -
-                   dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
+    print("normal")
+    delta = calc_delta(pos1,  k, l, node_len)
+    edge_score = [(d[node2num[u]][node2num[v]] -
+                   dist(fin_pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
+    common.draw_graph(graph, fin_pos, delta, edge_score,
+                      node_len, "dorakue_center", width, height)
+    center_log = common.calc_evaluation_values(delta, edge_score)
+    print(center_log)
 
-    return common.calc_evaluation_values(delta, dist_score)
+    common.add_log("center_around", center_around_log)
+    common.add_log("center_log", center_log)
