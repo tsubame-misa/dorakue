@@ -1,10 +1,11 @@
 import math
-import commonCalcDrawInfo
-import commonLog
-import commonDrawGraph
+from common import drawGraph
+from common import log
+from common import calcDrawInfo
+import setup
 
 
-def dorakue_choice_center(graph, _width=None, _height=None):
+def torus_center(graph, _width=None, _height=None):
     node_len = len(graph.nodes)
     node2num = dict()
     cnt = 0
@@ -52,18 +53,20 @@ def dorakue_choice_center(graph, _width=None, _height=None):
     height = maxd if _height == None else _height
     width = maxd if _width == None else _width
 
-    pos = commonCalcDrawInfo.get_pos(node_len, width, height)
+    pos = calcDrawInfo.get_pos(node_len, width, height)
 
-    for cnt1 in range(50):
+    loop1, loop2 = setup.get_loop()
+
+    for cnt1 in range(loop1):
         for max_i in range(node_len):
-            for cnt2 in range(20):
+            for cnt2 in range(loop2):
                 Exx = 0
                 Exy = 0
                 Eyy = 0
                 Ex = 0
                 Ey = 0
 
-                diff_x, diff_y, pos = commonCalcDrawInfo.shift_center(
+                diff_x, diff_y, pos = calcDrawInfo.shift_center(
                     pos, max_i, node_len, width, height)
 
                 for i in range(node_len):
@@ -93,10 +96,10 @@ def dorakue_choice_center(graph, _width=None, _height=None):
 
                 pos[max_i][0] += dx
                 pos[max_i][1] += dy
-                pos[max_i] = commonCalcDrawInfo.dorakue(
+                pos[max_i] = calcDrawInfo.dorakue(
                     pos[max_i], width, height)
 
-                pos = commonCalcDrawInfo.shift_flat(
+                pos = calcDrawInfo.shift_flat(
                     pos, diff_x, diff_y, node_len, width, height)
 
     pos0 = [[x, y] for x, y in pos]
@@ -105,38 +108,38 @@ def dorakue_choice_center(graph, _width=None, _height=None):
     min_edge_len = float("inf")
     # 最適な中心を選ぶ
     for i in range(node_len):
-        diff_x, diff_y, pos = commonCalcDrawInfo.shift_center(
+        diff_x, diff_y, pos = calcDrawInfo.shift_center(
             pos, i, node_len, width, height)
         max_edge_len = max(
-            commonCalcDrawInfo.dist(pos, node2num[u], node2num[v]) for u, v in graph.edges)
+            calcDrawInfo.dist(pos, node2num[u], node2num[v]) for u, v in graph.edges)
         if min_edge_len > max_edge_len:
             min_edge_len = max_edge_len
             center_idx = i
-        pos = commonCalcDrawInfo.shift_flat(
+        pos = calcDrawInfo.shift_flat(
             pos, diff_x, diff_y, node_len, width, height)
 
-    diff_x, diff_y, fin_pos = commonCalcDrawInfo.shift_center(
+    diff_x, diff_y, fin_pos = calcDrawInfo.shift_center(
         pos0, center_idx, node_len, width, height)
 
     pos0 = [[x, y] for x, y in fin_pos]
     pos1 = [[x, y] for x, y in fin_pos]
 
-    delta = commonCalcDrawInfo.calc_delta_around(
+    delta = calcDrawInfo.calc_delta_around(
         pos0,  k, l, node_len, width, height)
     edge_score = [(d[node2num[u]][node2num[v]] -
-                   commonCalcDrawInfo.dist_around(fin_pos, node2num[u], node2num[v], width, height))**2 for u, v in graph.edges]
-    commonDrawGraph.draw_graph(graph, fin_pos, delta, edge_score,
-                               node_len, "dorakue_center_around", width, height)
-    center_around_log = commonLog.calc_evaluation_values(delta, edge_score)
+                   calcDrawInfo.dist_around(fin_pos, node2num[u], node2num[v], width, height))**2 for u, v in graph.edges]
+    drawGraph.draw_graph(graph, fin_pos, delta, edge_score,
+                         node_len, "dorakue_center_around", width, height)
+    center_around_log = log.calc_evaluation_values(delta, edge_score)
 
-    delta = commonCalcDrawInfo.calc_delta(pos1,  k, l, node_len, width, height)
+    delta = calcDrawInfo.calc_delta(pos1,  k, l, node_len, width, height)
     edge_score = [(d[node2num[u]][node2num[v]] -
-                   commonCalcDrawInfo.dist(fin_pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
-    commonDrawGraph.draw_graph(graph, fin_pos, delta, edge_score,
-                               node_len, "dorakue_center", width, height)
-    center_log = commonLog.calc_evaluation_values(delta, edge_score)
+                   calcDrawInfo.dist(fin_pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
+    drawGraph.draw_graph(graph, fin_pos, delta, edge_score,
+                         node_len, "dorakue_center", width, height)
+    center_log = log.calc_evaluation_values(delta, edge_score)
 
-    commonLog.add_log("dorakue_around", center_around_log)
-    commonLog.add_log("cdorakue_log", center_log)
+    log.add_log("cdorakue_log", center_log)
+    log.add_log("dorakue_around", center_around_log)
 
     return min(center_log["dist"]["sum"], center_around_log["dist"]["sum"])

@@ -1,11 +1,8 @@
 import json
 from networkx.readwrite import json_graph
-from dorakue import dorakue_choice_center
-from dorakue_bfs import dorakue_bfs
-from kameKame import kamada_kawai
-import common
-import commonLog
-import commonDrawGraph
+from common import log, drawGraph
+import setup
+from algorithm import torusCenter, torusBfs, kameKame
 
 
 filename = './graph/les_miserables.json'
@@ -22,20 +19,22 @@ for _len in len_list:
     wh_log = {}
     print(_len)
     for i in range(10):
-        common.init()
-        time = common.get_time()
-        center = dorakue_choice_center(graph, width, height)
-        bfs = dorakue_bfs(graph, width, height)
-        kame = kamada_kawai(graph, width, height)
+        setup.init()
+        setup.set_roop1(100)
 
-        commonDrawGraph.create_compare_fig()
+        time = setup.get_time()
+        center = torusCenter.torus_center(graph, width, height)
+        bfs = torusBfs.torus_bfs(graph, width, height)
+        kame = kameKame.kamada_kawai(graph, width, height)
 
-        log = commonLog.get_log()
-        wh_log[str(time)] = log
+        drawGraph.create_compare_fig()
+
+        _log = log.get_log()
+        wh_log[str(time)] = _log
 
         l = str(kame).split(".")
         keta = 10**(len(l[0]))
-        keta_1 = 100*(len(l[0])-1)
+        keta_1 = 10**(len(l[0])-1)
 
         # ドラクエのログは同じなので片方だけ見ればいい
         message = str(time)
@@ -49,9 +48,9 @@ for _len in len_list:
 
     all_log[str(_len)] = wh_log
 
-commonLog.clear()
-time = common.get_time()
-commonLog.create_log(all_log)
+log.clear()
+time = setup.get_time()
+log.create_log(all_log)
 
 print(great)
 print(good)

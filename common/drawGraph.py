@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import plotly.express as px
 from sklearn import preprocessing
-import datetime
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+import os
 
 
 list_colors = px.colors.sequential.Plasma
@@ -18,9 +18,14 @@ def set_time(time):
 
 
 def clear():
-    global IMAGE_PATH
+    global IMAGE_PATH, TIME
     IMAGE_PATH = []
     TIME = ""
+
+
+def get_dir():
+    cwd = os.getcwd()
+    return cwd
 
 
 def create_compare_fig():
@@ -29,17 +34,19 @@ def create_compare_fig():
         ax = fig.add_subplot(2, 3, i+1)
 
         title = IMAGE_PATH[i].split("/")
-        ax.set_title(title[2], fontsize=10)
+        ax.set_title(title[9], fontsize=10)
         ax.axes.xaxis.set_visible(False)  # X軸を非表示に
         ax.axes.yaxis.set_visible(False)  # Y軸を非表示に
 
         img = mpimg.imread(IMAGE_PATH[i])
         plt.imshow(img)
 
-        size = title[3].split("x")
-    img_path = './result/compare/' + size[0] + TIME + '.png'
+        size = title[10].split("x")
+    img_path = get_dir()+'/result/compare/' + size[0] + TIME + '.png'
     plt.savefig(img_path)
-    # plt.show()
+
+    plt.clf()
+    plt.close()
 
 
 def create_and_save_graph(graph, pos, node_color, edge_color, dir_name, width, height, name=None):
@@ -52,10 +59,13 @@ def create_and_save_graph(graph, pos, node_color, edge_color, dir_name, width, h
     nx.draw_networkx(G, pos, False,
                      node_color=node_color, edge_color=edge_color)
 
-    img_path = './result/' + dir_name + '/' + \
+    img_path = get_dir()+'/result/' + dir_name + '/' + \
         str(width) + 'x' + str(height) + '-' + TIME + '.png'
     plt.savefig(img_path)
     IMAGE_PATH.append(img_path)
+
+    plt.clf()
+    plt.close()
 
 
 def get_color(delta, node_len):

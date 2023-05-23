@@ -1,7 +1,8 @@
 import math
-import commonCalcDrawInfo
-import commonDrawGraph
-import commonLog
+from common import drawGraph
+from common import log
+from common import calcDrawInfo
+import setup
 
 
 def kamada_kawai(graph, _width=None, _height=None):
@@ -78,15 +79,17 @@ def kamada_kawai(graph, _width=None, _height=None):
             l[i][j] = d[i][j]
             k[i][j] = 1/(d[i][j]*d[i][j])
 
-    pos = commonCalcDrawInfo.get_pos(node_len, width, height)
+    pos = calcDrawInfo.get_pos(node_len, width, height)
 
     Delta = [0]*node_len
 
     max_i = calc_delta(pos, Delta, k, l, node_len)
 
-    for cnt1 in range(50):
+    loop1, loop2 = setup.get_loop()
+
+    for cnt1 in range(loop1):
         for max_i in range(node_len):
-            for cnt2 in range(20):
+            for cnt2 in range(loop2):
                 Exx = 0
                 Exy = 0
                 Eyy = 0
@@ -123,12 +126,12 @@ def kamada_kawai(graph, _width=None, _height=None):
 
     calc_delta(pos, Delta, k, l, node_len)
     edge_score = [(d[node2num[u]][node2num[v]] -
-                   commonCalcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
-    commonDrawGraph.draw_graph(graph, pos, Delta, edge_score,
-                               node_len, "kamada_kawai", width, height)
-    kame_log = commonLog.calc_evaluation_values(Delta, edge_score)
+                   calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
+    drawGraph.draw_graph(graph, pos, Delta, edge_score,
+                         node_len, "kamada_kawai", width, height)
+    kame_log = log.calc_evaluation_values(Delta, edge_score)
     # print(kame_log)
 
-    commonLog.add_log("kamada_kawai", kame_log)
+    log.add_log("kamada_kawai", kame_log)
 
     return kame_log["dist"]["sum"]

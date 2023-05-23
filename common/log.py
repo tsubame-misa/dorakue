@@ -1,9 +1,5 @@
-import matplotlib.pyplot as plt
-import networkx as nx
-import plotly.express as px
-import matplotlib.pyplot as plt
 import json
-import common
+import os
 
 LOG = dict()
 TIME = ""
@@ -24,11 +20,12 @@ def set_time(time):
 
 
 def create_log(_log=None):
-    print(_log)
     print(LOG)
     if _log == None:
         _log = LOG
-    with open("./result/log/" + TIME + ".json", "w") as f:
+
+    path = os.getcwd()
+    with open(path + "/result/log/" + TIME + ".json", "w") as f:
         json.dump(_log, f)
 
 
