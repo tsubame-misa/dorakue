@@ -1,16 +1,10 @@
-import random
 import math
-import common
-
-random.seed(314)
+import commonCalcDrawInfo
+import commonDrawGraph
+import commonLog
 
 
 def kamada_kawai(graph, _width=None, _height=None):
-
-    def dist(pos, u, v):
-        dx = pos[u][0] - pos[v][0]
-        dy = pos[u][1] - pos[v][1]
-        return (dx ** 2 + dy ** 2) ** 0.5
 
     def calc_delta(pos, Delta, k, l, node_len):
         max_delta = 0
@@ -71,9 +65,6 @@ def kamada_kawai(graph, _width=None, _height=None):
     height = maxd if _height == None else _height
     width = maxd if _width == None else _width
 
-    print(width, height)
-
-    L0 = 1
     # 隣接行列の初期化
     l = [[0]*node_len for i in range(node_len)]
 
@@ -87,20 +78,13 @@ def kamada_kawai(graph, _width=None, _height=None):
             l[i][j] = d[i][j]
             k[i][j] = 1/(d[i][j]*d[i][j])
 
-    # posの初期化(ランダム)
-    # pos = []
-    # for i in range(node_len):
-    #     x = L0*random.uniform(0, width)
-    #     y = L0*random.uniform(0, height)
-    #     pos.append([x, y])
-    pos = common.get_pos(node_len, width, height)
+    pos = commonCalcDrawInfo.get_pos(node_len, width, height)
 
     Delta = [0]*node_len
 
     max_i = calc_delta(pos, Delta, k, l, node_len)
 
     for cnt1 in range(50):
-        # print(cnt1)
         for max_i in range(node_len):
             for cnt2 in range(20):
                 Exx = 0
@@ -139,10 +123,12 @@ def kamada_kawai(graph, _width=None, _height=None):
 
     calc_delta(pos, Delta, k, l, node_len)
     edge_score = [(d[node2num[u]][node2num[v]] -
-                   dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
-    common.draw_graph(graph, pos, Delta, edge_score,
-                      node_len, "kamada_kawai", width, height)
-    kame_log = common.calc_evaluation_values(Delta, edge_score)
-    print(kame_log)
+                   commonCalcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
+    commonDrawGraph.draw_graph(graph, pos, Delta, edge_score,
+                               node_len, "kamada_kawai", width, height)
+    kame_log = commonLog.calc_evaluation_values(Delta, edge_score)
+    # print(kame_log)
 
-    common.add_log("kamada_kawai", kame_log)
+    commonLog.add_log("kamada_kawai", kame_log)
+
+    return kame_log["dist"]["sum"]
