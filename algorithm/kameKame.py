@@ -6,8 +6,10 @@ import setup
 
 
 def kamada_kawai(graph, _width=None, _height=None):
+    index = []
 
-    def calc_delta(pos, Delta, k, l, node_len):
+    def calc_delta(pos,  k, l, node_len):
+        Delta = [0]*node_len
         max_delta = 0
         max_i = 0
         for i in range(node_len):
@@ -27,6 +29,7 @@ def kamada_kawai(graph, _width=None, _height=None):
             if Delta[i] > max_delta:
                 max_delta = Delta[i]
                 max_i = i
+
         return max_i
 
     edge_len = 100
@@ -81,56 +84,57 @@ def kamada_kawai(graph, _width=None, _height=None):
 
     pos = calcDrawInfo.get_pos(node_len, width, height)
 
-    Delta = [0]*node_len
-
-    max_i = calc_delta(pos, Delta, k, l, node_len)
+    max_i = calc_delta(pos, k, l, node_len)
 
     loop1, loop2 = setup.get_loop()
 
     for cnt1 in range(loop1):
-        for max_i in range(node_len):
-            for cnt2 in range(loop2):
-                Exx = 0
-                Exy = 0
-                Eyy = 0
-                Ex = 0
-                Ey = 0
+        max_i = calc_delta(pos, k, l, node_len)
+        index.append(max_i)
+        for cnt2 in range(loop2):
+            Exx = 0
+            Exy = 0
+            Eyy = 0
+            Ex = 0
+            Ey = 0
 
-                for i in range(node_len):
-                    if i == max_i:
-                        continue
-                    norm = math.sqrt((pos[max_i][0]-pos[i][0]) **
-                                     2 + (pos[max_i][1]-pos[i][1])**2)
-                    dx_mi = pos[max_i][0]-pos[i][0]
-                    dy_mi = pos[max_i][1]-pos[i][1]
+            for i in range(node_len):
+                if i == max_i:
+                    continue
+                norm = math.sqrt((pos[max_i][0]-pos[i][0]) **
+                                 2 + (pos[max_i][1]-pos[i][1])**2)
+                dx_mi = pos[max_i][0]-pos[i][0]
+                dy_mi = pos[max_i][1]-pos[i][1]
 
-                    Ex += k[max_i][i]*dx_mi*(1.0-l[max_i][i]/norm)
-                    Ey += k[max_i][i]*dy_mi*(1.0-l[max_i][i]/norm)
+                Ex += k[max_i][i]*dx_mi*(1.0-l[max_i][i]/norm)
+                Ey += k[max_i][i]*dy_mi*(1.0-l[max_i][i]/norm)
 
-                    Exy += k[max_i][i]*l[max_i][i]*dx_mi*dy_mi/(norm*norm*norm)
-                    Exx += k[max_i][i]*(1.0-l[max_i][i]*dy_mi *
-                                        dy_mi/(norm*norm*norm))
-                    Eyy += k[max_i][i]*(1.0-l[max_i][i]*dx_mi *
-                                        dx_mi/(norm*norm*norm))
+                Exy += k[max_i][i]*l[max_i][i]*dx_mi*dy_mi/(norm*norm*norm)
+                Exx += k[max_i][i]*(1.0-l[max_i][i]*dy_mi *
+                                    dy_mi/(norm*norm*norm))
+                Eyy += k[max_i][i]*(1.0-l[max_i][i]*dx_mi *
+                                    dx_mi/(norm*norm*norm))
 
-                # ヘッセ行列=Exx*Eyy-Exy*Exy
-                dx = Exx*Eyy-Exy*Exy
-                dy = Exx*Eyy-Exy*Exy
-                D = Exx*Eyy-Exy*Exy
-                # 行列を計算すれば出てくる
-                dx = - (Eyy*Ex-Exy*Ey)/D
-                dy = -(-Exy*Ex+Exx*Ey)/D
+            # ヘッセ行列=Exx*Eyy-Exy*Exy
+            dx = Exx*Eyy-Exy*Exy
+            dy = Exx*Eyy-Exy*Exy
+            D = Exx*Eyy-Exy*Exy
+            # 行列を計算すれば出てくる
+            dx = - (Eyy*Ex-Exy*Ey)/D
+            dy = -(-Exy*Ex+Exx*Ey)/D
 
-                pos[max_i][0] += dx
-                pos[max_i][1] += dy
+            pos[max_i][0] += dx
+            pos[max_i][1] += dy
 
-    calc_delta(pos, Delta, k, l, node_len)
+    delta = calcDrawInfo.calc_delta(pos, k, l, node_len, width, height)
     edge_score = [(d[node2num[u]][node2num[v]] -
                    calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
-    drawGraph.draw_graph(graph, pos, Delta, edge_score,
+    drawGraph.draw_graph(graph, pos, delta, edge_score,
                          node_len, "kamada_kawai", width, height)
-    kame_log = log.calc_evaluation_values(Delta, edge_score)
-    # print(kame_log)
+    kame_log = log.calc_evaluation_values(delta, edge_score)
+
+    calcDrawInfo.add_node_b(pos)
+    calcDrawInfo.add_index_b(index)
 
     log.add_log("kamada_kawai", kame_log)
 
