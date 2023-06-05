@@ -5,14 +5,7 @@ from common import calcDrawInfo
 import setup
 
 
-def check_pos(before, after, max_i):
-    for i in range(len(before)):
-        if i != max_i and (before[i][0] != after[i][0] or before[i][1] != after[i][1]):
-            print(before[i], after[i])
-
-
 def torus_kame(graph, _width=None, _height=None):
-    print("--------------------")
     index = []
 
     def calc_delta(pos,  k, l, node_len, width, height):
@@ -36,8 +29,6 @@ def torus_kame(graph, _width=None, _height=None):
                 Ex += k[i][j]*dx_ij*(1.0-l[i][j]/norm)
                 Ey += k[i][j]*dy_ij*(1.0-l[i][j]/norm)
             Delta[i] = math.sqrt(Ex*Ex+Ey*Ey)
-            # pos = calcDrawInfo.shift_flat(
-            #     pos, diff_x, diff_y, node_len, width, height)
             if Delta[i] > max_delta:
                 max_delta = Delta[i]
                 max_i = i
@@ -112,8 +103,8 @@ def torus_kame(graph, _width=None, _height=None):
 
             _pos = [[x, y] for x, y in pos]
 
-            # diff_x, diff_y, _pos = calcDrawInfo.shift_center(
-            #     _pos, max_i, node_len, width, height)
+            diff_x, diff_y, _pos = calcDrawInfo.shift_center(
+                _pos, max_i, node_len, width, height)
 
             for i in range(node_len):
                 if i == max_i:
@@ -140,23 +131,10 @@ def torus_kame(graph, _width=None, _height=None):
             dx = - (Eyy*Ex-Exy*Ey)/D
             dy = -(-Exy*Ex+Exx*Ey)/D
 
-            _pos[max_i][0] += dx
-            _pos[max_i][1] += dy
-            _pos[max_i] = calcDrawInfo.dorakue(
-                _pos[max_i], width, height)
-
-            pos = _pos
-
-            # _pos = calcDrawInfo.shift_flat(
-            #     _pos, diff_x, diff_y, node_len, width, height)
-
-            # _posb = [[x, y] for x, y in pos]
-
-            # _posb[max_i] = _pos[max_i]
-
-            # pos = _posb
-
-            # check_pos(pos, _posb, max_i)
+            pos[max_i][0] += dx
+            pos[max_i][1] += dy
+            pos[max_i] = calcDrawInfo.dorakue(
+                pos[max_i], width, height)
 
     delta = calcDrawInfo.calc_delta(pos, k, l, node_len, width, height)
     edge_score = [(d[node2num[u]][node2num[v]] -
