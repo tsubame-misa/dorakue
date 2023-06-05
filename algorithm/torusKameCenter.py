@@ -5,7 +5,14 @@ from common import calcDrawInfo
 import setup
 
 
+def check_pos(before, after, max_i):
+    for i in range(len(before)):
+        if i != max_i and (before[i][0] != after[i][0] or before[i][1] != after[i][1]):
+            print(before[i], after[i])
+
+
 def torus_kame(graph, _width=None, _height=None):
+    print("--------------------")
     index = []
 
     def calc_delta(pos,  k, l, node_len, width, height):
@@ -15,21 +22,22 @@ def torus_kame(graph, _width=None, _height=None):
         for i in range(node_len):
             Ex = 0
             Ey = 0
-            diff_x, diff_y, pos = calcDrawInfo.shift_center(
-                pos, i, node_len, width, height)
+            _pos = [[x, y] for x, y in pos]
+            diff_x, diff_y, _pos = calcDrawInfo.shift_center(
+                _pos, i, node_len, width, height)
             for j in range(node_len):
                 if i == j:
                     continue
-                norm = math.sqrt((pos[i][0]-pos[j][0]) **
-                                 2 + (pos[i][1]-pos[j][1])**2)
-                dx_ij = pos[i][0]-pos[j][0]
-                dy_ij = pos[i][1]-pos[j][1]
+                norm = math.sqrt((_pos[i][0]-_pos[j][0]) **
+                                 2 + (_pos[i][1]-_pos[j][1])**2)
+                dx_ij = _pos[i][0]-_pos[j][0]
+                dy_ij = _pos[i][1]-_pos[j][1]
 
                 Ex += k[i][j]*dx_ij*(1.0-l[i][j]/norm)
                 Ey += k[i][j]*dy_ij*(1.0-l[i][j]/norm)
             Delta[i] = math.sqrt(Ex*Ex+Ey*Ey)
-            pos = calcDrawInfo.shift_flat(
-                pos, diff_x, diff_y, node_len, width, height)
+            # pos = calcDrawInfo.shift_flat(
+            #     pos, diff_x, diff_y, node_len, width, height)
             if Delta[i] > max_delta:
                 max_delta = Delta[i]
                 max_i = i
@@ -102,13 +110,18 @@ def torus_kame(graph, _width=None, _height=None):
             Ex = 0
             Ey = 0
 
+            _pos = [[x, y] for x, y in pos]
+
+            # diff_x, diff_y, _pos = calcDrawInfo.shift_center(
+            #     _pos, max_i, node_len, width, height)
+
             for i in range(node_len):
                 if i == max_i:
                     continue
-                norm = math.sqrt((pos[max_i][0]-pos[i][0]) **
-                                 2 + (pos[max_i][1]-pos[i][1])**2)
-                dx_mi = pos[max_i][0]-pos[i][0]
-                dy_mi = pos[max_i][1]-pos[i][1]
+                norm = math.sqrt((_pos[max_i][0]-_pos[i][0]) **
+                                 2 + (_pos[max_i][1]-_pos[i][1])**2)
+                dx_mi = _pos[max_i][0]-_pos[i][0]
+                dy_mi = _pos[max_i][1]-_pos[i][1]
 
                 Ex += k[max_i][i]*dx_mi*(1.0-l[max_i][i]/norm)
                 Ey += k[max_i][i]*dy_mi*(1.0-l[max_i][i]/norm)
@@ -127,10 +140,23 @@ def torus_kame(graph, _width=None, _height=None):
             dx = - (Eyy*Ex-Exy*Ey)/D
             dy = -(-Exy*Ex+Exx*Ey)/D
 
-            pos[max_i][0] += dx
-            pos[max_i][1] += dy
-            pos[max_i] = calcDrawInfo.dorakue(
-                pos[max_i], width, height)
+            _pos[max_i][0] += dx
+            _pos[max_i][1] += dy
+            _pos[max_i] = calcDrawInfo.dorakue(
+                _pos[max_i], width, height)
+
+            pos = _pos
+
+            # _pos = calcDrawInfo.shift_flat(
+            #     _pos, diff_x, diff_y, node_len, width, height)
+
+            # _posb = [[x, y] for x, y in pos]
+
+            # _posb[max_i] = _pos[max_i]
+
+            # pos = _posb
+
+            # check_pos(pos, _posb, max_i)
 
     delta = calcDrawInfo.calc_delta(pos, k, l, node_len, width, height)
     edge_score = [(d[node2num[u]][node2num[v]] -
@@ -142,6 +168,6 @@ def torus_kame(graph, _width=None, _height=None):
     calcDrawInfo.add_node_a(pos)
     calcDrawInfo.add_index_a(index)
 
-    log.add_log("kamada_kawai", kame_log)
+    log.add_log("torus_kame", kame_log)
 
     return kame_log["dist"]["sum"]
