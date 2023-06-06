@@ -72,6 +72,8 @@ def torus_sgd(graph, _width=None, _height=None):
         for j in range(node_len):
             if d[i][j] != 0:
                 w[i][j] = pow(d[i][j], -2)
+            else:
+                w[i][j] = 1
 
     maxd = 0
     for i in range(node_len):
@@ -97,39 +99,41 @@ def torus_sgd(graph, _width=None, _height=None):
 
     pos = calcDrawInfo.get_pos(node_len, width, height)
 
-    max_i = calc_delta(pos, k, l, node_len, width, height)
-
     loop1, loop2 = setup.get_loop()
 
-    # TODO:etaの初期値と更新周りの調整
-    eta = 2
-    for cnt1 in range(loop1):
+    eps = 0.1
+    eta_max = 1/(min(list(itertools.chain.from_iterable(w))))
+    eta_min = eps/(max(list(itertools.chain.from_iterable(w))))
+    step = (eta_max-eta_min)/loop1
+    eta = eta_max
+    for cnt1 in range(100):
         pare_index = [list(p) for p in itertools.combinations(
             [i for i in range(node_len)], 2)]
         np.random.shuffle(pare_index)
-        eta *= 0.95
-        # print(eta)
+        eta -= step
         for i, j in pare_index:
-            # mu = w[i][j]*eta
-            mu = eta
+
+            mu = w[i][j]*eta
+
             if mu > 1:
                 mu = 1
-            pos_ij = calcDrawInfo.dorakue(
-                [pos[i][0]-pos[j][0], pos[i][1]-pos[j][1]], width, height)
-            # pos_ij = [pos[i][0]-pos[j][0], pos[i][1]-pos[j][1]]
-            # print([pos[i][0]-pos[j][0], pos[i][1]-pos[j][1]])
-            # print(pos_ij)
-            # print("--------------")
-            rx = (calcDrawInfo.dist_around(pos, i, j, width, height)-d[i][j])/2 * \
-                (pos_ij[0]) / \
+
+            pos_ij = calcDrawInfo.dist_around_position(
+                pos, i, j, width, height)
+
+            rx = (calcDrawInfo.dist_around(pos, i, j, width, height)-d[i][j])/2 * (pos_ij[0]) / \
                 calcDrawInfo.dist_around(pos, i, j, width, height)
             ry = (calcDrawInfo.dist_around(pos, i, j, width, height)-d[i][j])/2 * \
                 (pos_ij[1]) / \
                 calcDrawInfo.dist_around(pos, i, j, width, height)
+
             pos[i][0] = pos[i][0]-mu*rx
             pos[i][1] = pos[i][1]-mu*ry
             pos[j][0] = pos[j][0]+mu*rx
             pos[j][1] = pos[j][1]+mu*ry
+
+            pos[i] = calcDrawInfo.dorakue(pos[i], width, height)
+            pos[j] = calcDrawInfo.dorakue(pos[j], width, height)
 
     delta = calcDrawInfo.calc_delta(pos, k, l, node_len, width, height)
     edge_score = [(d[node2num[u]][node2num[v]] -
