@@ -72,6 +72,8 @@ def torus_sgd(graph, _width=None, _height=None):
         for j in range(node_len):
             if d[i][j] != 0:
                 w[i][j] = pow(d[i][j], -2)
+            else:
+                w[i][j] = 1
 
     maxd = 0
     for i in range(node_len):
@@ -97,21 +99,24 @@ def torus_sgd(graph, _width=None, _height=None):
 
     pos = calcDrawInfo.get_pos(node_len, width, height)
 
-    max_i = calc_delta(pos, k, l, node_len, width, height)
-
     loop1, loop2 = setup.get_loop()
 
     # TODO:etaの初期値と更新周りの調整
-    eta = 2
+    # loop=100くらいがちょうど良さそう
+    eps = 0.1
+    eta_max = 1/(min(list(itertools.chain.from_iterable(w))))
+    eta_min = eps/(max(list(itertools.chain.from_iterable(w))))
+    step = (eta_max-eta_min)/loop1
+    eta = eta_max
+    print(eta_max, eta_min, step)
     for cnt1 in range(loop1):
         pare_index = [list(p) for p in itertools.combinations(
             [i for i in range(node_len)], 2)]
         np.random.shuffle(pare_index)
-        eta *= 0.95
+        eta -= step
         print(eta)
         for i, j in pare_index:
-            # mu = w[i][j]*eta
-            mu = eta
+            mu = w[i][j]*eta
             if mu > 1:
                 mu = 1
             rx = (calcDrawInfo.dist(pos, i, j)-d[i][j])/2 * \
@@ -127,12 +132,12 @@ def torus_sgd(graph, _width=None, _height=None):
     edge_score = [(d[node2num[u]][node2num[v]] -
                    calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,
-                         node_len, "torusSGD", width, height)
+                         node_len, "SGD", width, height)
     kame_log = log.calc_evaluation_values(delta, edge_score)
 
     calcDrawInfo.add_node_a(pos)
     calcDrawInfo.add_index_a(index)
 
-    log.add_log("torusSGD", kame_log)
+    log.add_log("SGD", kame_log)
 
     return kame_log["dist"]["sum"]
