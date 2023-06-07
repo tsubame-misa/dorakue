@@ -139,7 +139,7 @@ def torus_center(graph, _width=None, _height=None):
                          node_len, "dorakue_center", width, height)
     center_log = log.calc_evaluation_values(delta, edge_score)
 
-    log.add_log("cdorakue_log", center_log)
+    log.add_log("dorakue_log", center_log)
     log.add_log("dorakue_around", center_around_log)
 
     return min(center_log["dist"]["sum"], center_around_log["dist"]["sum"])
