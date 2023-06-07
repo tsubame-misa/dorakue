@@ -1,8 +1,10 @@
 import json
 from networkx.readwrite import json_graph
+from algorithm.SGDBase import SGD, torusSGD
+from algorithm.kamadaKawaiBase import kameKame, torusKameCenter
 import setup
-from common import log, drawGraph
-from algorithm import torusCenter, torusBfs, kameKame
+from common import log, drawGraph, calcDrawInfo
+from algorithm import torusCenter, torusBfs
 
 
 filename = './graph/les_miserables.json'
@@ -12,20 +14,30 @@ width = 1000
 height = 1000
 
 setup.init()
-setup.set_roop1(3)
 
 # 中心選ぶやつ
-print("choice")
-torusCenter.torus_center(graph, width, height)
-print()
+# print("choice")
+# torusCenter.torus_center(graph, width, height)
+# print()
 
-print("bfs")
-torusBfs.torus_bfs(graph, width, height)
-print()
+# print("bfs")
+# torusBfs.torus_bfs(graph, width, height)
+# print()
 
-print("kamada_kawai")
-kameKame.kamada_kawai(graph, width, height)
-print()
+# setup.set_roop1(50)
+# print("torus_kame")
+# torusKameCenter.torus_kame(graph, width, height)
+# print()
+
+# print("kamada_kawai")
+# # kameKame.kamada_kawai(graph, width, height)
+# kame2.kamada_kawai(graph, width, height)
+# print()
+SGD.torus_sgd(graph, width, height)
+torusSGD.torus_sgd(graph, width, height)
+
+
+# calcDrawInfo.compare_node_pos()
 
 time = setup.get_time()
 log.add_log("width", width)
