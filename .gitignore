@@ -1,4 +1,7 @@
 /result
-/__pycache__/
-/common/__pycache__/
+/__pycache__
+/common/__pycache__
 /graph
+/algorithm/kamadaKawaiBase/__pycache__
+/algorithm/SGDBase/__pycache__
+/algorithm/__pycache__
