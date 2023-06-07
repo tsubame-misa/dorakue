@@ -38,6 +38,7 @@ def dist(pos, u, v):
 
 
 def dist_around(pos, u, v, width, height):
+    # uが中心
     d = dist(pos, u, v)
 
     ax = pos[u][0] - ((pos[v][0]-(pos[u][0]-width/2) +
@@ -48,12 +49,23 @@ def dist_around(pos, u, v, width, height):
     return min(d, adist)
 
 
+def dist_around_position(pos, u, v, width, height):
+    # uが中心
+    ax = pos[u][0] - ((pos[v][0]-(pos[u][0]-width/2) +
+                       width) % width+(pos[u][0]-width/2))
+    ay = pos[u][1] - ((pos[v][1]-(pos[u][1]-height/2) +
+                       height) % height+(pos[u][1]-height/2))
+    return [ax, ay]
+
+
 def init_pos(node_len, width, height):
     global POS
     L0 = 1
+    # 範囲を固定
+    l = 100
     for i in range(node_len):
-        x = L0*random.uniform(0, width)
-        y = L0*random.uniform(0, height)
+        x = L0*random.uniform(width/2-l/2, width/2+l/2)
+        y = L0*random.uniform(height/2-l/2, height/2+l/2)
         POS.append([x, y])
 
 
@@ -66,16 +78,20 @@ def get_pos(node_len, width, height):
 
 
 def dorakue(pos, width, height):
-    # 先生の式のやつで済む？
+    # 先生の式のやつでやらないとダメかも？
     if pos[0] < 0:
-        pos[0] = width+pos[0]
+        pos[0] = width*(abs(pos[0])//width+1)+pos[0]
+        # print("dorakue")
     elif pos[0] > width:
-        pos[0] = pos[0]-width
+        pos[0] = pos[0]-width*(abs(pos[0])//width)
+        # print("dorakue")
 
     if pos[1] < 0:
-        pos[1] = height+pos[1]
+        pos[1] = height*(abs(pos[1])//height+1)+pos[1]
+        # print("dorakue")
     elif pos[1] > height:
-        pos[1] = pos[1]-height
+        pos[1] = pos[1]-height*(abs(pos[1])//height)
+        # print("dorakue")
 
     return pos
 
