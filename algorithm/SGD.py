@@ -3,40 +3,12 @@ from common import drawGraph
 from common import log
 from common import calcDrawInfo
 import setup
-import random
 import itertools
 import numpy as np
 
 
 def torus_sgd(graph, _width=None, _height=None):
     index = []
-
-    def calc_delta(pos,  k, l, node_len, width, height):
-        Delta = [0]*node_len
-        max_delta = 0
-        max_i = 0
-        for i in range(node_len):
-            Ex = 0
-            Ey = 0
-            _pos = [[x, y] for x, y in pos]
-            diff_x, diff_y, _pos = calcDrawInfo.shift_center(
-                _pos, i, node_len, width, height)
-            for j in range(node_len):
-                if i == j:
-                    continue
-                norm = math.sqrt((_pos[i][0]-_pos[j][0]) **
-                                 2 + (_pos[i][1]-_pos[j][1])**2)
-                dx_ij = _pos[i][0]-_pos[j][0]
-                dy_ij = _pos[i][1]-_pos[j][1]
-
-                Ex += k[i][j]*dx_ij*(1.0-l[i][j]/norm)
-                Ey += k[i][j]*dy_ij*(1.0-l[i][j]/norm)
-            Delta[i] = math.sqrt(Ex*Ex+Ey*Ey)
-            if Delta[i] > max_delta:
-                max_delta = Delta[i]
-                max_i = i
-
-        return max_i
 
     edge_len = 100
 
@@ -67,13 +39,11 @@ def torus_sgd(graph, _width=None, _height=None):
                 d[i][j] = min(d[i][j], d[i][k]+d[k][j])
 
     # w_ij=dij^(-2)
-    w = [[float('inf')]*node_len for i in range(node_len)]
+    w = [[1]*node_len for i in range(node_len)]
     for i in range(node_len):
         for j in range(node_len):
             if d[i][j] != 0:
                 w[i][j] = pow(d[i][j], -2)
-            else:
-                w[i][j] = 1
 
     maxd = 0
     for i in range(node_len):
@@ -101,20 +71,18 @@ def torus_sgd(graph, _width=None, _height=None):
 
     loop1, loop2 = setup.get_loop()
 
-    # TODO:etaの初期値と更新周りの調整
     # loop=100くらいがちょうど良さそう
     eps = 0.1
     eta_max = 1/(min(list(itertools.chain.from_iterable(w))))
     eta_min = eps/(max(list(itertools.chain.from_iterable(w))))
-    step = (eta_max-eta_min)/loop1
     eta = eta_max
-    print(eta_max, eta_min, step)
-    for cnt1 in range(loop1):
+    _lamda = -1*math.log(eta_min/eta_max)/loop1
+
+    for t in range(loop1):
         pare_index = [list(p) for p in itertools.combinations(
             [i for i in range(node_len)], 2)]
         np.random.shuffle(pare_index)
-        eta -= step
-        print(eta)
+        eta = eta_max*pow(math.e, -1*_lamda*t)
         for i, j in pare_index:
             mu = w[i][j]*eta
             if mu > 1:
