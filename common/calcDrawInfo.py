@@ -1,12 +1,16 @@
 import random
 import math
+import itertools
+import numpy as np
 
 POS = []
+PAIR_INDEX = []
 
 
 def clear():
-    global POS
+    global POS, PAIR_INDEX
     POS = []
+    PAIR_INDEX = []
 
 
 def calc_mean(array):
@@ -50,6 +54,19 @@ def dist_around(pos, u, v, width, height):
 
 
 def dist_around_position(pos, u, v, width, height):
+    # # 回り込みが発生しない場合
+    d = dist(pos, u, v)
+    d_around = dist_around(pos, u, v, width, height)
+    # # print(d, d_around)
+    # if d == d_around:
+    #     return [pos[u][0]-pos[v][0], pos[u][1]-pos[v][1]]
+    # else:
+    #     print("around")
+    # if abs(pos[u][0]-pos[v][0]) < 0.0000001 and abs(pos[u][1]-pos[v][1]) < 0.0000001:
+    #     return [pos[u][0]-pos[v][0], pos[u][1]-pos[v][1]]
+    if abs(d-d_around) < 0.00000001:
+        return [pos[u][0]-pos[v][0], pos[u][1]-pos[v][1]]
+    # print(abs("around", d-d_around))
     # uが中心
     ax = pos[u][0] - ((pos[v][0]-(pos[u][0]-width/2) +
                        width) % width+(pos[u][0]-width/2))
@@ -162,3 +179,20 @@ def calc_delta_around(pos,  k, l, node_len, width, height):
         Delta[i] = math.sqrt(Ex*Ex+Ey*Ey)
         pos = shift_flat(pos, diff_x, diff_y, node_len, width, height)
     return Delta
+
+
+def init_pair_index(node_len, loop):
+    global PAIR_INDEX
+    for i in range(loop):
+        pair_index = [list(p) for p in itertools.combinations(
+            [i for i in range(node_len)], 2)]
+        np.random.shuffle(pair_index)
+        PAIR_INDEX.append(pair_index)
+
+
+def get_random_pair(node_len, loop, t):
+    global PAIR_INDEX
+    if len(PAIR_INDEX) == 0:
+        init_pair_index(node_len, loop)
+    pair_index = [[x, y] for x, y in PAIR_INDEX[t]]
+    return pair_index

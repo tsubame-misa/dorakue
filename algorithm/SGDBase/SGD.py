@@ -1,7 +1,7 @@
 import math
 from common import drawGraph
 from common import log
-from common import calcDrawInfo
+from common import calcDrawInfo, debug
 import setup
 import itertools
 import numpy as np
@@ -78,12 +78,17 @@ def torus_sgd(graph, _width=None, _height=None):
     eta = eta_max
     _lamda = -1*math.log(eta_min/eta_max)/loop1
 
+    debug.add_node_a(pos)
+
     for t in range(loop1):
-        pare_index = [list(p) for p in itertools.combinations(
-            [i for i in range(node_len)], 2)]
-        np.random.shuffle(pare_index)
+        # pair_index = [list(p) for p in itertools.combinations(
+        #     [i for i in range(node_len)], 2)]
+        # np.random.shuffle(pair_index)
+        pair_index = calcDrawInfo.get_random_pair(node_len, loop1, t)
         eta = eta_max*pow(math.e, -1*_lamda*t)
-        for i, j in pare_index:
+
+        for i, j in pair_index:
+            index.append([i, j])
             mu = w[i][j]*eta
             if mu > 1:
                 mu = 1
@@ -91,6 +96,7 @@ def torus_sgd(graph, _width=None, _height=None):
                 (pos[i][0]-pos[j][0])/calcDrawInfo.dist(pos, i, j)
             ry = (calcDrawInfo.dist(pos, i, j)-d[i][j])/2 * \
                 (pos[i][1]-pos[j][1])/calcDrawInfo.dist(pos, i, j)
+
             pos[i][0] = pos[i][0]-mu*rx
             pos[i][1] = pos[i][1]-mu*ry
             pos[j][0] = pos[j][0]+mu*rx
@@ -98,13 +104,13 @@ def torus_sgd(graph, _width=None, _height=None):
 
     delta = calcDrawInfo.calc_delta(pos, k, l, node_len, width, height)
     edge_score = [(d[node2num[u]][node2num[v]] -
-                   calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
+                  calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,
                          node_len, "SGD", width, height)
     kame_log = log.calc_evaluation_values(delta, edge_score)
 
-    calcDrawInfo.add_node_a(pos)
-    calcDrawInfo.add_index_a(index)
+    debug.add_node_a(pos)
+    debug.add_index_a(index)
 
     log.add_log("SGD", kame_log)
 

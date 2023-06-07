@@ -1,7 +1,7 @@
 import math
 from common import drawGraph
 from common import log
-from common import calcDrawInfo
+from common import calcDrawInfo, debug
 import setup
 import itertools
 import numpy as np
@@ -78,13 +78,13 @@ def torus_sgd(graph, _width=None, _height=None):
     _lamda = -1*math.log(eta_min/eta_max)/loop1
 
     for t in range(loop1):
-        pare_index = [list(p) for p in itertools.combinations(
-            [i for i in range(node_len)], 2)]
-        np.random.shuffle(pare_index)
+        # pair_index = [list(p) for p in itertools.combinations(
+        #     [i for i in range(node_len)], 2)]
+        pair_index = calcDrawInfo.get_random_pair(node_len, loop1, t)
         eta = eta_max*pow(math.e, -1*_lamda*t)
 
-        for i, j in pare_index:
-
+        for i, j in pair_index:
+            index.append([i, j])
             mu = w[i][j]*eta
             if mu > 1:
                 mu = 1
@@ -113,8 +113,8 @@ def torus_sgd(graph, _width=None, _height=None):
                          node_len, "torusSGD", width, height)
     kame_log = log.calc_evaluation_values(delta, edge_score)
 
-    calcDrawInfo.add_node_a(pos)
-    calcDrawInfo.add_index_a(index)
+    debug.add_node_b(pos)
+    debug.add_index_b(index)
 
     log.add_log("torusSGD", kame_log)
 
