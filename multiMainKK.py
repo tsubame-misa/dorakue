@@ -17,7 +17,7 @@ for _len in len_list:
     print(_len)
     for i in range(10):
         setup.init()
-        setup.set_roop1(50)
+        setup.set_roop1(1000)
 
         time = setup.get_time()
         torus_kame = torusKameCenter.torus_kame(graph, width, height)
