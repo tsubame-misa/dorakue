@@ -6,8 +6,6 @@ import setup
 
 
 def torus_kame(graph, _width=None, _height=None):
-    index = []
-
     def calc_delta(pos,  k, l, node_len, width, height):
         Delta = [0]*node_len
         max_delta = 0
@@ -93,7 +91,6 @@ def torus_kame(graph, _width=None, _height=None):
 
     for cnt1 in range(loop1):
         max_i = calc_delta(pos, k, l, node_len, width, height)
-        index.append(max_i)
         for cnt2 in range(loop2):
             Exx = 0
             Exy = 0
@@ -142,9 +139,6 @@ def torus_kame(graph, _width=None, _height=None):
     drawGraph.draw_graph(graph, pos, delta, edge_score,
                          node_len, "torus_kame", width, height)
     kame_log = log.calc_evaluation_values(delta, edge_score)
-
-    calcDrawInfo.add_node_a(pos)
-    calcDrawInfo.add_index_a(index)
 
     log.add_log("torus_kame", kame_log)
 
