@@ -12,28 +12,34 @@ graph = json_graph.node_link_graph(json.load(open(filename)))
 len_list = [500, 750, 1000]
 all_log = {"file": filename}
 
-for _len in len_list:
-    width = _len
-    height = _len
-    wh_log = {}
-    print(_len)
-    for i in range(10):
-        setup.init()
-        setup.set_roop1(50)
 
-        time = setup.get_time()
-        sgd = SGD.torus_sgd(graph, width, height)
-        torus_sgd = torusSGD.torus_sgd(graph, width, height)
-        drawGraph.create_compare_fig()
+def create_sgd_graph(graph, filename):
+    len_list = setup.get_len()
+    all_log = {"file": filename}
+    print("SGD")
+    for _len in len_list:
+        width = _len
+        height = _len
+        wh_log = {}
+        print(_len)
+        term = setup.get_term()
+        for i in range(term):
+            setup.init()
+            setup.set_roop1(50)
 
-        _log = log.get_log()
-        wh_log[str(time)] = _log
+            time = setup.get_time()
+            sgd = SGD.torus_sgd(graph, width, height)
+            torus_sgd = torusSGD.torus_sgd(graph, width, height)
+            drawGraph.create_compare_fig()
 
-        message = str(time)
-        print(message)
+            _log = log.get_log()
+            wh_log[str(time)] = _log
 
-    all_log[str(_len)] = wh_log
+            message = str(time)
+            print(message)
 
-log.clear()
-time = setup.get_time()
-log.create_log(all_log)
+        all_log[str(_len)] = wh_log
+
+    log.clear()
+    time = setup.get_time()
+    log.create_log(all_log)
