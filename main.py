@@ -33,8 +33,8 @@ setup.init()
 # # kameKame.kamada_kawai(graph, width, height)
 # kame2.kamada_kawai(graph, width, height)
 # print()
-SGD.torus_sgd(graph, width, height)
-torusSGD.torus_sgd(graph, width, height)
+SGD.sgd(graph, width, height)
+torusSGD.sgd(graph, width, height)
 
 
 # calcDrawInfo.compare_node_pos()

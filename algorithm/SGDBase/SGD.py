@@ -5,9 +5,10 @@ from common import calcDrawInfo, debug
 import setup
 import itertools
 import numpy as np
+import networkx
 
 
-def torus_sgd(graph, _width=None, _height=None):
+def sgd(graph, _width=None, _height=None):
     index = []
 
     edge_len = 100
@@ -37,6 +38,8 @@ def torus_sgd(graph, _width=None, _height=None):
         for i in range(node_len):
             for j in range(node_len):
                 d[i][j] = min(d[i][j], d[i][k]+d[k][j])
+
+    # print("fin わーシャル")
 
     # w_ij=dij^(-2)
     w = [[1]*node_len for i in range(node_len)]

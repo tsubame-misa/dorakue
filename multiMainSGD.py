@@ -28,8 +28,8 @@ def create_sgd_graph(graph, filename):
             setup.set_roop1(50)
 
             time = setup.get_time()
-            sgd = SGD.torus_sgd(graph, width, height)
-            torus_sgd = torusSGD.torus_sgd(graph, width, height)
+            SGD.sgd(graph, width, height)
+            torusSGD.sgd(graph, width, height)
             drawGraph.create_compare_fig()
 
             _log = log.get_log()
