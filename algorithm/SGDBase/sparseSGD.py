@@ -57,9 +57,7 @@ def sparse_sgd(graph, _width=None, _height=None):
     edge_len = 100
 
     node_len = len(graph.nodes)
-    h = node_len//3
-
-    print(h)
+    h = node_len//1
 
     node2num = dict()
     cnt = 0
@@ -76,70 +74,28 @@ def sparse_sgd(graph, _width=None, _height=None):
 
     # 隣接行列の作成
     for i in range(node_len):
-        # d[i][i] = 0
         l[i][i] = 0
     for x_node, y_node in graph.edges:
         # 重みがないので1
         x = node2num[x_node]
         y = node2num[y_node]
-        # d[x][y] = edge_len
-        # d[y][x] = edge_len
         l[x][y] = edge_len
         l[y][x] = edge_len
 
-    # # これまでに選択されたピボットへの最大最短パスを持つ頂点
     P = []
-    # pivot = random.randint(0, node_len-1)
     pivot = 0
     P.append(pivot)
+    d[pivot] = dijkstra(l, pivot)
+    m = d[pivot]
     for i in range(h-1):
-        d[pivot] = dijkstra(l, pivot)
-        d_sum = []
-        d_cumulative_sum = [0]
-        for k in range(node_len):
-            if k in P:
-                d_sum.append(0)
-                d_cumulative_sum.append(d_cumulative_sum[k])
-                continue
-            _d = 0
-            for p in P:
-                if d[p][k] != float("inf"):
-                    _d += d[p][k]
-            d_sum.append(_d)
-            d_cumulative_sum.append(d_cumulative_sum[k]+_d)
-        # 最大値を取るやつ
-        # pivot = d_sum.index(max(d_sum))
-        # 確率のやつ？？
-        p = random.randint(0, d_cumulative_sum[-1])
-        for v in range(len(d_cumulative_sum)-1):
-            if d_cumulative_sum[v] < p and p <= d_cumulative_sum[v+1]:
-                pivot = v
-        P.append(pivot)
+        _index = m.index(max(m))
+        d[_index] = dijkstra(l, _index)
+        P.append(_index)
+        for j in range(node_len):
+            m[j] = min(m[j], d[_index][j])
     print(P)
 
-    # これまでに選択されたピボットへの最大最短パスを持つ頂点
-    # P = []
-    # pivot = random.randint(0, node_len-1)
-    # P.append(pivot)
-    # while len(P) < h:
-    #     _d = dijkstra(l, pivot)
-    #     pivot = _d.index(max(_d))
-    #     while pivot in P:
-    #         _d[pivot] = 0
-    #         pivot = _d.index(max(_d))
-    #         print(pivot)
-    #     P.append(pivot)
-    # print(P)
-
-    # ワーシャルフロイド(最短経路)
-    # for k in range(node_len):
-    #     for i in range(node_len):
-    #         for j in range(node_len):
-    #             d[i][j] = min(d[i][j], d[i][k]+d[k][j])
-    #         if i < len(P):
-    #             wd[P[i]][k] = 0
     for p in P:
-        d[p] = dijkstra(l, p)
         wd[p] = [0]*node_len
 
     # 隣接行列の初期化
@@ -151,31 +107,38 @@ def sparse_sgd(graph, _width=None, _height=None):
             if d[j][i] != 0:
                 w[j][i] = pow(d[j][i], -2)
                 wd[j][i] = pow(d[j][i], -2)
-                # ないけどこれいるはず
 
-                # print("###", w[j][i])
+    near_pivot = []
+    for i in range(node_len):
+        v = []
+        for p in P:
+            v.append(d[p][i])
+        near_pivot.append(P[v.index(min(v))])
 
     for i in range(node_len):
         for p in P:
-            near_i = [i for i, x in enumerate(l[i]) if x <= 100]
-            near_p = [i for i, x in enumerate(l[p]) if x <= 100]
+            near_i = [i for i, x in enumerate(l[i]) if x == 100]
+            near_p = [i for i, x in enumerate(near_pivot) if x == p]
+            # Pが一番近い頂点を選ばないといけない near_p
+
             # pがiの近傍じゃなかったら
             if not p in near_i:
                 # s = len(d_pj < dpi) jはpに近い頂点セット
-                cnt = 0
+                cnt = 1
+                # print(near_p)
                 for j in near_p:
-                    if d[p][j] < d[i][p]:
+                    if d[p][j] <= d[p][i]/2:
                         cnt += 1
                 d[i] = dijkstra(l, i)
-                w[i][p] = pow(d[i][p], -2)
-                wd[i][p] = cnt*w[i][p]
+                if d[i][p] != 0:
+                    w[i][p] = pow(d[i][p], -2)
+                wd[i][p] = w[i][p]*cnt
+    print([wd[P[i]] for i in range(h)])
 
     for x_node, y_node in graph.edges:
         i = node2num[x_node]
         j = node2num[y_node]
         d[i] = dijkstra(l, node2num[x_node])
-        # val = w[i][j]
-        val = pow(d[i][j], -2)
         wd[i][j] = w[i][j]
         wd[j][i] = w[i][j]
         k[i][j] = 1 / (d[i][j] * d[i][j])
@@ -202,8 +165,8 @@ def sparse_sgd(graph, _width=None, _height=None):
             index.append([i, j])
             # print(wd[i][j], wd[j][i])
             # print(w[i][j], w[j][i], wd[i][j], wd[j][i], i in P, j in P)
-            mu_i = min(w[i][j]*eta, 1)
-            mu_j = min(w[j][i]*eta, 1)
+            mu_i = min(wd[i][j]*eta, 1)
+            mu_j = min(wd[j][i]*eta, 1)
 
             rx = (calcDrawInfo.dist(pos, i, j)-d[i][j])/2 * \
                 (pos[i][0]-pos[j][0])/calcDrawInfo.dist(pos, i, j)
