@@ -3,19 +3,14 @@ from common import drawGraph
 from common import log
 from common import calcDrawInfo
 import setup
+from common import initGraph
 
 
 def torus_kame(graph, _width=None, _height=None):
     calcDrawInfo.clear_dorakue()
-    edge_len = 100
-
+    edge_weight = setup.get_edge_width()
     node_len = len(graph.nodes)
-
-    node2num = dict()
-    cnt = 0
-    for node in graph.nodes:
-        node2num[node] = cnt
-        cnt += 1
+    node2num = initGraph.get_node2num_memoized(graph)
 
     # 隣接行列の初期化
     d = [[float('inf')]*node_len for i in range(node_len)]
@@ -26,8 +21,8 @@ def torus_kame(graph, _width=None, _height=None):
         # 重みがないので1
         x = node2num[x_node]
         y = node2num[y_node]
-        d[x][y] = edge_len
-        d[y][x] = edge_len
+        d[x][y] = edge_weight
+        d[y][x] = edge_weight
 
     # ワーシャルフロイド(最短経路)
     for k in range(node_len):

@@ -6,20 +6,13 @@ import setup
 import itertools
 import numpy as np
 import networkx
+from common import initGraph
 
 
 def sgd(graph, _width=None, _height=None):
-    index = []
-
-    edge_len = 100
-
+    edge_weight = setup.get_edge_width()
     node_len = len(graph.nodes)
-
-    node2num = dict()
-    cnt = 0
-    for node in graph.nodes:
-        node2num[node] = cnt
-        cnt += 1
+    node2num = initGraph.get_node2num_memoized(graph)
 
     # 隣接行列の初期化
     d = [[float('inf')]*node_len for i in range(node_len)]
@@ -30,8 +23,8 @@ def sgd(graph, _width=None, _height=None):
         # 重みがないので1
         x = node2num[x_node]
         y = node2num[y_node]
-        d[x][y] = edge_len
-        d[y][x] = edge_len
+        d[x][y] = edge_weight
+        d[y][x] = edge_weight
 
     # ワーシャルフロイド(最短経路)
     for k in range(node_len):
@@ -91,7 +84,6 @@ def sgd(graph, _width=None, _height=None):
         eta = eta_max*pow(math.e, -1*_lamda*t)
 
         for i, j in pair_index:
-            index.append([i, j])
             mu = w[i][j]*eta
             if mu > 1:
                 mu = 1
@@ -105,15 +97,12 @@ def sgd(graph, _width=None, _height=None):
             pos[j][0] = pos[j][0]+mu*rx
             pos[j][1] = pos[j][1]+mu*ry
 
-    delta = calcDrawInfo.calc_delta(pos, k, l, node_len, width, height)
+    delta = calcDrawInfo.calc_delta(pos, k, l, node_len)
     edge_score = [(d[node2num[u]][node2num[v]] -
                   calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,
                          node_len, "SGD", width, height)
     kame_log = log.calc_evaluation_values(delta, edge_score)
-
-    debug.add_node_a(pos)
-    debug.add_index_a(index)
 
     log.add_log("SGD", kame_log)
 

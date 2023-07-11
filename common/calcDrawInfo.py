@@ -168,7 +168,6 @@ def get_max_delta(pos,  k, l, node_len):
 
 def get_max_around_delta(pos,  k, l, node_len, width, height):
     delta = calc_delta_around(pos,  k, l, node_len, width, height)
-    print("get", max(delta))
     return delta.index(max(delta))
 
 

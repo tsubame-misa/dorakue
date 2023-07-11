@@ -1,7 +1,5 @@
 import math
-from common import drawGraph
-from common import log
-from common import calcDrawInfo, debug
+from common import calcDrawInfo, debug, initGraph, log, drawGraph
 import setup
 import itertools
 import numpy as np
@@ -9,17 +7,9 @@ import numpy as np
 
 def torus_sgd(graph, _width=None, _height=None):
     index = []
-    calcDrawInfo.clear_dorakue()
-
-    edge_len = 100
-
+    edge_weight = setup.get_edge_width()
     node_len = len(graph.nodes)
-
-    node2num = dict()
-    cnt = 0
-    for node in graph.nodes:
-        node2num[node] = cnt
-        cnt += 1
+    node2num = initGraph.get_node2num_memoized(graph)
 
     # 隣接行列の初期化
     d = [[float('inf')]*node_len for i in range(node_len)]
@@ -30,8 +20,8 @@ def torus_sgd(graph, _width=None, _height=None):
         # 重みがないので1
         x = node2num[x_node]
         y = node2num[y_node]
-        d[x][y] = edge_len
-        d[y][x] = edge_len
+        d[x][y] = edge_weight
+        d[y][x] = edge_weight
 
     # ワーシャルフロイド(最短経路)
     for k in range(node_len):
@@ -110,7 +100,7 @@ def torus_sgd(graph, _width=None, _height=None):
             pos[i] = calcDrawInfo.dorakue(pos[i], width, height)
             pos[j] = calcDrawInfo.dorakue(pos[j], width, height)
 
-    delta = calcDrawInfo.calc_delta(pos, k, l, node_len, width, height)
+    delta = calcDrawInfo.calc_delta_around(pos, k, l, node_len, width, height)
     edge_score = [(d[node2num[u]][node2num[v]] -
                    calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,

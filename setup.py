@@ -17,6 +17,10 @@ def get_loop():
     return LOOP1, LOOP2
 
 
+def get_edge_width():
+    return 100
+
+
 def set_roop1(value):
     global LOOP1
     LOOP1 = value
