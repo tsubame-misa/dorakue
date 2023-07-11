@@ -58,6 +58,8 @@ def kamada_kawai(graph, _width=None, _height=None):
             for j in range(node_len):
                 d[i][j] = min(d[i][j], d[i][k]+d[k][j])
 
+    # print("fin わーシャル")
+
     maxd = 0
     for i in range(node_len):
         for j in range(i, node_len):

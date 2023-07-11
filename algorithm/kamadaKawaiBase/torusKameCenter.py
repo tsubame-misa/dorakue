@@ -6,6 +6,8 @@ import setup
 
 
 def torus_kame(graph, _width=None, _height=None):
+    calcDrawInfo.clear_dorakue()
+
     def calc_delta(pos,  k, l, node_len, width, height):
         Delta = [0]*node_len
         max_delta = 0
@@ -60,6 +62,8 @@ def torus_kame(graph, _width=None, _height=None):
         for i in range(node_len):
             for j in range(node_len):
                 d[i][j] = min(d[i][j], d[i][k]+d[k][j])
+
+    # print("fin わーシャル")
 
     maxd = 0
     for i in range(node_len):
@@ -141,5 +145,6 @@ def torus_kame(graph, _width=None, _height=None):
     kame_log = log.calc_evaluation_values(delta, edge_score)
 
     log.add_log("torus_kame", kame_log)
+    log.add_log("around",  calcDrawInfo.get_has_dorakue())
 
     return kame_log["dist"]["sum"]

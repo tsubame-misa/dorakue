@@ -7,7 +7,6 @@ import setup
 filename = './graph/les_miserables.json'
 graph = json_graph.node_link_graph(json.load(open(filename)))
 
-len_list = [100,  1000, 10000, 100000, 1000000]
 all_log = {"file": filename}
 
 
@@ -25,8 +24,8 @@ def create_kk_graph(graph, filename):
             setup.set_roop1(1000)
 
             time = setup.get_time()
-            torus_kame = torusKameCenter.torus_kame(graph, width, height)
-            kame = kameKame.kamada_kawai(graph, width, height)
+            kameKame.kamada_kawai(graph, width, height)
+            torusKameCenter.torus_kame(graph, width, height)
 
             drawGraph.create_compare_fig()
 

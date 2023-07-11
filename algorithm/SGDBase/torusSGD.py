@@ -9,6 +9,7 @@ import numpy as np
 
 def torus_sgd(graph, _width=None, _height=None):
     index = []
+    calcDrawInfo.clear_dorakue()
 
     edge_len = 100
 
@@ -38,6 +39,8 @@ def torus_sgd(graph, _width=None, _height=None):
             for j in range(node_len):
                 d[i][j] = min(d[i][j], d[i][k]+d[k][j])
 
+    # print("fin わーシャル")
+
     # w_ij=dij^(-2)
     w = [[1]*node_len for i in range(node_len)]
     for i in range(node_len):
@@ -50,6 +53,7 @@ def torus_sgd(graph, _width=None, _height=None):
         for j in range(i, node_len):
             if maxd < d[i][j]:
                 maxd = d[i][j]
+    print("maxd", maxd)
 
     height = maxd if _height == None else _height
     width = maxd if _width == None else _width
@@ -117,5 +121,6 @@ def torus_sgd(graph, _width=None, _height=None):
     debug.add_index_b(index)
 
     log.add_log("torusSGD", kame_log)
+    log.add_log("around", calcDrawInfo.get_has_dorakue())
 
     return kame_log["dist"]["sum"]

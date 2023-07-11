@@ -5,6 +5,7 @@ import numpy as np
 
 POS = []
 PAIR_INDEX = []
+DORAKUE = False
 
 
 def clear():
@@ -80,6 +81,7 @@ def init_pos(node_len, width, height):
     L0 = 1
     # 範囲を固定
     l = 100
+    # l = 1000
     for i in range(node_len):
         x = L0*random.uniform(width/2-l/2, width/2+l/2)
         y = L0*random.uniform(height/2-l/2, height/2+l/2)
@@ -95,20 +97,25 @@ def get_pos(node_len, width, height):
 
 
 def dorakue(pos, width, height):
+    global DORAKUE
     # 先生の式のやつでやらないとダメかも？
     if pos[0] < 0:
         pos[0] = width*(abs(pos[0])//width+1)+pos[0]
         # print("dorakue")
+        DORAKUE = True
     elif pos[0] > width:
         pos[0] = pos[0]-width*(abs(pos[0])//width)
         # print("dorakue")
+        DORAKUE = True
 
     if pos[1] < 0:
         pos[1] = height*(abs(pos[1])//height+1)+pos[1]
         # print("dorakue")
+        DORAKUE = True
     elif pos[1] > height:
         pos[1] = pos[1]-height*(abs(pos[1])//height)
         # print("dorakue")
+        DORAKUE = True
 
     return pos
 
@@ -182,11 +189,11 @@ def calc_delta_around(pos,  k, l, node_len, width, height):
 
 
 def init_pair_index(node_len, loop):
-    global PAIR_INDEX
+    global c
     for i in range(loop):
         pair_index = [list(p) for p in itertools.combinations(
             [i for i in range(node_len)], 2)]
-        np.random.shuffle(pair_index)
+        pair_index = random.sample(pair_index, len(pair_index))
         PAIR_INDEX.append(pair_index)
 
 
@@ -196,3 +203,21 @@ def get_random_pair(node_len, loop, t):
         init_pair_index(node_len, loop)
     pair_index = [[x, y] for x, y in PAIR_INDEX[t]]
     return pair_index
+
+
+def get_random_pair_short(node_len, loop, t):
+    global PAIR_INDEX
+    if len(PAIR_INDEX) == 0:
+        init_pair_index(node_len, loop)
+    pair_index = [[x, y] for x, y in PAIR_INDEX[t]]
+    print(node_len)
+    return pair_index[:node_len//2]
+
+
+def clear_dorakue():
+    global DORAKUE
+    DORAKUE = False
+
+
+def get_has_dorakue():
+    return DORAKUE

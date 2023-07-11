@@ -7,6 +7,7 @@ import itertools
 import numpy as np
 from functools import lru_cache
 import random
+import copy
 
 
 def dijkstra(graph, start):
@@ -45,7 +46,7 @@ def sparse_sgd(graph, _width=None, _height=None):
             pair_index.add((node2num[i], node2num[j]))
         for i in range(node_len):
             for p in P:
-                if i != p:
+                if i != p and (not (p, i) in pair_index) and (not (i, p) in pair_index):
                     # ここ逆にするとバグる
                     pair_index.add((p, i))
         pair_index = random.sample(pair_index, len(pair_index))
@@ -57,7 +58,8 @@ def sparse_sgd(graph, _width=None, _height=None):
     edge_len = 100
 
     node_len = len(graph.nodes)
-    h = node_len//1
+    h = node_len
+    h = 10
 
     node2num = dict()
     cnt = 0
@@ -83,17 +85,17 @@ def sparse_sgd(graph, _width=None, _height=None):
         l[y][x] = edge_len
 
     P = []
-    pivot = 0
+    pivot = random.randint(0, node_len)
+    # pivot = 0
     P.append(pivot)
     d[pivot] = dijkstra(l, pivot)
-    m = d[pivot]
+    m = d[pivot].copy()
     for i in range(h-1):
         _index = m.index(max(m))
         d[_index] = dijkstra(l, _index)
         P.append(_index)
         for j in range(node_len):
             m[j] = min(m[j], d[_index][j])
-    print(P)
 
     for p in P:
         wd[p] = [0]*node_len
@@ -106,25 +108,46 @@ def sparse_sgd(graph, _width=None, _height=None):
         for j in P:
             if d[j][i] != 0:
                 w[j][i] = pow(d[j][i], -2)
-                wd[j][i] = pow(d[j][i], -2)
 
+    # ピボットの中で一番近いもの
     near_pivot = []
     for i in range(node_len):
         v = []
+        if i in P:
+            near_pivot.append([])
+            continue
         for p in P:
-            v.append(d[p][i])
-        near_pivot.append(P[v.index(min(v))])
+            if p != i:
+                v.append(d[p][i])
+            else:
+                v.append(float("inf"))
+        # print(v)
+        # print("min v", min(v), P[v.index(min(v))])
+        # near_pivot.append(P[v.index(min(v))])
+        _near_pivot = []
+        _min = min(v)
+        for j in range(h):
+            if v[j] == _min:
+                _near_pivot.append(P[j])
+        near_pivot.append(_near_pivot)
+        # print(_near_pivot)
+
+    print(wd[P[0]][2], wd[2][P[0]])
 
     for i in range(node_len):
         for p in P:
-            near_i = [i for i, x in enumerate(l[i]) if x == 100]
-            near_p = [i for i, x in enumerate(near_pivot) if x == p]
-            # Pが一番近い頂点を選ばないといけない near_p
+            near_i = [j for j, x in enumerate(l[i]) if x == 100]
+            # near_p = [i for i, x in enumerate(l[p]) if x == 100]
+            # near_p = [i for i, x in enumerate(near_pivot) if x == p]
+            near_p = [i for i in range(node_len) if p in near_pivot[i]]
 
             # pがiの近傍じゃなかったら
             if not p in near_i:
                 # s = len(d_pj < dpi) jはpに近い頂点セット
-                cnt = 1
+                if len(near_p) > 0:
+                    cnt = 0
+                else:
+                    cnt = 1
                 # print(near_p)
                 for j in near_p:
                     if d[p][j] <= d[p][i]/2:
@@ -133,7 +156,9 @@ def sparse_sgd(graph, _width=None, _height=None):
                 if d[i][p] != 0:
                     w[i][p] = pow(d[i][p], -2)
                 wd[i][p] = w[i][p]*cnt
-    print([wd[P[i]] for i in range(h)])
+
+    print(P)
+    print(wd[P[0]][2], wd[2][P[0]])
 
     for x_node, y_node in graph.edges:
         i = node2num[x_node]
@@ -147,7 +172,6 @@ def sparse_sgd(graph, _width=None, _height=None):
 
     loop1, loop2 = setup.get_loop()
 
-    # loop=100くらいがちょうど良さそう
     eps = 0.1
     eta_max = 1/(min(list(itertools.chain.from_iterable(w))))
     eta_min = eps/(max(list(itertools.chain.from_iterable(w))))

@@ -4,6 +4,8 @@ import glob
 
 path_list = []
 
+file_path = str(input())
+
 files = glob.glob("./result/*")
 for file in files:
     path_list.append(file)

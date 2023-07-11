@@ -9,7 +9,6 @@ filename = './graph/les_miserables.json'
 print(filename)
 graph = json_graph.node_link_graph(json.load(open(filename)))
 
-len_list = [500, 750, 1000]
 all_log = {"file": filename}
 
 
@@ -29,7 +28,7 @@ def create_sgd_graph(graph, filename):
 
             time = setup.get_time()
             SGD.sgd(graph, width, height)
-            torusSGD.sgd(graph, width, height)
+            torusSGD.torus_sgd(graph, width, height)
             drawGraph.create_compare_fig()
 
             _log = log.get_log()

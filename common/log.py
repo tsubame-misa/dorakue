@@ -19,6 +19,14 @@ def set_time(time):
     TIME = time
 
 
+def create_file(time):
+    dir = os.getcwd()
+    path = "/result/log/" + time + ".json"
+    f = open(path, "w")
+    f.write()
+    f.close()
+
+
 def create_log(_log=None):
     print(LOG)
     if _log == None:

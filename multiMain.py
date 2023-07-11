@@ -2,7 +2,7 @@ import json
 from networkx.readwrite import json_graph
 from algorithm.SGDBase import SGD
 from algorithm.kamadaKawaiBase import kameKame, torusKameCenter
-from common import log, drawGraph, calcDrawInfo
+from common import log, drawGraph, calcDrawInfo, debug
 import setup
 from algorithm.SGDBase import torusSGD
 
@@ -10,8 +10,8 @@ from algorithm.SGDBase import torusSGD
 filename = './graph/les_miserables.json'
 graph = json_graph.node_link_graph(json.load(open(filename)))
 
-# len_list = [100,  1000, 10000, 100000, 1000000]
-len_list = [1000]
+len_list = [100,  1000, 10000, 100000, 1000000]
+# len_list = [1000]
 all_log = {"file": filename}
 
 great = {l: [] for l in len_list}
@@ -21,7 +21,7 @@ for _len in len_list:
     height = _len
     wh_log = {}
     print(_len)
-    for i in range(1):
+    for i in range(10):
         setup.init()
         setup.set_roop1(50)
 
@@ -29,8 +29,8 @@ for _len in len_list:
         # center = torusCenter.torus_center(graph, width, height)
         # bfs = torusBfs.torus_bfs(graph, width, height)
         # torus_kame = torusKameCenter.torus_kame(graph, width, height)
-        sgd = SGD.torus_sgd(graph, width, height)
-        torus_sgd = torusSGD.torus_sgd(graph, width, height)
+        sgd = SGD.sgd(graph, width, height)
+        torus_sgd = torusSGD.sgd(graph, width, height)
         # kame = kameKame.kamada_kawai(graph, width, height)
 
         drawGraph.create_compare_fig()

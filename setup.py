@@ -51,7 +51,7 @@ def init(time=None):
 
 
 def get_len():
-    return [500, 750, 1000]
+    return [3000]
 
 
 def set_term(value):

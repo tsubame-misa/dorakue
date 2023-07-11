@@ -18,10 +18,11 @@ for filepath in files:
 sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes))
 
 for g in sorted_graphs:
-    if len(g["graph"].nodes) < 800:
-        continue
+    # if len(g["graph"].nodes) < 800:
+    #     continue
     print(g["name"], "size", len(g["graph"].nodes))
-    setup.set_term(10)
-    create_sgd_graph(g["graph"], g["name"])
-    create_kk_graph(g["graph"], g["name"])
-    print("---------------------")
+    # setup.set_term(1)
+    # create_sgd_graph(g["graph"], g["name"])
+    # create_kk_graph(g["graph"], g["name"])
+    # print("---------------------")
+    # exit()
