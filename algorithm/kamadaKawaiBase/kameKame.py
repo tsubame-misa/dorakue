@@ -6,30 +6,6 @@ import setup
 
 
 def kamada_kawai(graph, _width=None, _height=None):
-    def calc_delta(pos,  k, l, node_len):
-        Delta = [0]*node_len
-        max_delta = 0
-        max_i = 0
-        for i in range(node_len):
-            Ex = 0
-            Ey = 0
-            for j in range(node_len):
-                if i == j:
-                    continue
-                norm = math.sqrt((pos[i][0]-pos[j][0]) **
-                                 2 + (pos[i][1]-pos[j][1])**2)
-                dx_ij = pos[i][0]-pos[j][0]
-                dy_ij = pos[i][1]-pos[j][1]
-
-                Ex += k[i][j]*dx_ij*(1.0-l[i][j]/norm)
-                Ey += k[i][j]*dy_ij*(1.0-l[i][j]/norm)
-            Delta[i] = math.sqrt(Ex*Ex+Ey*Ey)
-            if Delta[i] > max_delta:
-                max_delta = Delta[i]
-                max_i = i
-
-        return max_i
-
     edge_len = 100
 
     node_len = len(graph.nodes)
@@ -58,8 +34,6 @@ def kamada_kawai(graph, _width=None, _height=None):
             for j in range(node_len):
                 d[i][j] = min(d[i][j], d[i][k]+d[k][j])
 
-    # print("fin わーシャル")
-
     maxd = 0
     for i in range(node_len):
         for j in range(i, node_len):
@@ -84,12 +58,12 @@ def kamada_kawai(graph, _width=None, _height=None):
 
     pos = calcDrawInfo.get_pos(node_len, width, height)
 
-    max_i = calc_delta(pos, k, l, node_len)
+    max_i = calcDrawInfo.get_max_delta(pos, k, l, node_len)
 
     loop1, loop2 = setup.get_loop()
 
     for cnt1 in range(loop1):
-        max_i = calc_delta(pos, k, l, node_len)
+        max_i = calcDrawInfo.get_max_delta(pos, k, l, node_len)
         for cnt2 in range(loop2):
             Exx = 0
             Exy = 0
@@ -125,7 +99,7 @@ def kamada_kawai(graph, _width=None, _height=None):
             pos[max_i][0] += dx
             pos[max_i][1] += dy
 
-    delta = calcDrawInfo.calc_delta(pos, k, l, node_len, width, height)
+    delta = calcDrawInfo.calc_delta(pos, k, l, node_len)
     edge_score = [(d[node2num[u]][node2num[v]] -
                    calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,

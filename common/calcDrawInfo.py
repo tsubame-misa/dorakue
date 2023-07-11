@@ -142,12 +142,11 @@ def shift_flat(pos, diff_x, diff_y, node_len, width, height):
     return pos
 
 
-def calc_delta(pos,  k, l, node_len, width, height):
+def calc_delta(pos,  k, l, node_len):
     Delta = [0]*node_len
     for i in range(node_len):
         Ex = 0
         Ey = 0
-        diff_x, diff_y, pos = shift_center(pos, i, node_len, width, height)
         for j in range(node_len):
             if i == j:
                 continue
@@ -159,9 +158,18 @@ def calc_delta(pos,  k, l, node_len, width, height):
             Ex += k[i][j]*dx_ij*(1.0-l[i][j]/norm)
             Ey += k[i][j]*dy_ij*(1.0-l[i][j]/norm)
         Delta[i] = math.sqrt(Ex*Ex+Ey*Ey)
-        pos = shift_flat(pos, diff_x, diff_y, node_len, width, height)
-
     return Delta
+
+
+def get_max_delta(pos,  k, l, node_len):
+    delta = calc_delta(pos,  k, l, node_len)
+    return delta.index(max(delta))
+
+
+def get_max_around_delta(pos,  k, l, node_len, width, height):
+    delta = calc_delta_around(pos,  k, l, node_len, width, height)
+    print("get", max(delta))
+    return delta.index(max(delta))
 
 
 def calc_delta_around(pos,  k, l, node_len, width, height):
@@ -169,22 +177,20 @@ def calc_delta_around(pos,  k, l, node_len, width, height):
     for i in range(node_len):
         Ex = 0
         Ey = 0
-        diff_x, diff_y, pos = shift_center(pos, i, node_len, width, height)
+        _pos = [[x, y] for x, y in pos]
+        diff_x, diff_y, _pos = shift_center(
+            _pos, i, node_len, width, height)
         for j in range(node_len):
             if i == j:
                 continue
-            norm = math.sqrt((pos[i][0]-pos[j][0]) **
-                             2 + (pos[i][1]-pos[j][1])**2)
-
-            dx_ij = pos[i][0] - ((pos[j][0]-(pos[i][0]-width/2) +
-                                  width) % width+(pos[j][0]-width/2))
-            dy_ij = pos[i][1] - ((pos[j][1]-(pos[i][1]-height/2) +
-                                  height) % height+(pos[i][1]-height/2))
+            norm = math.sqrt((_pos[i][0]-_pos[j][0]) **
+                             2 + (_pos[i][1]-_pos[j][1])**2)
+            dx_ij = _pos[i][0]-_pos[j][0]
+            dy_ij = _pos[i][1]-_pos[j][1]
 
             Ex += k[i][j]*dx_ij*(1.0-l[i][j]/norm)
             Ey += k[i][j]*dy_ij*(1.0-l[i][j]/norm)
         Delta[i] = math.sqrt(Ex*Ex+Ey*Ey)
-        pos = shift_flat(pos, diff_x, diff_y, node_len, width, height)
     return Delta
 
 

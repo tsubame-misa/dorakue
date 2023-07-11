@@ -7,34 +7,6 @@ import setup
 
 def torus_kame(graph, _width=None, _height=None):
     calcDrawInfo.clear_dorakue()
-
-    def calc_delta(pos,  k, l, node_len, width, height):
-        Delta = [0]*node_len
-        max_delta = 0
-        max_i = 0
-        for i in range(node_len):
-            Ex = 0
-            Ey = 0
-            _pos = [[x, y] for x, y in pos]
-            diff_x, diff_y, _pos = calcDrawInfo.shift_center(
-                _pos, i, node_len, width, height)
-            for j in range(node_len):
-                if i == j:
-                    continue
-                norm = math.sqrt((_pos[i][0]-_pos[j][0]) **
-                                 2 + (_pos[i][1]-_pos[j][1])**2)
-                dx_ij = _pos[i][0]-_pos[j][0]
-                dy_ij = _pos[i][1]-_pos[j][1]
-
-                Ex += k[i][j]*dx_ij*(1.0-l[i][j]/norm)
-                Ey += k[i][j]*dy_ij*(1.0-l[i][j]/norm)
-            Delta[i] = math.sqrt(Ex*Ex+Ey*Ey)
-            if Delta[i] > max_delta:
-                max_delta = Delta[i]
-                max_i = i
-
-        return max_i
-
     edge_len = 100
 
     node_len = len(graph.nodes)
@@ -63,8 +35,6 @@ def torus_kame(graph, _width=None, _height=None):
             for j in range(node_len):
                 d[i][j] = min(d[i][j], d[i][k]+d[k][j])
 
-    # print("fin わーシャル")
-
     maxd = 0
     for i in range(node_len):
         for j in range(i, node_len):
@@ -89,12 +59,14 @@ def torus_kame(graph, _width=None, _height=None):
 
     pos = calcDrawInfo.get_pos(node_len, width, height)
 
-    max_i = calc_delta(pos, k, l, node_len, width, height)
+    max_i = calcDrawInfo.get_max_around_delta(
+        pos, k, l, node_len, width, height)
 
     loop1, loop2 = setup.get_loop()
 
     for cnt1 in range(loop1):
-        max_i = calc_delta(pos, k, l, node_len, width, height)
+        max_i = calcDrawInfo.get_max_around_delta(
+            pos, k, l, node_len, width, height)
         for cnt2 in range(loop2):
             Exx = 0
             Exy = 0
@@ -137,7 +109,7 @@ def torus_kame(graph, _width=None, _height=None):
             pos[max_i] = calcDrawInfo.dorakue(
                 pos[max_i], width, height)
 
-    delta = calcDrawInfo.calc_delta(pos, k, l, node_len, width, height)
+    delta = calcDrawInfo.calc_delta_around(pos, k, l, node_len, width, height)
     edge_score = [(d[node2num[u]][node2num[v]] -
                    calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,
