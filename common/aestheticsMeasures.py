@@ -1,6 +1,7 @@
-import calcDrawInfo
+from common import calcDrawInfo
 import math
 import numpy as np
+import itertools
 
 
 def calc_mean(array):
@@ -69,3 +70,25 @@ def minimum_angle(pos,  l):
         min_theta = min(thetas)
         _sum += abs(ideal_theta-min_theta)/ideal_theta
     return _sum/len(pos)
+
+
+def is_cross(p1, p2, p3, p4):
+    tc1 = (p1[0] - p2[0]) * (p3[1] - p1[1]) + (p1[1] - p2[1]) * (p1[0] - p3[0])
+    tc2 = (p1[0] - p2[0]) * (p4[1] - p1[1]) + (p1[1] - p2[1]) * (p1[0] - p4[0])
+    td1 = (p3[0] - p4[0]) * (p1[1] - p3[1]) + (p3[1] - p4[1]) * (p3[0] - p1[0])
+    td2 = (p3[0] - p4[0]) * (p2[1] - p3[1]) + (p3[1] - p4[1]) * (p3[0] - p2[0])
+    return tc1*tc2 < 0 and td1*td2 < 0
+
+
+def edge_crossings(graph, node2num, pos):
+    count = 0
+    edge_pair = [list(p) for p in itertools.combinations(
+        graph.edges, 2)]
+    for i in range(len(edge_pair)):
+        n1 = node2num[edge_pair[i][0][0]]
+        n2 = node2num[edge_pair[i][0][1]]
+        n3 = node2num[edge_pair[i][1][0]]
+        n4 = node2num[edge_pair[i][1][1]]
+        if is_cross(pos[n1], pos[n2], pos[n3], pos[n4]):
+            count += 1
+    return count
