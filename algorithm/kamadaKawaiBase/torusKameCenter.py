@@ -1,7 +1,5 @@
 import math
-from common import drawGraph
-from common import log
-from common import calcDrawInfo
+from common import calcDrawInfo, aestheticsMeasures, log, drawGraph
 import setup
 from common import initGraph
 
@@ -83,7 +81,7 @@ def torus_kame(graph, file_name, _width=None, _height=None):
                    calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,
                          node_len, "torus_kame", width, height, file_name)
-    kame_log = log.calc_evaluation_values(delta, edge_score)
+    kame_log = aestheticsMeasures.calc_evaluation_values(delta, edge_score)
 
     log.add_log("torus_kame", kame_log)
     log.add_log("around",  calcDrawInfo.get_has_dorakue())

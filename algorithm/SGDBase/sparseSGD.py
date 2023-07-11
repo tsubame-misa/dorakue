@@ -1,5 +1,5 @@
 import math
-from common import drawGraph, log, calcDrawInfo, debug
+from common import drawGraph, log, calcDrawInfo, debug, aestheticsMeasures
 import setup
 import itertools
 import random
@@ -202,7 +202,7 @@ def sparse_sgd(graph, _width=None, _height=None):
                   calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,
                          node_len, "sparseSGD", width, height)
-    kame_log = log.calc_evaluation_values(delta, edge_score)
+    kame_log = aestheticsMeasures.calc_evaluation_values(delta, edge_score)
 
     debug.add_node_a(pos)
     debug.add_index_a(index)

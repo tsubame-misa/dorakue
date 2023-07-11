@@ -1,5 +1,5 @@
 import math
-from common import drawGraph, log, calcDrawInfo, debug, initGraph
+from common import drawGraph, log, calcDrawInfo,  initGraph, aestheticsMeasures
 import setup
 import itertools
 
@@ -63,7 +63,7 @@ def sgd(graph, file_name, _width=None, _height=None):
                   calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,
                          node_len, "SGD", width, height, file_name)
-    kame_log = log.calc_evaluation_values(delta, edge_score)
+    kame_log = aestheticsMeasures.calc_evaluation_values(delta, edge_score)
 
     log.add_log("SGD", kame_log)
 
