@@ -11,10 +11,15 @@ TERM_DEFAULT = 10
 LOOP1 = DEFAULT_LOOP1
 LOOP2 = DEFAULT_LOOP2
 TERM = TERM_DEFAULT
+SGD_LOOP = DEFAULT_LOOP1
 
 
 def get_loop():
     return LOOP1, LOOP2
+
+
+def get_SGD_loop():
+    return SGD_LOOP
 
 
 def get_edge_width():

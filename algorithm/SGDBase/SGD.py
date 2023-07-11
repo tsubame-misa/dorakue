@@ -1,14 +1,11 @@
 import math
-from common import drawGraph
-from common import log
-from common import calcDrawInfo, debug
+from common import drawGraph, log, calcDrawInfo, debug, initGraph
 import setup
 import itertools
-from common import initGraph
 
 
 def sgd(graph, _width=None, _height=None):
-    loop1, loop2 = setup.get_loop()
+    loop = setup.get_SGD_loop()
     node_len = len(graph.nodes)
     node2num = initGraph.get_node2num_memoized(graph)
 
@@ -41,10 +38,10 @@ def sgd(graph, _width=None, _height=None):
     eta_max = 1/(min(list(itertools.chain.from_iterable(w))))
     eta_min = eps/(max(list(itertools.chain.from_iterable(w))))
     eta = eta_max
-    _lamda = -1*math.log(eta_min/eta_max)/loop1
+    _lamda = -1*math.log(eta_min/eta_max)/loop
 
-    for t in range(loop1):
-        pair_index = calcDrawInfo.get_random_pair(node_len, loop1, t)
+    for t in range(loop):
+        pair_index = calcDrawInfo.get_random_pair(node_len, loop, t)
         eta = eta_max*pow(math.e, -1*_lamda*t)
 
         for i, j in pair_index:
