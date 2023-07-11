@@ -60,7 +60,7 @@ def torus_bfs(graph, _width=None, _height=None):
     height = maxd if _height == None else _height
     width = maxd if _width == None else _width
 
-    pos = calcDrawInfo.get_pos(node_len, width, height)
+    pos = initGraph.get_pos(node_len, width, height)
 
     loop1, loop2 = setup.get_loop()
 

@@ -31,7 +31,7 @@ def sgd(graph, file_name, _width=None, _height=None):
 
     height = maxd if _height == None else _height
     width = maxd if _width == None else _width
-    pos = calcDrawInfo.get_pos(node_len, width, height)
+    pos = initGraph.get_pos(node_len, width, height)
 
     # loop=100くらいがちょうど良さそう
     eps = 0.1
@@ -41,7 +41,7 @@ def sgd(graph, file_name, _width=None, _height=None):
     _lamda = -1*math.log(eta_min/eta_max)/loop
 
     for t in range(loop):
-        pair_index = calcDrawInfo.get_random_pair(node_len, loop, t)
+        pair_index = initGraph.get_random_pair(node_len, loop, t)
         eta = eta_max*pow(math.e, -1*_lamda*t)
 
         for i, j in pair_index:

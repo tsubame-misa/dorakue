@@ -1,16 +1,6 @@
-import random
 import math
-import itertools
 
-POS = []
-PAIR_INDEX = []
 DORAKUE = False
-
-
-def clear():
-    global POS, PAIR_INDEX
-    POS = []
-    PAIR_INDEX = []
 
 
 def calc_mean(array):
@@ -73,26 +63,6 @@ def dist_around_position(pos, u, v, width, height):
     ay = pos[u][1] - ((pos[v][1]-(pos[u][1]-height/2) +
                        height) % height+(pos[u][1]-height/2))
     return [ax, ay]
-
-
-def init_pos(node_len, width, height):
-    global POS
-    L0 = 1
-    # 範囲を固定
-    l = 100
-    # l = 1000
-    for i in range(node_len):
-        x = L0*random.uniform(width/2-l/2, width/2+l/2)
-        y = L0*random.uniform(height/2-l/2, height/2+l/2)
-        POS.append([x, y])
-
-
-def get_pos(node_len, width, height):
-    global POS
-    if len(POS) == 0:
-        init_pos(node_len, width, height)
-    pos0 = [[x, y] for x, y in POS]
-    return pos0
 
 
 def dorakue(pos, width, height):
@@ -190,22 +160,6 @@ def calc_delta_around(pos,  k, l, node_len, width, height):
             Ey += k[i][j]*dy_ij*(1.0-l[i][j]/norm)
         Delta[i] = math.sqrt(Ex*Ex+Ey*Ey)
     return Delta
-
-
-def init_pair_index(node_len, loop):
-    for i in range(loop):
-        pair_index = [list(p) for p in itertools.combinations(
-            [i for i in range(node_len)], 2)]
-        pair_index = random.sample(pair_index, len(pair_index))
-        PAIR_INDEX.append(pair_index)
-
-
-def get_random_pair(node_len, loop, t):
-    global PAIR_INDEX
-    if len(PAIR_INDEX) == 0:
-        init_pair_index(node_len, loop)
-    pair_index = [[x, y] for x, y in PAIR_INDEX[t]]
-    return pair_index
 
 
 def clear_dorakue():

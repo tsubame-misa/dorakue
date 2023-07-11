@@ -1,12 +1,19 @@
 import setup
 from functools import cache
+import random
+import itertools
 
 
 SHORTEST_PATH = dict()
+POS = []
+PAIR_INDEX = []
+DORAKUE = False
 
 
 def clear():
-    global SHORTEST_PATH
+    global POS, PAIR_INDEX, SHORTEST_PATH
+    POS = []
+    PAIR_INDEX = []
     SHORTEST_PATH = dict()
 
 
@@ -56,10 +63,9 @@ def get_node2num_memoized(graph):
     return node2num
 
 
-# 自前メモ化の必要ある？
 def get_shortest_path(graph, node_len, node2num, file_name):
+    # メモ化
     if file_name in SHORTEST_PATH:
-        print("short!")
         return SHORTEST_PATH[file_name]
 
     edge_weight = setup.get_edge_width()
@@ -79,3 +85,39 @@ def get_shortest_path(graph, node_len, node2num, file_name):
     # 辞書に保存
     SHORTEST_PATH[file_name] = d
     return d
+
+
+def init_pos(node_len, width, height):
+    global POS
+    L0 = 1
+    # 範囲を固定
+    l = 100
+    # l = 1000
+    for i in range(node_len):
+        x = L0*random.uniform(width/2-l/2, width/2+l/2)
+        y = L0*random.uniform(height/2-l/2, height/2+l/2)
+        POS.append([x, y])
+
+
+def get_pos(node_len, width, height):
+    global POS
+    if len(POS) == 0:
+        init_pos(node_len, width, height)
+    pos0 = [[x, y] for x, y in POS]
+    return pos0
+
+
+def init_pair_index(node_len, loop):
+    for i in range(loop):
+        pair_index = [list(p) for p in itertools.combinations(
+            [i for i in range(node_len)], 2)]
+        pair_index = random.sample(pair_index, len(pair_index))
+        PAIR_INDEX.append(pair_index)
+
+
+def get_random_pair(node_len, loop, t):
+    global PAIR_INDEX
+    if len(PAIR_INDEX) == 0:
+        init_pair_index(node_len, loop)
+    pair_index = [[x, y] for x, y in PAIR_INDEX[t]]
+    return pair_index

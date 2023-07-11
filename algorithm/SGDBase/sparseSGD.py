@@ -163,7 +163,7 @@ def sparse_sgd(graph, _width=None, _height=None):
         wd[j][i] = w[i][j]
         k[i][j] = 1 / (d[i][j] * d[i][j])
 
-    pos = calcDrawInfo.get_pos(node_len, width, height)
+    pos = initGraph.get_pos(node_len, width, height)
 
     loop1, loop2 = setup.get_loop()
 

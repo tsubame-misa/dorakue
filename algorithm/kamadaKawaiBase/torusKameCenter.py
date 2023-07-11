@@ -31,7 +31,7 @@ def torus_kame(graph, file_name, _width=None, _height=None):
 
     height = maxd if _height == None else _height
     width = maxd if _width == None else _width
-    pos = calcDrawInfo.get_pos(node_len, width, height)
+    pos = initGraph.get_pos(node_len, width, height)
 
     for cnt1 in range(loop1):
         max_i = calcDrawInfo.get_max_around_delta(

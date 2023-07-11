@@ -1,5 +1,5 @@
 import datetime
-from common import calcDrawInfo
+from common import calcDrawInfo, initGraph
 from common import log
 from common import drawGraph
 
@@ -46,7 +46,7 @@ def init(time=None):
     global LOOP1, LOOP2
     drawGraph.clear()
     log.clear()
-    calcDrawInfo.clear()
+    initGraph.clear()
     LOOP1 = DEFAULT_LOOP1
     LOOP2 = DEFAULT_LOOP2
     TERM = DEFAULT_LOOP1
