@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 import plotly.express as px
-from sklearn import preprocessing
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import os

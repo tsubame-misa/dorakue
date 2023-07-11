@@ -4,14 +4,14 @@ import setup
 import itertools
 
 
-def torus_sgd(graph, _width=None, _height=None):
+def torus_sgd(graph, file_name, _width=None, _height=None):
     calcDrawInfo.clear_dorakue()
     loop = setup.get_SGD_loop()
     node_len = len(graph.nodes)
     node2num = initGraph.get_node2num_memoized(graph)
 
     # 最短経路
-    d = initGraph.get_shortest_path(graph, node_len, node2num)
+    d = initGraph.get_shortest_path(graph, node_len, node2num, file_name)
     # 重み
     w = [[1]*node_len for i in range(node_len)]
     # 重み(バネの強さ)
@@ -70,7 +70,7 @@ def torus_sgd(graph, _width=None, _height=None):
     edge_score = [(d[node2num[u]][node2num[v]] -
                    calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,
-                         node_len, "torusSGD", width, height)
+                         node_len, "torusSGD", width, height, file_name)
     kame_log = log.calc_evaluation_values(delta, edge_score)
 
     log.add_log("torusSGD", kame_log)

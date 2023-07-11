@@ -1,7 +1,13 @@
-from functools import lru_cache
 import setup
-from collections import defaultdict
-import random
+from functools import cache
+
+
+SHORTEST_PATH = dict()
+
+
+def clear():
+    global SHORTEST_PATH
+    SHORTEST_PATH = dict()
 
 
 def dijkstra(graph, start):
@@ -40,7 +46,7 @@ def warshall(d, node_len):
     return d
 
 
-@lru_cache(maxsize=1000)
+@cache
 def get_node2num_memoized(graph):
     node2num = dict()
     cnt = 0
@@ -50,9 +56,12 @@ def get_node2num_memoized(graph):
     return node2num
 
 
-# @lru_cache(maxsize=1000)
 # 自前メモ化の必要ある？
-def get_shortest_path(graph, node_len, node2num):
+def get_shortest_path(graph, node_len, node2num, file_name):
+    if file_name in SHORTEST_PATH:
+        print("short!")
+        return SHORTEST_PATH[file_name]
+
     edge_weight = setup.get_edge_width()
     d = [[float('inf')]*node_len for i in range(node_len)]
 
@@ -64,8 +73,9 @@ def get_shortest_path(graph, node_len, node2num):
         d[x][y] = edge_weight
         d[y][x] = edge_weight
 
-    # ワーシャルフロイド(最短経路)
     for i in range(node_len):
         d[i] = dijkstra(d, i)
 
+    # 辞書に保存
+    SHORTEST_PATH[file_name] = d
     return d

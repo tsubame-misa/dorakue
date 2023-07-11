@@ -1,7 +1,6 @@
 import random
 import math
 import itertools
-import numpy as np
 
 POS = []
 PAIR_INDEX = []

@@ -3,13 +3,13 @@ from common import calcDrawInfo, initGraph, log, drawGraph
 import setup
 
 
-def kamada_kawai(graph, _width=None, _height=None):
+def kamada_kawai(graph, file_name, _width=None, _height=None):
     node_len = len(graph.nodes)
     loop1, loop2 = setup.get_loop()
     node2num = initGraph.get_node2num_memoized(graph)
 
     # 最短経路
-    d = initGraph.get_shortest_path(graph, node_len, node2num)
+    d = initGraph.get_shortest_path(graph, node_len, node2num, file_name)
     # 重み(バネの強さ)
     k = [[0]*node_len for i in range(node_len)]
     # 理想的なバネの長さ(今回はL=1のため最短経路と一致)
@@ -70,7 +70,7 @@ def kamada_kawai(graph, _width=None, _height=None):
     edge_score = [(d[node2num[u]][node2num[v]] -
                    calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,
-                         node_len, "kamada_kawai", width, height)
+                         node_len, "kamada_kawai", width, height, file_name)
     kame_log = log.calc_evaluation_values(delta, edge_score)
 
     log.add_log("kamada_kawai", kame_log)
