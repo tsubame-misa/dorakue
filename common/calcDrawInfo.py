@@ -194,7 +194,6 @@ def calc_delta_around(pos,  k, l, node_len, width, height):
 
 
 def init_pair_index(node_len, loop):
-    global c
     for i in range(loop):
         pair_index = [list(p) for p in itertools.combinations(
             [i for i in range(node_len)], 2)]
@@ -208,15 +207,6 @@ def get_random_pair(node_len, loop, t):
         init_pair_index(node_len, loop)
     pair_index = [[x, y] for x, y in PAIR_INDEX[t]]
     return pair_index
-
-
-def get_random_pair_short(node_len, loop, t):
-    global PAIR_INDEX
-    if len(PAIR_INDEX) == 0:
-        init_pair_index(node_len, loop)
-    pair_index = [[x, y] for x, y in PAIR_INDEX[t]]
-    print(node_len)
-    return pair_index[:node_len//2]
 
 
 def clear_dorakue():

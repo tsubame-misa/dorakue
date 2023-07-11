@@ -29,7 +29,7 @@ def get_dir():
     return cwd
 
 
-def create_compare_fig():
+def create_compare_fig(name=""):
     fig = plt.figure(figsize=(12, 12))
     for i in range(len(IMAGE_PATH)):
         ax = fig.add_subplot(2, 3, i+1)
@@ -42,15 +42,18 @@ def create_compare_fig():
         img = mpimg.imread(IMAGE_PATH[i])
         plt.imshow(img)
 
-        size = title[10].split("x")
-    img_path = get_dir()+'/result/compare/' + size[0] + TIME + '.png'
+        size = title[10].split("-")
+        print(title, size)
+    img_path = get_dir()+'/result/compare/' + name + \
+        "-" + size[1] + "-" + TIME + '.png'
+    print(img_path)
     plt.savefig(img_path)
 
     plt.clf()
     plt.close()
 
 
-def create_and_save_graph(graph, pos, node_color, edge_color, dir_name, width, height, name=None):
+def create_and_save_graph(graph, pos, node_color, edge_color, dir_name, width, height, name=""):
     G = nx.DiGraph()
 
     G.add_nodes_from(graph.nodes)
@@ -61,7 +64,7 @@ def create_and_save_graph(graph, pos, node_color, edge_color, dir_name, width, h
                      node_color=node_color, edge_color=edge_color, node_size=50, font_size=5)
 
     img_path = get_dir()+'/result/' + dir_name + '/' + \
-        str(width) + 'x' + str(height) + '-' + TIME + '.png'
+        str(name) + '-' + str(height) + '-' + TIME + '.png'
     plt.savefig(img_path)
     IMAGE_PATH.append(img_path)
 
@@ -99,14 +102,14 @@ def convert_graph_dict(nodes, pos):
     return dict_pos
 
 
-def draw_graph(graph, pos, delta, edge_score, node_len, dir_name, width, height):
+def draw_graph(graph, pos, delta, edge_score, node_len, dir_name, width, height, file_name=""):
     node_color = get_color(delta, node_len)
     # node_color = get_graph_color(graph)
     edge_color = get_color(edge_score, node_len)
     # グラフ描画
     dict_pos = convert_graph_dict(graph.nodes, pos)
     create_and_save_graph(graph, dict_pos,  node_color, edge_color,
-                          dir_name, width, height)
+                          dir_name, width, height, file_name)
 
 
 def get_single_alg_figs(file_name, image_paths):
