@@ -71,7 +71,8 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
                    calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,
                          node_len, "torusSGD", width, height, file_name)
-    kame_log = aestheticsMeasures.calc_evaluation_values(delta, edge_score)
+    kame_log = aestheticsMeasures.calc_evaluation_values(
+        delta, edge_score, graph, node2num, pos, l)
 
     log.add_log("torusSGD", kame_log)
     log.add_log("around", calcDrawInfo.get_has_dorakue())

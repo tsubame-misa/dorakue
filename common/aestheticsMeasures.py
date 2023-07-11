@@ -13,7 +13,7 @@ def calc_sd(array):
     return sum((score - mean)**2 for score in array)/len(array)
 
 
-def calc_evaluation_values(delta, dist_score):
+def calc_evaluation_values(delta, dist_score, graph, node2num, pos, l):
     delta_mean = calc_mean(delta)
     delta_sd = calc_sd(delta)
     delta_sum = sum(delta)
@@ -22,8 +22,15 @@ def calc_evaluation_values(delta, dist_score):
     dist_sd = calc_sd(dist_score)
     dist_sum = sum(dist_score)
 
+    edge_length_variance = calc_edge_length_variance(pos, graph, node2num)
+    minimum_angle = calc_minimum_angle(pos, l)
+    edge_crossings = calc_edge_crossings(graph, node2num, pos)
+
     return {"delta": {"mean": delta_mean, "sd": delta_sd, "sum": delta_sum},
-            "dist": {"mean": dist_mean, "sd": dist_sd, "sum": dist_sum}}
+            "dist": {"mean": dist_mean, "sd": dist_sd, "sum": dist_sum},
+            "edge_length_variance": edge_length_variance,
+            "minimum_angle": minimum_angle,
+            "edge_crossings": edge_crossings}
 
 
 def calc_edge_length_variance(pos, graph, node2num):
@@ -33,8 +40,9 @@ def calc_edge_length_variance(pos, graph, node2num):
         v = node2num[y_node]
         l.append(calcDrawInfo.dist(pos, u, v))
     l_mean = calc_mean(l)
+    # print([((l_mean/l_mean) - (l[i]/l_mean)) ** 2 for i in range(len(l))])
     variance = sum([((l_mean/l_mean) - (l[i]/l_mean))
-                   ** 2 for i in range(l)])/len(l)
+                   ** 2 for i in range(len(l))])/len(l)
     return variance
 
 
@@ -50,7 +58,7 @@ def calc_deg(pos, u, v):
     return theta
 
 
-def minimum_angle(pos,  l):
+def calc_minimum_angle(pos,  l):
     _sum = 0
     for i in range(len(pos)):
         # 近接ノード
@@ -80,7 +88,7 @@ def is_cross(p1, p2, p3, p4):
     return tc1*tc2 < 0 and td1*td2 < 0
 
 
-def edge_crossings(graph, node2num, pos):
+def calc_edge_crossings(graph, node2num, pos):
     count = 0
     edge_pair = [list(p) for p in itertools.combinations(
         graph.edges, 2)]
