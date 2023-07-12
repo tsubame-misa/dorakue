@@ -15,11 +15,9 @@ def kamada_kawai(graph, file_name, _width=None, _height=None):
     # 理想的なバネの長さ(今回はL=1のため最短経路と一致)
     l = [[0]*node_len for i in range(node_len)]
 
-    maxd = 0
+    maxd = initGraph.get_maxd()
     for i in range(node_len):
         for j in range(node_len):
-            if maxd < d[i][j]:
-                maxd = d[i][j]
             if i == j:
                 continue
             l[i][j] = d[i][j]

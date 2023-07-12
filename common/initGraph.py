@@ -121,3 +121,21 @@ def get_random_pair(node_len, loop, t):
         init_pair_index(node_len, loop)
     pair_index = [[x, y] for x, y in PAIR_INDEX[t]]
     return pair_index
+
+
+@cache
+def get_maxd(graph, file_name):
+    node_len = len(graph.nodes)
+    node2num = get_node2num_memoized(graph)
+
+    # 最短経路
+    d = get_shortest_path(graph, node_len, node2num, file_name)
+    # 重み(バネの強さ)
+    k = [[0]*node_len for i in range(node_len)]
+
+    maxd = 0
+    for i in range(node_len):
+        for j in range(node_len):
+            if maxd < d[i][j]:
+                maxd = d[i][j]
+    return maxd
