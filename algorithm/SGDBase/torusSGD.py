@@ -19,7 +19,7 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
     # 理想的なバネの長さ(今回はL=1のため最短経路と一致)
     l = [[0]*node_len for i in range(node_len)]
 
-    maxd = initGraph.get_maxd()
+    maxd = initGraph.get_maxd(graph, file_name)
     for i in range(node_len):
         for j in range(node_len):
             if i == j:

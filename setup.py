@@ -6,10 +6,12 @@ from common import drawGraph
 
 DEFAULT_LOOP1 = 200
 DEFAULT_LOOP2 = 100
+DEFAULT_TERAM = 10
 
 LOOP1 = DEFAULT_LOOP1
 LOOP2 = DEFAULT_LOOP2
 SGD_LOOP = DEFAULT_LOOP1
+TERM = 10
 
 
 def get_loop():
@@ -43,13 +45,13 @@ def get_time():
 
 
 def init(time=None):
-    global LOOP1, LOOP2
+    global LOOP1, LOOP2, TERM
     drawGraph.clear()
     log.clear()
     initGraph.clear()
     LOOP1 = DEFAULT_LOOP1
     LOOP2 = DEFAULT_LOOP2
-    TERM = DEFAULT_LOOP1
+    TERM = DEFAULT_TERAM
 
     if time == None:
         time = get_time()
