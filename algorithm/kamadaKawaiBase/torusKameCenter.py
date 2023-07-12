@@ -82,8 +82,8 @@ def torus_kame(graph, file_name, _width=None, _height=None):
                          node_len, "torus_kame", width, height, file_name)
     kame_log = aestheticsMeasures.calc_evaluation_values(
         delta, edge_score, graph, node2num, pos, l)
+    kame_log["wrap"] = calcDrawInfo.get_has_dorakue()
 
     log.add_log("torus_kame", kame_log)
-    log.add_log("around",  calcDrawInfo.get_has_dorakue())
 
     return kame_log["dist"]["sum"]

@@ -27,13 +27,13 @@ def create_file(time):
     f.close()
 
 
-def create_log(_log=None):
+def create_log(_log=None, filename=""):
     print(LOG)
     if _log == None:
         _log = LOG
 
     path = os.getcwd()
-    with open(path + "/result/log/" + TIME + ".json", "w") as f:
+    with open(path + "/result/log/" + filename + "-" + TIME + ".json", "w") as f:
         json.dump(_log, f)
 
 

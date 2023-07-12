@@ -16,8 +16,8 @@ def create_graph(graph, file_name):
         width = _len
         height = _len
         wh_log = {}
-        # term = setup.get_term()
-        term = 1
+        term = setup.get_term()
+        # term = 1
         for i in range(term):
             setup.init()
             time = setup.get_time()
@@ -37,7 +37,7 @@ def create_graph(graph, file_name):
 
     log.clear()
     time = setup.get_time()
-    log.create_log(all_log)
+    log.create_log(all_log, file_name)
 
 
 files = glob.glob("./graph/*")
