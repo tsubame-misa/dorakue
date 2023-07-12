@@ -67,8 +67,8 @@ def kamada_kawai(graph, file_name, _width=None, _height=None):
             pos[max_i][1] += dy
 
     delta = calcDrawInfo.calc_delta(pos, k, l, node_len)
-    edge_score = [(d[node2num[u]][node2num[v]] -
-                   calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
+    edge_score = [(d[node2num[str(u)]][node2num[str(v)]] -
+                   calcDrawInfo.dist(pos, node2num[str(u)], node2num[str(v)]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,
                          node_len, "kamada_kawai", width, height, file_name)
     kame_log = aestheticsMeasures.calc_evaluation_values(

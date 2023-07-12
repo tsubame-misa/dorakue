@@ -1,7 +1,5 @@
 import math
-from common import drawGraph
-from common import log
-from common import calcDrawInfo
+from common import drawGraph, aestheticsMeasures,  calcDrawInfo
 import setup
 
 
@@ -132,14 +130,15 @@ def torus_bfs(graph, _width=None, _height=None):
                    calcDrawInfo.dist_around(pos, node2num[u], node2num[v], width, height))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,
                          node_len, "dorakue_bfs_around", width, height)
-    bfs_around_log = log.calc_evaluation_values(delta, edge_score)
+    bfs_around_log = aestheticsMeasures.calc_evaluation_values(
+        delta, edge_score)
 
     delta = calcDrawInfo.calc_delta(pos1,  k, l, node_len, width, height)
     edge_score = [(d[node2num[u]][node2num[v]] -
                    calcDrawInfo.dist(pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,
                          node_len, "dorakue_bfs", width, height)
-    bfs_log = log.calc_evaluation_values(delta, edge_score)
+    bfs_log = aestheticsMeasures.calc_evaluation_values(delta, edge_score)
 
     # ドラクエのログは同じになるのでcenterの方だけ見ればいい
     # log.add_log("bfs_around", bfs_around_log)

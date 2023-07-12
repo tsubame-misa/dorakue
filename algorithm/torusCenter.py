@@ -1,7 +1,7 @@
 import math
 from common import drawGraph
 from common import log
-from common import calcDrawInfo
+from common import calcDrawInfo, aestheticsMeasures
 import setup
 
 
@@ -130,14 +130,15 @@ def torus_center(graph, _width=None, _height=None):
                    calcDrawInfo.dist_around(fin_pos, node2num[u], node2num[v], width, height))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, fin_pos, delta, edge_score,
                          node_len, "dorakue_center_around", width, height)
-    center_around_log = log.calc_evaluation_values(delta, edge_score)
+    center_around_log = aestheticsMeasures.calc_evaluation_values(
+        delta, edge_score)
 
     delta = calcDrawInfo.calc_delta(pos1,  k, l, node_len, width, height)
     edge_score = [(d[node2num[u]][node2num[v]] -
                    calcDrawInfo.dist(fin_pos, node2num[u], node2num[v]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, fin_pos, delta, edge_score,
                          node_len, "dorakue_center", width, height)
-    center_log = log.calc_evaluation_values(delta, edge_score)
+    center_log = aestheticsMeasures.calc_evaluation_values(delta, edge_score)
 
     log.add_log("dorakue_log", center_log)
     log.add_log("dorakue_around", center_around_log)

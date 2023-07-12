@@ -42,10 +42,8 @@ def create_compare_fig(name=""):
         plt.imshow(img)
 
         size = title[10].split("-")
-        print(title, size)
     img_path = get_dir()+'/result/compare/' + name + \
         "-" + size[1] + "-" + TIME + '.png'
-    print(img_path)
     plt.savefig(img_path)
 
     plt.clf()

@@ -74,8 +74,8 @@ def get_shortest_path(graph, node_len, node2num, file_name):
     for i in range(node_len):
         d[i][i] = 0
     for x_node, y_node in graph.edges:
-        x = node2num[x_node]
-        y = node2num[y_node]
+        x = node2num[str(x_node)]
+        y = node2num[str(y_node)]
         d[x][y] = edge_weight
         d[y][x] = edge_weight
 

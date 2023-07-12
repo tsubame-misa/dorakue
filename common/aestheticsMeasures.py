@@ -36,11 +36,11 @@ def calc_evaluation_values(delta, dist_score, graph, node2num, pos, l):
 def calc_edge_length_variance(pos, graph, node2num):
     l = []
     for x_node, y_node in graph.edges:
-        u = node2num[x_node]
-        v = node2num[y_node]
+        u = node2num[str(x_node)]
+        v = node2num[str(y_node)]
+        # ここのdistはroundと分けるべき？
         l.append(calcDrawInfo.dist(pos, u, v))
     l_mean = calc_mean(l)
-    # print([((l_mean/l_mean) - (l[i]/l_mean)) ** 2 for i in range(len(l))])
     variance = sum([((l_mean/l_mean) - (l[i]/l_mean))
                    ** 2 for i in range(len(l))])/len(l)
     return variance
@@ -93,10 +93,10 @@ def calc_edge_crossings(graph, node2num, pos):
     edge_pair = [list(p) for p in itertools.combinations(
         graph.edges, 2)]
     for i in range(len(edge_pair)):
-        n1 = node2num[edge_pair[i][0][0]]
-        n2 = node2num[edge_pair[i][0][1]]
-        n3 = node2num[edge_pair[i][1][0]]
-        n4 = node2num[edge_pair[i][1][1]]
+        n1 = node2num[str(edge_pair[i][0][0])]
+        n2 = node2num[str(edge_pair[i][0][1])]
+        n3 = node2num[str(edge_pair[i][1][0])]
+        n4 = node2num[str(edge_pair[i][1][1])]
         if is_cross(pos[n1], pos[n2], pos[n3], pos[n4]):
             count += 1
     return count
