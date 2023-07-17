@@ -1,63 +1,52 @@
 import json
 
+tmp = {"edge_length_variance": 0,
+       "minimum_angle": 0,
+       "edge_crossings": 0,
+       "dist_variance": 0,
+       "dist_mean": 0,
+       "delta_variance": 0,
+       "delta_mean": 0,
+       "count": 0}
 
 # json.load関数を使ったjsonファイルの読み込み
-with open('./result/log/20230607161837.json') as f:
+with open('./result/log/bull-20230712153545.json') as f:
     data = json.load(f)
 
-len_list = [500, 750,   1000]
-# len_list = [1000000]
-score_result = []
+len_array = [_len for _len in data.keys()][1:]
+alg_array = ["SGD", "torusSGD", "kamada_kawai", "torus_kame"]
 
-for _len in len_list:
-    dist_score = 0
-    delta_score = 0
-    for date, result in data[str(_len)].items():
+result = dict()
 
-        # delta_torus_best_sd = result["torus_kame"]["delta"]["sd"]
-        # # delta_torus_best_sd_key = ""
-        # delta_kamada_kawai_sd = result["kamada_kawai"]["delta"]["sd"]
+for _len in data.keys():
+    alg_sum_result = {}
+    if _len == "file":
+        continue
+    for time in data[_len].keys():
+        for alg in data[_len][time].keys():
+            # 回り込みがなかった場合は集計しない
+            if alg == "torusSGD" or alg == "torus_kame":
+                if not data[_len][time][alg]["wrap"]:
+                    continue
+            if not alg in alg_sum_result:
+                alg_sum_result[alg] = tmp.copy()
+            alg_sum_result[alg]["edge_length_variance"] += data[_len][time][alg]["edge_length_variance"]
+            alg_sum_result[alg]["minimum_angle"] += data[_len][time][alg]["minimum_angle"]
+            alg_sum_result[alg]["edge_crossings"] += data[_len][time][alg]["edge_crossings"]
+            alg_sum_result[alg]["dist_variance"] += data[_len][time][alg]["dist"]["sd"]
+            alg_sum_result[alg]["dist_mean"] += data[_len][time][alg]["dist"]["mean"]
+            alg_sum_result[alg]["delta_variance"] += data[_len][time][alg]["delta"]["sd"]
+            alg_sum_result[alg]["delta_mean"] += data[_len][time][alg]["delta"]["mean"]
+            alg_sum_result[alg]["count"] += 1
+    alg_mean_result = {}
+    for alg in alg_sum_result.keys():
+        alg_mean_result[alg] = {}
+        count = alg_sum_result[alg]["count"]
+        alg_mean_result[alg]["count"] = count
+        for item in alg_sum_result[alg].keys():
+            if item == "count":
+                continue
+            alg_mean_result[alg][item] = alg_sum_result[alg][item]/count
+    result[_len] = alg_mean_result
 
-        # dist_torus_best_sd = result["torus_kame"]["dist"]["sd"]
-        # # dist_torus_best_sd_key = ""
-        # dist_kamada_kawai_sd = result["kamada_kawai"]["dist"]["sd"]
-
-        delta_torus_best_sd = result["torusSGD"]["delta"]["sd"]
-        # delta_torus_best_sd_key = ""
-        delta_kamada_kawai_sd = result["SGD"]["delta"]["sd"]
-
-        dist_torus_best_sd = result["torusSGD"]["dist"]["sd"]
-        # dist_torus_best_sd_key = ""
-        dist_kamada_kawai_sd = result["SGD"]["dist"]["sd"]
-
-        # for key in result:
-        #     print(key)
-        #     if dist_torus_best_sd > result[key]["dist"]["sd"]:
-        #         dist_torus_best_sd = result[key]["dist"]["sd"]
-        #         dist_torus_best_sd_key = key
-        #     if delta_torus_best_sd > result[key]["delta"]["sd"]:
-        #         delta_torus_best_sd = result[key]["delta"]["sd"]
-        #         delta_torus_best_sd_key = key
-
-        # print(dist_kamada_kawai_sd, dist_torus_best_sd)
-
-        if dist_torus_best_sd < dist_kamada_kawai_sd:
-            # print("dist", dist_torus_best_sd_key, date,
-            #       dist_torus_best_sd, dist_kamada_kawai_sd)
-            dist_score += 1
-        if delta_torus_best_sd < delta_kamada_kawai_sd:
-            # print("delta", delta_torus_best_sd_key, date,
-            #       delta_torus_best_sd, delta_kamada_kawai_sd)
-            delta_score += 1
-        # print(date)
-        # print("dist", dist_kamada_kawai_sd - dist_torus_best_sd)
-        # print("delta", delta_kamada_kawai_sd - delta_torus_best_sd)
-        # print()
-
-        # print(score, delta_torus_best_sd, delta_kamada_kawai_sd)
-        # print()
-    print(_len, "dist", dist_score, dist_score /
-          (len(data[str(_len)])), len(data[str(_len)]))
-    print(_len, "delta", delta_score, delta_score /
-          (len(data[str(_len)])), len(data[str(_len)]))
-    print("----------------")
+print(result)
