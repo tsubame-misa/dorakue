@@ -1,4 +1,5 @@
 import json
+import pandas as pd
 
 tmp = {"edge_length_variance": 0,
        "minimum_angle": 0,
@@ -49,4 +50,11 @@ for _len in data.keys():
             alg_mean_result[alg][item] = alg_sum_result[alg][item]/count
     result[_len] = alg_mean_result
 
-print(result)
+for _len in result.keys():
+    print(_len)
+    df = pd.DataFrame.from_dict(result[_len])
+    print(df)
+    print("---------------------------------")
+
+
+# print(result)
