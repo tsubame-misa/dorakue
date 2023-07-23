@@ -9,38 +9,41 @@ def dist(pos, u, v):
     return (dx ** 2 + dy ** 2) ** 0.5
 
 
-def dist_around(pos, u, v, width, height):
-    # uが中心
-    d = dist(pos, u, v)
-
-    ax = pos[u][0] - ((pos[v][0]-(pos[u][0]-width/2) +
-                       width) % width+(pos[u][0]-width/2))
-    ay = pos[u][1] - ((pos[v][1]-(pos[u][1]-height/2) +
-                       height) % height+(pos[u][1]-height/2))
-    adist = (ax ** 2 + ay ** 2) ** 0.5
-    return min(d, adist)
+def dist_around(pos, u, v, width, height, ideal_dist):
+    _dist, best_pos, is_wrap = dist_around9(
+        pos, u, v, width, height, ideal_dist)
+    return _dist
 
 
-def dist_around_position(pos, u, v, width, height):
-    # # 回り込みが発生しない場合
-    d = dist(pos, u, v)
-    d_around = dist_around(pos, u, v, width, height)
-    # # print(d, d_around)
-    # if d == d_around:
-    #     return [pos[u][0]-pos[v][0], pos[u][1]-pos[v][1]]
-    # else:
-    #     print("around")
-    # if abs(pos[u][0]-pos[v][0]) < 0.0000001 and abs(pos[u][1]-pos[v][1]) < 0.0000001:
-    #     return [pos[u][0]-pos[v][0], pos[u][1]-pos[v][1]]
-    if abs(d-d_around) < 0.00000001:
-        return [pos[u][0]-pos[v][0], pos[u][1]-pos[v][1]]
-    # print(abs("around", d-d_around))
-    # uが中心
-    ax = pos[u][0] - ((pos[v][0]-(pos[u][0]-width/2) +
-                       width) % width+(pos[u][0]-width/2))
-    ay = pos[u][1] - ((pos[v][1]-(pos[u][1]-height/2) +
-                       height) % height+(pos[u][1]-height/2))
-    return [ax, ay]
+def dist_around9(pos, u, v, width, height, ideal_dist):
+    global DORAKUE
+    x_list = [pos[v][0]-width, pos[v][0], pos[v][0]+width]
+    y_list = [pos[v][1]-height, pos[v][1], pos[v][1]+height]
+
+    best_pos = [pos[v][0], pos[v][1]]
+    _dist = float("inf")
+
+    for x in x_list:
+        for y in y_list:
+            ax = pos[u][0] - x
+            ay = pos[u][1] - y
+            adist = (ax ** 2 + ay ** 2) ** 0.5
+            if abs(_dist-ideal_dist) > abs(adist-ideal_dist):
+                best_pos[0] = ax
+                best_pos[1] = ay
+                _dist = adist
+
+    is_wrap = best_pos[0] == pos[v][0] and best_pos[1] == pos[v][1]
+    if is_wrap:
+        DORAKUE = True
+
+    return _dist, best_pos, is_wrap
+
+
+def dist_around_position(pos, u, v, width, height, ideal_dist):
+    _dist, best_pos, is_wrap = dist_around9(
+        pos, u, v, width, height, ideal_dist)
+    return best_pos
 
 
 def dorakue(pos, width, height):
