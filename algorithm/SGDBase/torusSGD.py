@@ -64,15 +64,33 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
             pos[i] = calcDrawInfo.dorakue(pos[i], width, height)
             pos[j] = calcDrawInfo.dorakue(pos[j], width, height)
 
-    delta = calcDrawInfo.calc_delta_around(pos, k, l, node_len, width, height)
+    pos0 = [[x, y] for x, y in pos]
+
+    center_idx = 0
+    min_edge_len = float("inf")
+    # 最適な中心を選ぶ
+    for i in range(node_len):
+        diff_x, diff_y, _pos = calcDrawInfo.shift_center(
+            pos0, i, node_len, width, height)
+        max_edge_len = max(
+            calcDrawInfo.dist(_pos, node2num[str(u)], node2num[str(v)]) for u, v in graph.edges)
+        if min_edge_len > max_edge_len:
+            min_edge_len = max_edge_len
+            center_idx = i
+
+    diff_x, diff_y, fin_pos = calcDrawInfo.shift_center(
+        pos, center_idx, node_len, width, height)
+
+    delta = calcDrawInfo.calc_delta_around(
+        fin_pos, k, l, node_len, width, height)
     edge_score = [(d[node2num[str(u)]][node2num[str(v)]] -
-                   calcDrawInfo.dist_around(pos, node2num[str(u)], node2num[str(v)], width, height, l[node2num[str(u)]][node2num[str(v)]]))**2 for u, v in graph.edges]
-    drawGraph.draw_graph(graph, pos, delta, edge_score,
+                   calcDrawInfo.dist_around(fin_pos, node2num[str(u)], node2num[str(v)], width, height, l[node2num[str(u)]][node2num[str(v)]]))**2 for u, v in graph.edges]
+    drawGraph.draw_graph(graph, fin_pos, delta, edge_score,
                          node_len, "torusSGD", width, height, file_name)
     kame_log = aestheticsMeasures.calc_evaluation_values(
-        delta, edge_score, graph, node2num, pos, l, width, height,  calcDrawInfo.get_has_dorakue())
+        delta, edge_score, graph, node2num, fin_pos, l, width, height,  calcDrawInfo.get_has_dorakue())
     kame_log["wrap"] = calcDrawInfo.get_has_dorakue()
     log.add_log("torusSGD", kame_log)
-    debug.add_node_b(pos)
+    debug.add_node_b(fin_pos)
 
     return kame_log["dist"]["sum"]

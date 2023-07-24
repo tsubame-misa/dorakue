@@ -33,7 +33,7 @@ def dist_around9(pos, u, v, width, height, ideal_dist):
                 best_pos[1] = ay
                 _dist = adist
 
-    is_wrap = best_pos[0] == pos[v][0] and best_pos[1] == pos[v][1]
+    is_wrap = not(best_pos[0] == pos[v][0] and best_pos[1] == pos[v][1])
     if is_wrap:
         DORAKUE = True
 
