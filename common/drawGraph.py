@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import os
 import re
+import setup
 
 
 list_colors = px.colors.sequential.Plasma
@@ -42,7 +43,8 @@ def create_compare_fig(name=""):
         plt.imshow(img)
 
         size = title[10].split("-")
-    img_path = get_dir()+'/result/compare/' + name + \
+    dir_name = setup.get_dir_name()
+    img_path = get_dir()+'/'+dir_name+'/compare/' + name + \
         "-" + size[1] + "-" + TIME + '.png'
     plt.savefig(img_path)
 
@@ -50,7 +52,7 @@ def create_compare_fig(name=""):
     plt.close()
 
 
-def create_and_save_graph(graph, pos, node_color, edge_color, dir_name, width, height, name=""):
+def create_and_save_graph(graph, pos, node_color, edge_color, alg_dir_name, width, height, name=""):
     G = nx.DiGraph()
 
     G.add_nodes_from(graph.nodes)
@@ -60,7 +62,9 @@ def create_and_save_graph(graph, pos, node_color, edge_color, dir_name, width, h
     nx.draw_networkx(G, pos, False,
                      node_color=node_color, edge_color=edge_color, node_size=50, font_size=5)
 
-    img_path = get_dir()+'/result/' + dir_name + '/' + \
+    dir_name = setup.get_dir_name()
+
+    img_path = get_dir()+'/'+dir_name+'/' + alg_dir_name + '/' + \
         str(name) + '-' + str(height) + '-' + TIME + '.png'
     plt.savefig(img_path)
     IMAGE_PATH.append(img_path)

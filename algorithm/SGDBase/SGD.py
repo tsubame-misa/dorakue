@@ -63,6 +63,12 @@ def sgd(graph, file_name, _width=None, _height=None):
                          node_len, "SGD", width, height, file_name)
     kame_log = aestheticsMeasures.calc_evaluation_values(
         delta, edge_score, graph, node2num, pos, l)
+    kame_log["pos"] = pos
+    kame_log["k"] = k
+    kame_log["l"] = l
+    kame_log["d"] = d
+    kame_log["node2num"] = node2num
+    kame_log["node_len"] = node_len
 
     log.add_log("SGD", kame_log)
     debug.add_node_a(pos)

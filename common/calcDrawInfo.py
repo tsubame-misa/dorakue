@@ -75,6 +75,7 @@ def shift_center(pos, idx, node_len, width, height):
     diff_y = pos[idx][1]-height/2
 
     for i in range(node_len):
+        # TODO:ここも9箇所にしないといけない
         pos[i][0] -= diff_x
         pos[i][1] -= diff_y
         pos[i] = dorakue(pos[i], width, height)
@@ -132,8 +133,9 @@ def calc_delta_around(pos,  k, l, node_len, width, height):
         for j in range(node_len):
             if i == j:
                 continue
-            norm = math.sqrt((_pos[i][0]-_pos[j][0]) **
-                             2 + (_pos[i][1]-_pos[j][1])**2)
+            norm = dist_around(pos, i, j, width, height, l[i][j])
+            # norm = math.sqrt((_pos[i][0]-_pos[j][0]) **
+            #                  2 + (_pos[i][1]-_pos[j][1])**2)
             dx_ij = _pos[i][0]-_pos[j][0]
             dy_ij = _pos[i][1]-_pos[j][1]
 

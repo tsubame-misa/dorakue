@@ -66,6 +66,8 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
 
     pos0 = [[x, y] for x, y in pos]
 
+    isWrap = calcDrawInfo.get_has_dorakue()
+
     center_idx = 0
     min_edge_len = float("inf")
     # 最適な中心を選ぶ
@@ -85,11 +87,22 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
         fin_pos, k, l, node_len, width, height)
     edge_score = [(d[node2num[str(u)]][node2num[str(v)]] -
                    calcDrawInfo.dist_around(fin_pos, node2num[str(u)], node2num[str(v)], width, height, l[node2num[str(u)]][node2num[str(v)]]))**2 for u, v in graph.edges]
+    # delta = calcDrawInfo.calc_delta(
+    #     fin_pos, k, l, node_len)
+    # edge_score = [(d[node2num[str(u)]][node2num[str(v)]] -
+    #                calcDrawInfo.dist(fin_pos, node2num[str(u)], node2num[str(v)]))**2 for u, v in graph.edges]
+
     drawGraph.draw_graph(graph, fin_pos, delta, edge_score,
                          node_len, "torusSGD", width, height, file_name)
     kame_log = aestheticsMeasures.calc_evaluation_values(
         delta, edge_score, graph, node2num, fin_pos, l, width, height,  calcDrawInfo.get_has_dorakue())
-    kame_log["wrap"] = calcDrawInfo.get_has_dorakue()
+    kame_log["wrap"] = isWrap
+    kame_log["pos"] = fin_pos
+    kame_log["k"] = k
+    kame_log["l"] = l
+    kame_log["d"] = d
+    kame_log["node2num"] = node2num
+    kame_log["node_len"] = node_len
     log.add_log("torusSGD", kame_log)
     debug.add_node_b(fin_pos)
 

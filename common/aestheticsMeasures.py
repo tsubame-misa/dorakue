@@ -13,7 +13,7 @@ def calc_sd(array):
     return sum((score - mean)**2 for score in array)/len(array)
 
 
-def calc_evaluation_values(delta, dist_score, graph, node2num, pos, l):
+def calc_evaluation_values(delta, dist_score, graph, node2num, pos, l, width=None, height=None, isTorus=False):
     delta_mean = calc_mean(delta)
     delta_sd = calc_sd(delta)
     delta_sum = sum(delta)

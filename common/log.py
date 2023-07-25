@@ -1,5 +1,6 @@
 import json
 import os
+import setup
 
 LOG = dict()
 TIME = ""
@@ -19,21 +20,30 @@ def set_time(time):
     TIME = time
 
 
-def create_file(time):
-    dir = os.getcwd()
-    path = "/result/log/" + time + ".json"
-    f = open(path, "w")
-    f.write()
-    f.close()
+def create_log_folder():
+    dir_name = setup.get_dir_name()
+    path = os.getcwd()
+    new_dir_path = path + "/" + dir_name
+
+    if os.path.isdir(new_dir_path):
+        return
+
+    os.mkdir(new_dir_path)
+
+    folders = ["log", "SGD", "torusSGD", "compare"]
+    for f in folders:
+        new_dir_path = path + "/" + dir_name + "/" + f
+        os.mkdir(new_dir_path)
 
 
 def create_log(_log=None, filename=""):
+    dir_name = setup.get_dir_name()
     print(LOG)
     if _log == None:
         _log = LOG
 
     path = os.getcwd()
-    with open(path + "/result/log/" + filename + "-" + TIME + ".json", "w") as f:
+    with open(path + "/"+dir_name+"/log/" + filename + "-" + TIME + ".json", "w") as f:
         json.dump(_log, f)
 
 
