@@ -19,17 +19,17 @@ def create_graph(graph, file_name):
         term = setup.get_term()
         for i in range(term):
             setup.init()
+            setup.set_dir_name(log_file_name)
             time = setup.get_time()
-            drawGraph.set_time(time)
+            index_time = str(i) + str(time)
+            drawGraph.set_time(index_time)
             SGD.sgd(graph, file_name, width, height)
             torusSGD.torus_sgd(graph, file_name, width, height)
-            kameKame.kamada_kawai(graph, file_name, width, height)
-            torusKameCenter.torus_kame(graph, file_name, width, height)
             drawGraph.create_compare_fig(file_name)
             _log = log.get_log()
-            wh_log[str(time)] = _log
+            wh_log[str(index_time)] = _log
 
-            message = str(time)
+            message = str(index_time)
             print(message)
 
         all_log[str(_len)] = wh_log
@@ -51,9 +51,11 @@ for filepath in files:
 
 
 sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes))
+log_file_name = "result_sgd_0725_all_log"
+setup.set_dir_name(log_file_name)
+log.create_log_folder()
 
 for g in sorted_graphs:
     print(g["name"], "size", len(g["graph"].nodes))
-    # create_graph(g["graph"], g["name"])
-    # exit()
-    # print("---------------------")
+    create_graph(g["graph"], g["name"])
+    print("---------------------")

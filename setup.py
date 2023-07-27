@@ -7,11 +7,13 @@ from common import drawGraph
 DEFAULT_LOOP1 = 200
 DEFAULT_LOOP2 = 100
 DEFAULT_TERAM = 10
+DEFAULT_DIR_NAME = "result"
 
 LOOP1 = DEFAULT_LOOP1
 LOOP2 = DEFAULT_LOOP2
 SGD_LOOP = DEFAULT_LOOP1
 TERM = 10
+LOG_DIR_NAME = DEFAULT_DIR_NAME
 
 
 def get_loop():
@@ -45,13 +47,14 @@ def get_time():
 
 
 def init(time=None):
-    global LOOP1, LOOP2, TERM
+    global LOOP1, LOOP2, TERM, LOG_DIR_NAME
     drawGraph.clear()
     log.clear()
     initGraph.clear()
     LOOP1 = DEFAULT_LOOP1
     LOOP2 = DEFAULT_LOOP2
     TERM = DEFAULT_TERAM
+    LOG_DIR_NAME = DEFAULT_DIR_NAME
 
     if time == None:
         time = get_time()
@@ -70,3 +73,12 @@ def set_term(value):
 
 def get_term():
     return TERM
+
+
+def set_dir_name(name):
+    global LOG_DIR_NAME
+    LOG_DIR_NAME = name
+
+
+def get_dir_name():
+    return LOG_DIR_NAME
