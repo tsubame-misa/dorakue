@@ -21,7 +21,7 @@ def draw_node(pos, ax):
         ax.add_patch(C)
 
 
-def draw_edge(graph, node2num,  pos, l,  _len, ax):
+def draw_edge(graph, node2num,  pos, l,  _len, ax, debug=False):
     edge_lines = []
     wrap_lines = []
     wrap_lines2 = []
@@ -36,20 +36,30 @@ def draw_edge(graph, node2num,  pos, l,  _len, ax):
         if is_wrap:
             line = [(pos[idx_i][0], pos[idx_i][1]),
                     (best_pos[0], best_pos[1])]
-            wrap_lines.append(line)
+            if debug:
+                wrap_lines.append(line)
+            else:
+                edge_lines.append(line)
 
             best_pos, is_wrap = select_node(
                 pos,  idx_j, idx_i, _len, l[idx_i][idx_j])
             line = [(pos[idx_j][0], pos[idx_j][1]),
                     (best_pos[0], best_pos[1])]
-            wrap_lines2.append(line)
+            if debug:
+                wrap_lines2.append(line)
+            else:
+                edge_lines.append(line)
         else:
             line = [(pos[idx_i][0], pos[idx_i][1]),
                     (pos[idx_j][0], pos[idx_j][1])]
             edge_lines.append(line)
 
-    line_collection = collections.LineCollection(
-        edge_lines, color=("green",), linewidths=(0.5,))
+    if debug:
+        line_collection = collections.LineCollection(
+            edge_lines, color=("green",), linewidths=(0.5,))
+    else:
+        line_collection = collections.LineCollection(
+            edge_lines, color=("blue",), linewidths=(0.5,))
     ax.add_collection(line_collection)
 
     line_collection = collections.LineCollection(
@@ -84,24 +94,29 @@ def select_node(pos, u, v, _len, ideal_dist):
     return best_pos, is_wrap
 
 
-def graph_drawing(data, graph, _len):
+def graph_drawing(data, graph, _len, debug=False):
     fig = plt.figure(figsize=(12, 12))
     ax = fig.add_subplot(111)
-    # ax.set_xlim(-_len, _len*2)
-    # ax.set_ylim(-_len, _len*2)
-    ax.set_xlim(0, _len)
-    ax.set_ylim(0, _len)
+    ax.tick_params(labelbottom=False, labelleft=False,
+                   labelright=False, labeltop=False, bottom=False, left=False, right=False, top=False)
 
-    # セルのライン
-    cell_lines = [[(0, -_len), (0, _len*2)], [(_len, -_len),
-                                              (_len, _len*3)], [(-_len, 0), (_len*2, 0)], [(-_len, _len), (_len*2, _len)]]
-    line_collection = collections.LineCollection(
-        cell_lines, color=("black",), linewidths=(0.5,))
-    ax.add_collection(line_collection)
+    if debug:
+        ax.set_xlim(-_len, _len*2)
+        ax.set_ylim(-_len, _len*2)
+
+        # セルのライン
+        cell_lines = [[(0, -_len), (0, _len*2)], [(_len, -_len),
+                                                  (_len, _len*3)], [(-_len, 0), (_len*2, 0)], [(-_len, _len), (_len*2, _len)]]
+        line_collection = collections.LineCollection(
+            cell_lines, color=("black",), linewidths=(0.5,))
+        ax.add_collection(line_collection)
+    else:
+        ax.set_xlim(0, _len)
+        ax.set_ylim(0, _len)
 
     pos9 = create_pos9(data["pos"], _len)
     draw_node(pos9, ax)
-    draw_edge(graph, data["node2num"], data["pos"], data["l"], _len, ax)
+    draw_edge(graph, data["node2num"], data["pos"], data["l"], _len, ax, debug)
 
     plt.savefig("./sample.png")
     plt.clf()
