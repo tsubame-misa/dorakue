@@ -11,12 +11,12 @@ tmp = {"edge_length_variance": 0,
        "edge_crossings": 0,
        "dist_variance": 0,
        "dist_mean": 0,
-       "wrap_dist_variance": 0,
-       "wrap_dist_mean": 0,
+       #    "wrap_dist_variance": 0,
+       #    "wrap_dist_mean": 0,
        "delta_variance": 0,
        "delta_mean": 0,
-       "wrap_delta_variance": 0,
-       "wrap_delta_mean": 0,
+       #    "wrap_delta_variance": 0,
+       #    "wrap_delta_mean": 0,
        "count": 0}
 
 torus_good_count = 0
@@ -51,10 +51,6 @@ for filepath in glob.glob("./result_sgd_0725_all_log/log/*"):
                     if not data[_len][time][alg]["wrap"]:
                         print("no wrap")
                         continue
-                alg_sum_result[alg]["edge_length_variance"] += data[_len][time][alg]["edge_length_variance"]
-                alg_sum_result[alg]["minimum_angle"] += data[_len][time][alg]["minimum_angle"]
-                alg_sum_result[alg]["edge_crossings"] += data[_len][time][alg]["edge_crossings"]
-                alg_sum_result[alg]["count"] += 1
 
                 if alg == "torusSGD":
                     pos = data[_len][time][alg]["pos"]
@@ -65,39 +61,51 @@ for filepath in glob.glob("./result_sgd_0725_all_log/log/*"):
                     node2num = data[_len][time][alg]["node2num"]
 
                     # 回り込みあり
+                    # delta = calcDrawInfo.calc_delta_around(
+                    #     pos, k, l, node_len, float(_len), float(_len))
+                    # alg_sum_result[alg]["wrap_dist_variance"] += data[_len][time][alg]["dist"]["sd"]
+                    # alg_sum_result[alg]["wrap_dist_mean"] += data[_len][time][alg]["dist"]["mean"]
+                    # alg_sum_result[alg]["wrap_delta_variance"] += aestheticsMeasures.calc_sd(
+                    #     delta)
+                    # alg_sum_result[alg]["wrap_delta_mean"] += aestheticsMeasures.calc_mean(
+                    #     delta)
+
+                    # まわりこみなし、torus描画を元に再計算
+                    # delta = calcDrawInfo.calc_delta(pos, k, l, node_len)
+                    # dist_score = [(d[node2num[str(u)]][node2num[str(v)]] -
+                    #                calcDrawInfo.dist(pos, node2num[str(u)], node2num[str(v)]))**2 for u, v in graph.edges]
+
                     delta = calcDrawInfo.calc_delta_around(
                         pos, k, l, node_len, float(_len), float(_len))
-                    alg_sum_result[alg]["wrap_dist_variance"] += data[_len][time][alg]["dist"]["sd"]
-                    alg_sum_result[alg]["wrap_dist_mean"] += data[_len][time][alg]["dist"]["mean"]
-                    # alg_sum_result[alg]["wrap_delta_variance"] += data[_len][time][alg]["delta"]["sd"]
-                    # alg_sum_result[alg]["wrap_delta_mean"] += data[_len][time][alg]["delta"]["mean"]
-                    alg_sum_result[alg]["wrap_delta_variance"] += aestheticsMeasures.calc_sd(
-                        delta)
-                    alg_sum_result[alg]["wrap_delta_mean"] += aestheticsMeasures.calc_mean(
-                        delta)
-
-                    # まわりこみなし
-                    delta = calcDrawInfo.calc_delta(pos, k, l, node_len)
                     dist_score = [(d[node2num[str(u)]][node2num[str(v)]] -
-                                   calcDrawInfo.dist(pos, node2num[str(u)], node2num[str(v)]))**2 for u, v in graph.edges]
+                                   calcDrawInfo.dist_around(pos, node2num[str(u)], node2num[str(v)], float(_len), float(_len), l[node2num[str(u)]][node2num[str(v)]]))**2 for u, v in graph.edges]
+                    torus_evaluation = aestheticsMeasures.calc_torus_evaluation_values(
+                        delta, dist_score, graph, node2num, pos, l, float(_len))
 
-                    alg_sum_result[alg]["dist_mean"] += aestheticsMeasures.calc_mean(
-                        dist_score)
-                    alg_sum_result[alg]["dist_variance"] += aestheticsMeasures.calc_sd(
-                        dist_score)
-                    alg_sum_result[alg]["delta_variance"] += aestheticsMeasures.calc_sd(
-                        delta)
-                    alg_sum_result[alg]["delta_mean"] += aestheticsMeasures.calc_mean(
-                        delta)
+                    alg_sum_result[alg]["dist_mean"] += torus_evaluation["dist"]["mean"]
+                    alg_sum_result[alg]["dist_variance"] += torus_evaluation["dist"]["sd"]
+                    alg_sum_result[alg]["delta_variance"] += torus_evaluation["delta"]["sd"]
+                    alg_sum_result[alg]["delta_mean"] += torus_evaluation["delta"]["mean"]
+
+                    alg_sum_result[alg]["edge_length_variance"] += torus_evaluation["edge_length_variance"]
+                    alg_sum_result[alg]["minimum_angle"] += torus_evaluation["minimum_angle"]
+                    alg_sum_result[alg]["edge_crossings"] += torus_evaluation["edge_crossings"]
+                    alg_sum_result[alg]["count"] += 1
+
                 else:
                     alg_sum_result[alg]["dist_variance"] += data[_len][time][alg]["dist"]["sd"]
                     alg_sum_result[alg]["dist_mean"] += data[_len][time][alg]["dist"]["mean"]
                     alg_sum_result[alg]["delta_variance"] += data[_len][time][alg]["delta"]["sd"]
                     alg_sum_result[alg]["delta_mean"] += data[_len][time][alg]["delta"]["mean"]
-                    alg_sum_result[alg]["wrap_dist_variance"] += data[_len][time][alg]["dist"]["sd"]
-                    alg_sum_result[alg]["wrap_dist_mean"] += data[_len][time][alg]["dist"]["mean"]
-                    alg_sum_result[alg]["wrap_delta_variance"] += data[_len][time][alg]["delta"]["sd"]
-                    alg_sum_result[alg]["wrap_delta_mean"] += data[_len][time][alg]["delta"]["mean"]
+                    # alg_sum_result[alg]["wrap_dist_variance"] += data[_len][time][alg]["dist"]["sd"]
+                    # alg_sum_result[alg]["wrap_dist_mean"] += data[_len][time][alg]["dist"]["mean"]
+                    # alg_sum_result[alg]["wrap_delta_variance"] += data[_len][time][alg]["delta"]["sd"]
+                    # alg_sum_result[alg]["wrap_delta_mean"] += data[_len][time][alg]["delta"]["mean"]
+
+                    alg_sum_result[alg]["edge_length_variance"] += data[_len][time][alg]["edge_length_variance"]
+                    alg_sum_result[alg]["minimum_angle"] += data[_len][time][alg]["minimum_angle"]
+                    alg_sum_result[alg]["edge_crossings"] += data[_len][time][alg]["edge_crossings"]
+                    alg_sum_result[alg]["count"] += 1
 
         alg_mean_result = {}
         for alg in alg_sum_result.keys():
@@ -115,8 +123,6 @@ for filepath in glob.glob("./result_sgd_0725_all_log/log/*"):
     diff = []
     goood_cnts = []
     _lens = []
-
-    print("calc")
 
     for i, _len in enumerate(result.keys()):
         _lens.append(_len)
@@ -136,13 +142,7 @@ for filepath in glob.glob("./result_sgd_0725_all_log/log/*"):
         torus_sgd_total /= result[_len]["torusSGD"]["count"]
         # +torusの方が良い
         # -normlが良い
-        # if sgd_total-torus_sgd_total >= 0:
-        #     torus_good_count += 1
         diff.append(sgd_total-torus_sgd_total)
-        # if t_good_cnt >= math.ceil((len(tmp)-1)/2):
-        #print(t_good_cnt, (len(tmp)-1)//2)
-        if t_good_cnt >= (len(tmp)-1)//2:
-            torus_good_count += 1
         goood_cnts.append(t_good_cnt)
 
     diff_count_max = goood_cnts.index(max(goood_cnts))
@@ -153,6 +153,9 @@ for filepath in glob.glob("./result_sgd_0725_all_log/log/*"):
         best_len = _lens[diff.index(max(diff))]
 
     df = pd.DataFrame.from_dict(result[best_len])
+
+    if max(goood_cnts) >= (len(tmp)-1)//2:
+        torus_good_count += 1
 
     print("len", _lens)
     print("best len", best_len, "トーラスの方が良かった個数",

@@ -130,4 +130,4 @@ with open("./result_sgd_0725_all_log/log/desargues-20230724233845.json") as f:
         json.load(open("./graph/desargues.json")))
     _len = 500
 
-    graph_drawing(data, graph, _len)
+    graph_drawing(data, graph, _len, True)
