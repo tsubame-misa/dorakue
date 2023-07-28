@@ -87,8 +87,10 @@ def select_node(pos, u, v, _len, ideal_dist):
 def graph_drawing(data, graph, _len):
     fig = plt.figure(figsize=(12, 12))
     ax = fig.add_subplot(111)
-    ax.set_xlim(-_len, _len*2)
-    ax.set_ylim(-_len, _len*2)
+    # ax.set_xlim(-_len, _len*2)
+    # ax.set_ylim(-_len, _len*2)
+    ax.set_xlim(0, _len)
+    ax.set_ylim(0, _len)
 
     # セルのライン
     cell_lines = [[(0, -_len), (0, _len*2)], [(_len, -_len),
