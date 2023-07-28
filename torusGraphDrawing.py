@@ -6,7 +6,7 @@ from networkx.readwrite import json_graph
 
 
 def create_pos9(pos, _len):
-    add_len = [0, _len, _len*2]
+    add_len = [-_len, 0, _len]
     pos9 = []
     for p in pos:
         for w in add_len:
@@ -22,8 +22,7 @@ def draw_node(pos, ax):
 
 
 def draw_edge(graph, node2num,  pos, _len, ax):
-    edge_lines = [[(_len, 0), (_len, _len*3)], [(_len*2, 0),
-                                                (_len*2, _len*3)], [(0, _len), (_len*3, _len)], [(0, _len*2), (_len*3, _len*2)]]
+    edge_lines = []
 
     for i, j in graph.edges:
         idx_i = node2num[str(i)]
@@ -40,11 +39,12 @@ def draw_edge(graph, node2num,  pos, _len, ax):
 def graph_drawing(graph, pos, _len):
     fig = plt.figure(figsize=(12, 12))
     ax = fig.add_subplot(111)
-    ax.set_xlim(0, _len*3)
-    ax.set_ylim(0, _len*3)
+    ax.set_xlim(-_len, _len*2)
+    ax.set_ylim(-_len, _len*2)
 
-    cell_lines = [[(_len, 0), (_len, _len*3)], [(_len*2, 0),
-                                                (_len*2, _len*3)], [(0, _len), (_len*3, _len)], [(0, _len*2), (_len*3, _len*2)]]
+    # セルのライン
+    cell_lines = [[(0, -_len), (0, _len*2)], [(_len, -_len),
+                                              (_len, _len*3)], [(-_len, 0), (_len*2, 0)], [(-_len, _len), (_len*2, _len)]]
     line_collection = collections.LineCollection(
         cell_lines, color=("black",), linewidths=(0.5,))
     ax.add_collection(line_collection)
