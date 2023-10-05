@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as pat
 from matplotlib import collections
 from networkx.readwrite import json_graph
+import itertools
 
 
 def create_pos9(pos, _len):
@@ -13,6 +14,15 @@ def create_pos9(pos, _len):
             for h in add_len:
                 pos9.append([p[0]+w, p[1]+h])
     return pos9
+
+
+def max_dict(pos):
+    max_d = 0
+    for p0, p1 in itertools.combinations(pos, 2):
+        d = ((p0[0]-p1[0])**2+(p0[1]-p1[1])**2)**0.5
+        if d > max_d:
+            max_d = d
+    return max_d
 
 
 def draw_node(pos, ax):
@@ -94,11 +104,13 @@ def select_node(pos, u, v, _len, ideal_dist):
     return best_pos, is_wrap
 
 
-def graph_drawing(data, graph, _len, debug=False):
+def graph_drawing(data, graph, _len, file_path, debug=False):
     fig = plt.figure(figsize=(12, 12))
     ax = fig.add_subplot(111)
-    ax.tick_params(labelbottom=False, labelleft=False,
+    ax.tick_params(labelbottom=True, labelleft=True,
                    labelright=False, labeltop=False, bottom=False, left=False, right=False, top=False)
+
+    print("d", max_dict(data["pos"]))
 
     if debug:
         ax.set_xlim(-_len, _len*2)
@@ -118,16 +130,18 @@ def graph_drawing(data, graph, _len, debug=False):
     draw_node(pos9, ax)
     draw_edge(graph, data["node2num"], data["pos"], data["l"], _len, ax, debug)
 
-    plt.savefig("./sample.png")
+    plt.savefig(file_path)
     plt.clf()
     plt.close()
 
 
-with open("./result_sgd_0725_all_log/log/desargues-20230724233845.json") as f:
+with open("./result_1005/log/qh882-20231005011753.json") as f:
     data = json.load(f)
-    data = data["500"]["920230724233805"]["torusSGD"]
+    # 020231005011753
+    # s005011753
+    data = data["6200"]["020231005011753"]["torusSGD"]
     graph = json_graph.node_link_graph(
-        json.load(open("./graph/desargues.json")))
-    _len = 500
+        json.load(open("./graph/qh882.json")))
+    _len = 6200
 
-    graph_drawing(data, graph, _len, True)
+    graph_drawing(data, graph, _len, "./sample_qh882.png")
