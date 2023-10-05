@@ -19,13 +19,15 @@ def sgd(graph, file_name, _width=None, _height=None):
     l = [[0]*node_len for i in range(node_len)]
 
     maxd = initGraph.get_maxd(graph, file_name)
-    for i in range(node_len):
-        for j in range(node_len):
+    for _i in graph.nodes:
+        for _j in graph.nodes:
+            i = node2num[str(_i)]
+            j = node2num[str(_j)]
             if i == j:
                 continue
-            w[i][j] = pow(d[i][j], -2)
-            l[i][j] = d[i][j]
-            k[i][j] = 1/(d[i][j]*d[i][j])
+            w[i][j] = pow(d[_i][_j], -2)
+            l[i][j] = d[_i][_j]
+            k[i][j] = 1/(d[_i][_j]*d[_i][_j])
 
     height = maxd if _height == None else _height
     width = maxd if _width == None else _width
@@ -39,16 +41,18 @@ def sgd(graph, file_name, _width=None, _height=None):
     _lamda = -1*math.log(eta_min/eta_max)/loop
 
     for t in range(loop):
-        pair_index = initGraph.get_random_pair(node_len, loop, t)
+        pair_index = initGraph.get_random_pair(graph, loop, t)
         eta = eta_max*pow(math.e, -1*_lamda*t)
-
-        for i, j in pair_index:
+        for _i, _j in pair_index:
+            i = node2num[str(_i)]
+            j = node2num[str(_j)]
             mu = w[i][j]*eta
             if mu > 1:
                 mu = 1
-            rx = (calcDrawInfo.dist(pos, i, j)-d[i][j])/2 * \
+
+            rx = (calcDrawInfo.dist(pos, i, j)-d[_i][_j])/2 * \
                 (pos[i][0]-pos[j][0])/calcDrawInfo.dist(pos, i, j)
-            ry = (calcDrawInfo.dist(pos, i, j)-d[i][j])/2 * \
+            ry = (calcDrawInfo.dist(pos, i, j)-d[_i][_j])/2 * \
                 (pos[i][1]-pos[j][1])/calcDrawInfo.dist(pos, i, j)
 
             pos[i][0] = pos[i][0]-mu*rx
@@ -57,7 +61,7 @@ def sgd(graph, file_name, _width=None, _height=None):
             pos[j][1] = pos[j][1]+mu*ry
 
     delta = calcDrawInfo.calc_delta(pos, k, l, node_len)
-    edge_score = [(d[node2num[str(u)]][node2num[str(v)]] -
+    edge_score = [(d[u][v] -
                   calcDrawInfo.dist(pos, node2num[str(u)], node2num[str(v)]))**2 for u, v in graph.edges]
     drawGraph.draw_graph(graph, pos, delta, edge_score,
                          node_len, "SGD", width, height, file_name)

@@ -2,6 +2,7 @@ import setup
 from functools import cache
 import random
 import itertools
+import networkx as nx
 
 
 SHORTEST_PATH = dict()
@@ -68,19 +69,9 @@ def get_shortest_path(graph, node_len, node2num, file_name):
     if file_name in SHORTEST_PATH:
         return SHORTEST_PATH[file_name]
 
-    edge_weight = setup.get_edge_width()
-    d = [[float('inf')]*node_len for i in range(node_len)]
-
-    for i in range(node_len):
-        d[i][i] = 0
-    for x_node, y_node in graph.edges:
-        x = node2num[str(x_node)]
-        y = node2num[str(y_node)]
-        d[x][y] = edge_weight
-        d[y][x] = edge_weight
-
-    for i in range(node_len):
-        d[i] = dijkstra(d, i)
+    UNIT_EDGE_LENGTH = setup.get_edge_width()
+    d = dict(nx.all_pairs_dijkstra_path_length(
+        graph, weight=lambda u, v, e: UNIT_EDGE_LENGTH))
 
     # 辞書に保存
     SHORTEST_PATH[file_name] = d
@@ -107,18 +98,18 @@ def get_pos(node_len, width, height):
     return pos0
 
 
-def init_pair_index(node_len, loop):
+def init_pair_index(graph, loop):
     for i in range(loop):
         pair_index = [list(p) for p in itertools.combinations(
-            [i for i in range(node_len)], 2)]
+            [i for i in graph.nodes], 2)]
         pair_index = random.sample(pair_index, len(pair_index))
         PAIR_INDEX.append(pair_index)
 
 
-def get_random_pair(node_len, loop, t):
+def get_random_pair(graph, loop, t):
     global PAIR_INDEX
     if len(PAIR_INDEX) == 0:
-        init_pair_index(node_len, loop)
+        init_pair_index(graph, loop)
     pair_index = [[x, y] for x, y in PAIR_INDEX[t]]
     return pair_index
 
@@ -134,8 +125,13 @@ def get_maxd(graph, file_name):
     k = [[0]*node_len for i in range(node_len)]
 
     maxd = 0
-    for i in range(node_len):
-        for j in range(node_len):
-            if maxd < d[i][j]:
-                maxd = d[i][j]
+    # for i in range(node_len):
+    #     for j in range(node_len):
+    #         if maxd < d[i][j]:
+    #             maxd = d[i][j]
+    for val in d.values():
+        _max = max([v for v in val.values()])
+        if _max > maxd:
+            maxd = _max
+
     return maxd

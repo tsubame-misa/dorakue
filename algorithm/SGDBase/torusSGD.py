@@ -20,13 +20,15 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
     l = [[0]*node_len for i in range(node_len)]
 
     maxd = initGraph.get_maxd(graph, file_name)
-    for i in range(node_len):
-        for j in range(node_len):
+    for _i in graph.nodes:
+        for _j in graph.nodes:
+            i = node2num[str(_i)]
+            j = node2num[str(_j)]
             if i == j:
                 continue
-            w[i][j] = pow(d[i][j], -2)
-            l[i][j] = d[i][j]
-            k[i][j] = 1/(d[i][j]*d[i][j])
+            w[i][j] = pow(d[_i][_j], -2)
+            l[i][j] = d[_i][_j]
+            k[i][j] = 1/(d[_i][_j]*d[_i][_j])
 
     height = maxd if _height == None else _height
     width = maxd if _width == None else _width
@@ -43,6 +45,8 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
         eta = eta_max*pow(math.e, -1*_lamda*t)
 
         for i, j in pair_index:
+            i = node2num[str(_i)]
+            j = node2num[str(_j)]
             mu = w[i][j]*eta
             if mu > 1:
                 mu = 1
@@ -50,11 +54,18 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
             pos_ij = calcDrawInfo.dist_around_position(
                 pos, i, j, width, height, l[i][j])
 
-            rx = (calcDrawInfo.dist_around(pos, i, j, width, height, l[i][j])-d[i][j])/2 * (pos_ij[0]) / \
-                calcDrawInfo.dist_around(pos, i, j, width, height, l[i][j])
-            ry = (calcDrawInfo.dist_around(pos, i, j, width, height, l[i][j])-d[i][j])/2 * \
-                (pos_ij[1]) / \
-                calcDrawInfo.dist_around(pos, i, j, width, height, l[i][j])
+            # print((calcDrawInfo.dist_around(pos, i, j, width,
+            #       height, l[i][j])-d[_i][_j])/2 * (pos_ij[0]), d[_i][_j], i, j)
+
+            if i == j:
+                rx = 0
+                ry = 0
+            else:
+                rx = (calcDrawInfo.dist_around(pos, i, j, width, height, l[i][j])-d[_i][_j])/2 * (pos_ij[0]) / \
+                    calcDrawInfo.dist_around(pos, i, j, width, height, l[i][j])
+                ry = (calcDrawInfo.dist_around(pos, i, j, width, height, l[i][j])-d[_i][_j])/2 * \
+                    (pos_ij[1]) / \
+                    calcDrawInfo.dist_around(pos, i, j, width, height, l[i][j])
 
             pos[i][0] = pos[i][0]-mu*rx
             pos[i][1] = pos[i][1]-mu*ry
@@ -85,7 +96,7 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
 
     delta = calcDrawInfo.calc_delta_around(
         fin_pos, k, l, node_len, width, height)
-    edge_score = [(d[node2num[str(u)]][node2num[str(v)]] -
+    edge_score = [(d[u][v] -
                    calcDrawInfo.dist_around(fin_pos, node2num[str(u)], node2num[str(v)], width, height, l[node2num[str(u)]][node2num[str(v)]]))**2 for u, v in graph.edges]
     # delta = calcDrawInfo.calc_delta(
     #     fin_pos, k, l, node_len)
