@@ -41,10 +41,12 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
     _lamda = -1*math.log(eta_min/eta_max)/loop
 
     for t in range(loop):
-        pair_index = initGraph.get_random_pair(node_len, loop, t)
+        pair_index = initGraph.get_random_pair(graph, loop, t)
+
         eta = eta_max*pow(math.e, -1*_lamda*t)
 
-        for i, j in pair_index:
+        for _i, _j in pair_index:
+
             i = node2num[str(_i)]
             j = node2num[str(_j)]
             mu = w[i][j]*eta
