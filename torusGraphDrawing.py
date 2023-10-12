@@ -135,13 +135,14 @@ def graph_drawing(data, graph, _len, file_path, debug=False):
     plt.close()
 
 
-with open("./result_1005/log/qh882-20231005011753.json") as f:
+with open("./result_1007_torus_large_maxd**05/log/1138_bus-20231008015747.json") as f:
     data = json.load(f)
     # 020231005011753
     # s005011753
-    data = data["6200"]["020231005011753"]["torusSGD"]
+    # 020231006000108
+    data = data["4384.062043356595"]["020231008015747"]["torusSGD"]
     graph = json_graph.node_link_graph(
         json.load(open("./graph/qh882.json")))
     _len = 6200
 
-    graph_drawing(data, graph, _len, "./sample_qh882.png")
+    graph_drawing(data, graph, _len, "./sample_1138.png", True)

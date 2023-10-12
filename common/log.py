@@ -30,7 +30,8 @@ def create_log_folder():
 
     os.mkdir(new_dir_path)
 
-    folders = ["log", "SGD", "torusSGD", "torusSGDTrue", "compare"]
+    folders = ["log", "SGD", "torusSGD",
+               "torusSGDTrue", "compare", "torusSGD_wrap"]
     for f in folders:
         new_dir_path = path + "/" + dir_name + "/" + f
         os.mkdir(new_dir_path)

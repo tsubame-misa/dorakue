@@ -56,9 +56,6 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
             pos_ij = calcDrawInfo.dist_around_position(
                 pos, i, j, width, height, l[i][j])
 
-            # print((calcDrawInfo.dist_around(pos, i, j, width,
-            #       height, l[i][j])-d[_i][_j])/2 * (pos_ij[0]), d[_i][_j], i, j)
-
             if i == j:
                 rx = 0
                 ry = 0
@@ -107,8 +104,13 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
 
     drawGraph.draw_graph(graph, fin_pos, delta, edge_score,
                          node_len, "torusSGD", width, height, file_name)
-    kame_log = aestheticsMeasures.calc_evaluation_values(
-        delta, edge_score, graph, node2num, fin_pos, l, width, height,  calcDrawInfo.get_has_dorakue())
+    drawGraph.torus_graph_drawing(
+        pos, l, node2num, graph, width, "torusSGD_wrap", file_name)
+    # kame_log = aestheticsMeasures.calc_evaluation_values(
+    #     delta, edge_score, graph, node2num, fin_pos, l, width, height,  calcDrawInfo.get_has_dorakue())
+    kame_log = aestheticsMeasures.calc_torus_evaluation_values(
+        delta, edge_score, graph, node2num, pos, l, float(width))
+
     kame_log["wrap"] = isWrap
     kame_log["pos"] = fin_pos
     kame_log["k"] = k

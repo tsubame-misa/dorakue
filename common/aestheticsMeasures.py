@@ -24,7 +24,7 @@ def calc_evaluation_values(delta, dist_score, graph, node2num, pos, l, width=Non
 
     edge_length_variance = calc_edge_length_variance(pos, graph, node2num)
     minimum_angle = calc_minimum_angle(pos, l)
-    edge_crossings = calc_edge_crossings(graph, node2num, pos)
+    edge_crossings, wrap = calc_edge_crossings(graph, node2num, pos)
 
     return {"delta": {"mean": delta_mean, "sd": delta_sd, "sum": delta_sum},
             "dist": {"mean": dist_mean, "sd": dist_sd, "sum": dist_sum},
@@ -45,14 +45,16 @@ def calc_torus_evaluation_values(delta, dist_score, graph, node2num, pos, l, _le
     edge_length_variance = calc_edge_length_variance(
         pos, graph, node2num, l, _len, True)
     minimum_angle = calc_minimum_angle(pos, l, _len, True)
-    edge_crossings = calc_edge_crossings(graph, node2num, pos, l, _len, True)
+    edge_crossings, wrap = calc_edge_crossings(
+        graph, node2num, pos, l, _len, True)
 
     return {"delta": {"mean": delta_mean, "sd": delta_sd, "sum": delta_sum},
             "dist": {"mean":
                      dist_mean, "sd": dist_sd, "sum": dist_sum},
             "edge_length_variance": edge_length_variance,
             "minimum_angle": minimum_angle,
-            "edge_crossings": edge_crossings}
+            "edge_crossings": edge_crossings,
+            "wrap": wrap}
 
 
 def calc_edge_length_variance(pos, graph, node2num, _l=None, _len=0, torus=False):
@@ -152,9 +154,14 @@ def is_cross_pos(p1, p2, p3, p4):
 
 def calc_edge_crossings(graph, node2num, pos, l=None, _len=0, wrap=False):
     count = 0
+    is_wrap = False
     if wrap:
         torus_edges = torus_edge_pair(graph, node2num,  pos, l,  _len)
         edge_pair = [list(p) for p in itertools.combinations(torus_edges, 2)]
+
+        if len(torus_edges) > len(graph.edges):
+            is_wrap = True
+
         for i in range(len(edge_pair)):
             n1 = list(edge_pair[i][0][0])
             n2 = list(edge_pair[i][0][1])
@@ -171,7 +178,7 @@ def calc_edge_crossings(graph, node2num, pos, l=None, _len=0, wrap=False):
             n4 = node2num[str(edge_pair[i][1][1])]
             if is_cross(pos[n1], pos[n2], pos[n3], pos[n4]):
                 count += 1
-    return count
+    return count, is_wrap
 
 
 def torus_edge_pair(graph, node2num,  pos, l,  _len):

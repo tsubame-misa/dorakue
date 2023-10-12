@@ -1,11 +1,13 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 import plotly.express as px
-import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import os
 import re
 import setup
+import matplotlib.patches as pat
+from matplotlib import collections
+import itertools
 
 
 list_colors = px.colors.sequential.Plasma
@@ -127,3 +129,136 @@ def get_single_alg_figs(file_name, image_paths):
     # plt.title(file_name, loc='center', fontsize=30,  pad=30)
     fig.suptitle(file_name, fontsize=30)
     plt.savefig(img_path)
+
+
+def create_pos9(pos, _len):
+    add_len = [-_len, 0, _len]
+    pos9 = []
+    for p in pos:
+        for w in add_len:
+            for h in add_len:
+                pos9.append([p[0]+w, p[1]+h])
+    return pos9
+
+
+def max_dict(pos):
+    max_d = 0
+    for p0, p1 in itertools.combinations(pos, 2):
+        d = ((p0[0]-p1[0])**2+(p0[1]-p1[1])**2)**0.5
+        if d > max_d:
+            max_d = d
+    return max_d
+
+
+def draw_node(pos, ax):
+    for p in pos:
+        C = pat.Circle(xy=(p[0], p[1]), radius=2.5, color="blue")
+        ax.add_patch(C)
+
+
+def draw_edge(graph, node2num,  pos, l,  _len, ax, debug=False):
+    edge_lines = []
+    wrap_lines = []
+    wrap_lines2 = []
+
+    for i, j in graph.edges:
+        idx_i = node2num[str(i)]
+        idx_j = node2num[str(j)]
+
+        best_pos, is_wrap = select_node(
+            pos, idx_i, idx_j, _len, l[idx_i][idx_j])
+
+        if is_wrap:
+            line = [(pos[idx_i][0], pos[idx_i][1]),
+                    (best_pos[0], best_pos[1])]
+            if debug:
+                wrap_lines.append(line)
+            else:
+                edge_lines.append(line)
+
+            best_pos, is_wrap = select_node(
+                pos,  idx_j, idx_i, _len, l[idx_i][idx_j])
+            line = [(pos[idx_j][0], pos[idx_j][1]),
+                    (best_pos[0], best_pos[1])]
+            if debug:
+                wrap_lines2.append(line)
+            else:
+                edge_lines.append(line)
+        else:
+            line = [(pos[idx_i][0], pos[idx_i][1]),
+                    (pos[idx_j][0], pos[idx_j][1])]
+            edge_lines.append(line)
+
+    if debug:
+        line_collection = collections.LineCollection(
+            edge_lines, color=("green",), linewidths=(0.5,))
+    else:
+        line_collection = collections.LineCollection(
+            edge_lines, color=("blue",), linewidths=(0.5,))
+    ax.add_collection(line_collection)
+
+    line_collection = collections.LineCollection(
+        wrap_lines, color=("red",), linewidths=(0.5,))
+    ax.add_collection(line_collection)
+
+    line_collection = collections.LineCollection(
+        wrap_lines2, color=("orange",), linewidths=(0.5,))
+    ax.add_collection(line_collection)
+
+
+def select_node(pos, u, v, _len, ideal_dist):
+    # uから見た
+    x_list = [pos[v][0]-_len, pos[v][0], pos[v][0]+_len]
+    y_list = [pos[v][1]-_len, pos[v][1], pos[v][1]+_len]
+
+    best_pos = [pos[v][0], pos[v][1]]
+    _dist = float("inf")
+
+    for x in x_list:
+        for y in y_list:
+            ax = pos[u][0] - x
+            ay = pos[u][1] - y
+            adist = (ax ** 2 + ay ** 2) ** 0.5
+            if abs(_dist-ideal_dist) > abs(adist-ideal_dist):
+                best_pos[0] = x
+                best_pos[1] = y
+                _dist = adist
+
+    is_wrap = not(best_pos[0] == pos[v][0] and best_pos[1] == pos[v][1])
+
+    return best_pos, is_wrap
+
+
+def torus_graph_drawing(pos, l, node2num, graph, _len, alg_dir_name, name, debug=False):
+    fig = plt.figure(figsize=(12, 12))
+    ax = fig.add_subplot(111)
+    ax.tick_params(labelbottom=False, labelleft=False,
+                   labelright=False, labeltop=False, bottom=False, left=False, right=False, top=False)
+
+    if debug:
+        ax.set_xlim(-_len, _len*2)
+        ax.set_ylim(-_len, _len*2)
+
+        # セルのライン
+        cell_lines = [[(0, -_len), (0, _len*2)], [(_len, -_len),
+                                                  (_len, _len*3)], [(-_len, 0), (_len*2, 0)], [(-_len, _len), (_len*2, _len)]]
+        line_collection = collections.LineCollection(
+            cell_lines, color=("black",), linewidths=(0.5,))
+        ax.add_collection(line_collection)
+    else:
+        ax.set_xlim(0, _len)
+        ax.set_ylim(0, _len)
+
+    pos9 = create_pos9(pos, _len)
+    draw_node(pos9, ax)
+    draw_edge(graph, node2num, pos, l, _len, ax, debug)
+
+    dir_name = setup.get_dir_name()
+
+    img_path = get_dir()+'/'+dir_name+'/' + alg_dir_name + '/' + \
+        str(name) + '-' + str(_len) + '-' + TIME + '.png'
+    plt.savefig(img_path)
+    IMAGE_PATH.append(img_path)
+
+    plt.clf()
+    plt.close()
