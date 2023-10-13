@@ -4,6 +4,26 @@ import re
 import os
 from common import drawGraph, log, calcDrawInfo,  initGraph, aestheticsMeasures, debug
 from networkx.readwrite import json_graph
+import networkx as nx
+import matplotlib.pyplot as plt
+import setup
+
+
+def draw_graph(graph, pos, name):
+    G = nx.DiGraph()
+
+    G.add_nodes_from(graph.nodes)
+    G.add_edges_from(graph.edges)
+
+    plt.figure(figsize=(12, 12))
+    nx.draw_networkx(G, pos, False, node_size=50, font_size=5)
+
+    img_path = "./doughNetGraph/origin/img/" + name + '.png'
+    plt.savefig(img_path)
+
+    plt.clf()
+    plt.close()
+
 
 for filepath in glob.glob("./doughNetGraph/default/*"):
     with open(filepath) as f:
@@ -41,3 +61,5 @@ for filepath in glob.glob("./doughNetGraph/default/*"):
 
     with open(path + "/doughNetGraph/score/" + filename+".json", "w") as f:
         json.dump(_log, f)
+
+    draw_graph(graph, pos, filename)
