@@ -113,13 +113,25 @@ def calc_deg(pos, u, v, l, _len, wrap=False):
         best_pos, is_wrap = select_node(pos, u, v, _len, l[u][v])
         vec2 = [best_pos[0]-x0, best_pos[1]-y0]
     else:
-        vec2 = [pos[v][0]-x0, pos[v][1]-y0]
+        vec2 = [pos[u][0]-pos[v][0], pos[u][1]-pos[v][1]]
 
-    absvec1 = np.linalg.norm(vec1)
-    absvec2 = np.linalg.norm(vec2)
-    inner = np.inner(vec1, vec2)
-    cos_theta = inner/(absvec1*absvec2)
-    theta = math.degrees(math.acos(cos_theta))
+    # ベクトルの長さを計算
+    magnitude1 = math.sqrt(vec1[0] ** 2 + vec1[1] ** 2)
+    magnitude2 = math.sqrt(vec2[0] ** 2 + vec2[1] ** 2)
+
+    # ベクトルの内積を計算
+    dot_product = vec1[0] * vec2[0] + vec1[1] * vec2[1]
+
+    # 内積から角度を計算（ラジアン）
+    angle_rad = math.acos(dot_product / (magnitude1 * magnitude2))
+
+    # ラジアンから度に変換
+    theta = math.degrees(angle_rad)
+
+    cross_product = vec1[0] * vec2[1] - vec1[1] * vec2[0]
+    if cross_product < 0:
+        theta = 360 - theta
+
     return theta
 
 
@@ -137,9 +149,10 @@ def calc_minimum_angle(pos, l, _len=0, wrap=False):
             thetas_from_zero.append(calc_deg(pos, i, v, l, _len, wrap))
         # ソートしないと隣同士の角度が取れないのでソート
         thetas_from_zero = sorted(thetas_from_zero, reverse=True)
-        for j in range(1, len(thetas_from_zero)-1):
-            thetas.append(thetas_from_zero[j+1]-thetas_from_zero[j])
-        thetas.append(thetas_from_zero[0]+(360-thetas_from_zero[-1]))
+        for j in range(len(thetas_from_zero)-1):
+            thetas.append(thetas_from_zero[j]-thetas_from_zero[j+1])
+        thetas.append(thetas_from_zero[-1]+(360-thetas_from_zero[0]))
+
         min_theta = min(thetas)
         _sum += abs(ideal_theta-min_theta)/ideal_theta
     return _sum/len(pos)
