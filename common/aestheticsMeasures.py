@@ -78,6 +78,9 @@ def select_node(pos, u, v, _len, ideal_dist):
     x_list = [pos[v][0]-_len, pos[v][0], pos[v][0]+_len]
     y_list = [pos[v][1]-_len, pos[v][1], pos[v][1]+_len]
 
+    squea_side_edge = [[[0, 0], [0, _len]], [[0, 0], [_len, 0]], [
+        [_len, 0], [_len, _len]], [[_len, _len], [0, _len]]]
+
     best_pos = [pos[v][0], pos[v][1]]
     _dist = float("inf")
 
@@ -92,6 +95,12 @@ def select_node(pos, u, v, _len, ideal_dist):
                 _dist = adist
 
     is_wrap = not(best_pos[0] == pos[v][0] and best_pos[1] == pos[v][1])
+
+    if is_wrap:
+        for n1, n2 in squea_side_edge:
+            if is_cross(n1, n2, pos[u], best_pos):
+                best_pos = intersection(n1, n2, pos[u], best_pos)
+                break
 
     return best_pos, is_wrap
 
@@ -152,6 +161,16 @@ def is_cross_pos(p1, p2, p3, p4):
     return tc1*tc2 < 0 and td1*td2 < 0
 
 
+# 2つの線分の交点を求める
+def intersection(p1, p2, p3, p4):
+    det = (p1[0] - p2[0]) * (p4[1] - p3[1]) - (p4[0] - p3[0]) * (p1[1] - p2[1])
+    t = ((p4[1] - p3[1]) * (p4[0] - p2[0]) +
+         (p3[0] - p4[0]) * (p4[1] - p2[1])) / det
+    x = t * p1[0] + (1.0 - t) * p2[0]
+    y = t * p1[1] + (1.0 - t) * p2[1]
+    return x, y
+
+
 def calc_edge_crossings(graph, node2num, pos, l=None, _len=0, wrap=False):
     count = 0
     is_wrap = False
@@ -196,7 +215,7 @@ def torus_edge_pair(graph, node2num,  pos, l,  _len):
 
         if is_wrap:
             best_pos, is_wrap = select_node(
-                pos,  idx_j, idx_i, _len, l[idx_i][idx_j])
+                pos,  idx_j, idx_i, _len, l[idx_j][idx_i])
             line = [(pos[idx_j][0], pos[idx_j][1]),
                     (best_pos[0], best_pos[1])]
             edge_lines.append(line)
