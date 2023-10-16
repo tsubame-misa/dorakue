@@ -111,7 +111,7 @@ def calc_deg(pos, u, v, l, _len, wrap=False):
 
     if wrap:
         best_pos, is_wrap = select_node(pos, u, v, _len, l[u][v])
-        vec2 = [best_pos[0]-x0, best_pos[1]-y0]
+        vec2 = [pos[u][0]-best_pos[0], pos[u][1]-best_pos[1]]
     else:
         vec2 = [pos[u][0]-pos[v][0], pos[u][1]-pos[v][1]]
 
