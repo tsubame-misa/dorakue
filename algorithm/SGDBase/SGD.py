@@ -66,7 +66,7 @@ def sgd(graph, file_name, _width=None, _height=None):
     drawGraph.draw_graph(graph, pos, delta, edge_score,
                          node_len, "SGD", width, height, file_name)
     kame_log = aestheticsMeasures.calc_evaluation_values(
-        delta, edge_score, graph, node2num, pos, l)
+        delta, edge_score, graph, node2num, pos, l, maxd, d)
     kame_log["pos"] = pos
     kame_log["k"] = k
     kame_log["l"] = l

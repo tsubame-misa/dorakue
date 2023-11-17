@@ -109,7 +109,7 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
     # kame_log = aestheticsMeasures.calc_evaluation_values(
     #     delta, edge_score, graph, node2num, fin_pos, l, width, height,  calcDrawInfo.get_has_dorakue())
     kame_log = aestheticsMeasures.calc_torus_evaluation_values(
-        delta, edge_score, graph, node2num, pos, l, float(width))
+        delta, edge_score, graph, node2num, pos, l, float(width), maxd, d)
 
     kame_log["wrap"] = isWrap
     kame_log["pos"] = fin_pos
