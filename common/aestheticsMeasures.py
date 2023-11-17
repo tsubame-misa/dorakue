@@ -13,7 +13,7 @@ def calc_sd(array):
     return sum((score - mean)**2 for score in array)/len(array)
 
 
-def calc_evaluation_values(delta, dist_score, graph, node2num, pos, l, width=None, height=None, isTorus=False):
+def calc_evaluation_values(delta, dist_score, graph, node2num, pos, l, maxd, d,  width=None, height=None, isTorus=False):
     delta_mean = calc_mean(delta)
     delta_sd = calc_sd(delta)
     delta_sum = sum(delta)
@@ -25,15 +25,20 @@ def calc_evaluation_values(delta, dist_score, graph, node2num, pos, l, width=Non
     edge_length_variance = calc_edge_length_variance(pos, graph, node2num)
     minimum_angle = calc_minimum_angle(pos, l)
     edge_crossings, wrap = calc_edge_crossings(graph, node2num, pos)
+    node_resolution = calc_node_resolution(graph, pos, node2num, maxd)
+    stress = calc_stress(graph, pos, d, node2num)
+
 
     return {"delta": {"mean": delta_mean, "sd": delta_sd, "sum": delta_sum},
             "dist": {"mean": dist_mean, "sd": dist_sd, "sum": dist_sum},
             "edge_length_variance": edge_length_variance,
             "minimum_angle": minimum_angle,
-            "edge_crossings": edge_crossings}
+            "edge_crossings": edge_crossings,
+            "node_resolution": node_resolution,
+            "stress":stress}
 
 
-def calc_torus_evaluation_values(delta, dist_score, graph, node2num, pos, l, _len):
+def calc_torus_evaluation_values(delta, dist_score, graph, node2num, pos, l, _len, maxd, d):
     delta_mean = calc_mean(delta)
     delta_sd = calc_sd(delta)
     delta_sum = sum(delta)
@@ -47,6 +52,8 @@ def calc_torus_evaluation_values(delta, dist_score, graph, node2num, pos, l, _le
     minimum_angle = calc_minimum_angle(pos, l, _len, True)
     edge_crossings, wrap = calc_edge_crossings(
         graph, node2num, pos, l, _len, True)
+    node_resolution = calc_node_resolution(graph, pos, node2num, maxd, l, _len, True)
+    stress = calc_stress(graph, pos, d, node2num, l, _len, True)
 
     return {"delta": {"mean": delta_mean, "sd": delta_sd, "sum": delta_sum},
             "dist": {"mean":
@@ -54,7 +61,39 @@ def calc_torus_evaluation_values(delta, dist_score, graph, node2num, pos, l, _le
             "edge_length_variance": edge_length_variance,
             "minimum_angle": minimum_angle,
             "edge_crossings": edge_crossings,
+            "node_resolution": node_resolution,
+            "stress":stress,
             "wrap": wrap}
+
+
+def calc_stress(graph, pos, d, node2num, _l=None, _len=0, is_torus=False):
+    stress = 0
+    node_pair = [list(p) for p in itertools.combinations(graph.nodes, 2)]
+    for (u_node, v_node) in node_pair:
+        u = node2num[str(u_node)]
+        v = node2num[str(v_node)]
+        if is_torus:
+            stress += (calcDrawInfo.dist_around(pos, u, v, _len, _len, _l[u][v]) - d[u_node][v_node])**2
+        else:
+            stress += (calcDrawInfo.dist(pos, u, v) - d[u_node][v_node])**2
+    return stress
+
+
+def calc_node_resolution(graph, pos, node2num, maxd, _l=None, _len=0, is_torus=False):
+    node_pair = [list(p) for p in itertools.combinations(graph.nodes, 2)]
+    node_resolution = 0
+    r = 1/(len(graph.nodes())**0.5)
+    for (u_node, v_node) in node_pair:
+        u = node2num[str(u_node)]
+        v = node2num[str(v_node)]
+        if is_torus:
+            d = calcDrawInfo.dist_around(pos, u, v, _len, _len, _l[u][v])
+        else:
+            d = calcDrawInfo.dist(pos, u, v)
+        a = (1 - d/(r*maxd))**2
+        node_resolution += max(0, a)
+    return node_resolution
+
 
 
 def calc_edge_length_variance(pos, graph, node2num, _l=None, _len=0, torus=False):
