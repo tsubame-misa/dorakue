@@ -9,13 +9,13 @@ def dist(pos, u, v):
     return (dx ** 2 + dy ** 2) ** 0.5
 
 
-def dist_around(pos, u, v, width, height, ideal_dist):
+def dist_around(pos, u, v, width, height, ideal_dist,  use_ideal=False):
     _dist, best_pos, is_wrap = dist_around9(
-        pos, u, v, width, height, ideal_dist)
+        pos, u, v, width, height, ideal_dist, False)
     return _dist
 
 
-def dist_around9(pos, u, v, width, height, ideal_dist):
+def dist_around9(pos, u, v, width, height, ideal_dist, use_ideal=False):
     global DORAKUE
     x_list = [pos[v][0]-width, pos[v][0], pos[v][0]+width]
     y_list = [pos[v][1]-height, pos[v][1], pos[v][1]+height]
@@ -28,10 +28,18 @@ def dist_around9(pos, u, v, width, height, ideal_dist):
             ax = pos[u][0] - x
             ay = pos[u][1] - y
             adist = (ax ** 2 + ay ** 2) ** 0.5
-            if abs(_dist-ideal_dist) > abs(adist-ideal_dist):
-                best_pos[0] = ax
-                best_pos[1] = ay
-                _dist = adist
+            if use_ideal:
+               if abs(_dist-ideal_dist) > abs(adist-ideal_dist):
+                    best_pos[0] = ax
+                    best_pos[1] = ay
+                    _dist = adist
+            else:
+                if _dist > adist:
+                    best_pos[0] = ax
+                    best_pos[1] = ay
+                    _dist = adist
+
+                   
 
     is_wrap = not(best_pos[0] == pos[v][0] and best_pos[1] == pos[v][1])
     if is_wrap:
@@ -40,9 +48,9 @@ def dist_around9(pos, u, v, width, height, ideal_dist):
     return _dist, best_pos, is_wrap
 
 
-def dist_around_position(pos, u, v, width, height, ideal_dist):
+def dist_around_position(pos, u, v, width, height, ideal_dist, use_ideal=False):
     _dist, best_pos, is_wrap = dist_around9(
-        pos, u, v, width, height, ideal_dist)
+        pos, u, v, width, height, ideal_dist, use_ideal)
     return best_pos
 
 
