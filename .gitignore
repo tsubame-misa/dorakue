@@ -1,4 +1,3 @@
-/result
 /__pycache__
 /common/__pycache__
 /graph
@@ -8,6 +7,6 @@
 /all_result
 /comp_result
 /egraph-rs
-/result0630/
 /past
 /contest_graph
+/gomi
