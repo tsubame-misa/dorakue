@@ -6,36 +6,38 @@ from algorithm.SGDBase import SGD, torusSGD
 from common import drawGraph, log, initGraph
 import re
 import matplotlib.pyplot as plt
-
-
+import math
 
 """
 torusでstressを最も低くするlenghtを求める
 (maxdを何倍したものがstressが低くなるか)
 """
 
-
 def create_graph(graph, file_name, multiple_num, maxd, i):
     _len = multiple_num*maxd
     time = setup.get_time()
     index_time = str(i) + str(time)
     drawGraph.set_time(index_time)
-    # SGD.sgd(graph, file_name, _len, _len)
     _log = torusSGD.torus_sgd(graph, file_name, _len, _len, multiple_num)
-    # drawGraph.create_compare_fig(file_name)
-    # _log = log.get_log()
-
     return _log
 
 
-def get_midium_graph(graph, file_name, multiple_num, maxd, i, loop_value=25):
+def get_midium_graph(graph, file_name, multiple_num, maxd, i, loop_value=50):
+    all_log = dict()
+    stress = []
     for j in range(loop_value):
+        print("get midium", j)
         _len = multiple_num*maxd
         time = setup.get_time()
         index_time = str(i) + str(time)
         drawGraph.set_time(index_time)
         _log = torusSGD.torus_sgd(graph, file_name, _len, _len, multiple_num)
-        return _log
+        all_log[index_time] = _log
+        stress.append([index_time, _log["stress"]])
+
+    sorted_stress = sorted(stress,  key=lambda x: x[1])
+    return all_log[sorted_stress[len(sorted_stress)//2][0]]
+
 
 
 def show_stress_graph(x, y, file_name):
@@ -54,10 +56,18 @@ def show_stress_graph(x, y, file_name):
 
 def search_min_stress_len(graph, file_name):
     maxd = initGraph.get_maxd(graph, file_name)
-    count = 10
+    count = 20
 
     low = 0
     high = 5
+
+    lr_diff = high-low
+    x = (3-math.sqrt(5))/2*lr_diff
+    low_multipl_number = x
+    high_multipl_number = high - x
+
+
+    usable_lr = None
 
     data = []
 
@@ -68,9 +78,7 @@ def search_min_stress_len(graph, file_name):
     setup.set_dir_name(log_file_name)
     
     for i in range(count):
-        low_multipl_number = (low * 2 + high) / 3
-        high_multipl_number = (low + high * 2) / 3
-
+        print(i)
         time = setup.get_time()
         index_time = str(i) + str(time)
 
@@ -82,27 +90,38 @@ def search_min_stress_len(graph, file_name):
          - 連続性を期待するため、中央値は取らない。一回だけやる
          - 3分に限らずでも
         """
-        low_graph= create_graph(graph, file_name, low_multipl_number, maxd, index_time)
-        high_graph = create_graph(graph, file_name, high_multipl_number, maxd, index_time)
-
-        # print(low, high, min(low_graph["stress"] , high_graph["stress"]))
-        # print(low_multipl_number,low_graph["stress"],"|", high_multipl_number, high_graph["stress"])
-        # exit()
+        if usable_lr=="HIGH":
+            low_graph = high_graph    
+            high_graph= create_graph(graph, file_name, high_multipl_number, maxd, index_time)
+        elif usable_lr=="LOW":
+            high_graph = low_graph
+            low_graph = create_graph(graph, file_name, low_multipl_number, maxd, index_time)
+        else:
+            low_graph= create_graph(graph, file_name, low_multipl_number, maxd, index_time)
+            high_graph = create_graph(graph, file_name, high_multipl_number, maxd, index_time)
 
         if low_graph["stress"] > high_graph["stress"]:
-            low = low_multipl_number
             data.append([low_multipl_number, low_graph["stress"]])
             all_log[maxd*low_multipl_number] = {"1":{"torusSGD":low_graph}}
+
+            low = low_multipl_number
+            low_multipl_number = high_multipl_number
+            high_multipl_number = high - (lr_diff-2*x)
+            usable_lr = "HIGH"
         else:
-            high = high_multipl_number
             data.append([high_multipl_number, high_graph["stress"]])
             all_log[maxd*high_multipl_number] = {"2":{"torusSGD":high_graph}}
+
+            high = high_multipl_number
+            high_multipl_number = low_multipl_number
+            low_multipl_number = low + lr_diff-2*x
+            usable_lr = "LOW"
+        lr_diff = high-low
+        x = (3-math.sqrt(5))/2*lr_diff
         
         if abs(low_graph["stress"] - high_graph["stress"]) < 1 or abs(maxd*low_multipl_number-maxd*high_multipl_number) < 1:
-        # if abs(high - low) < 1e-5:
             break
     
-    print()
     if low_graph["stress"] > high_graph["stress"]:
         print("min", high_multipl_number, maxd*high_multipl_number)
     else:
@@ -113,9 +132,9 @@ def search_min_stress_len(graph, file_name):
     log.create_log(all_log, file_name)
     # print(sorted_data)
     # print()
+    # print(data)
     # print([row[0] for row in sorted_data])
     # print([row[1] for row in sorted_data])
-
 
     show_stress_graph([row[0] for row in sorted_data],[row[1] for row in sorted_data], file_name)
 
@@ -139,7 +158,7 @@ for filepath in files:
 
 
 sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes))
-log_file_name = "result"
+log_file_name = "result1124"
 setup.set_dir_name(log_file_name)
 log.create_log_folder()
 
