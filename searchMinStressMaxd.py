@@ -22,7 +22,7 @@ def create_graph(graph, file_name, multiple_num, maxd, i):
     return _log
 
 
-def get_midium_graph(graph, file_name, multiple_num, maxd, i, loop_value=50):
+def get_midium_graph(graph, file_name, multiple_num, maxd, i, loop_value=25):
     all_log = dict()
     stress = []
     for j in range(loop_value):
@@ -66,19 +66,20 @@ def search_min_stress_len(graph, file_name):
     low_multipl_number = x
     high_multipl_number = high - x
 
-
-    usable_lr = None
+    time = setup.get_time()
+    index_time = str(0) + str(time)
+    low_graph= get_midium_graph(graph, file_name, low_multipl_number, maxd, index_time)
+    high_graph = get_midium_graph(graph, file_name, high_multipl_number, maxd, index_time)
 
     data = []
-
     all_log = {"file": file_name}
 
     setup.init()
     initGraph.get_pos(len(graph.nodes()), maxd, maxd)
     setup.set_dir_name(log_file_name)
     
-    for i in range(count):
-        print(i)
+    for i in range(1, count):
+        print(i, low, high)
         time = setup.get_time()
         index_time = str(i) + str(time)
 
@@ -90,16 +91,7 @@ def search_min_stress_len(graph, file_name):
          - 連続性を期待するため、中央値は取らない。一回だけやる
          - 3分に限らずでも
         """
-        if usable_lr=="HIGH":
-            low_graph = high_graph    
-            high_graph= create_graph(graph, file_name, high_multipl_number, maxd, index_time)
-        elif usable_lr=="LOW":
-            high_graph = low_graph
-            low_graph = create_graph(graph, file_name, low_multipl_number, maxd, index_time)
-        else:
-            low_graph= create_graph(graph, file_name, low_multipl_number, maxd, index_time)
-            high_graph = create_graph(graph, file_name, high_multipl_number, maxd, index_time)
-
+            
         if low_graph["stress"] > high_graph["stress"]:
             data.append([low_multipl_number, low_graph["stress"]])
             all_log[maxd*low_multipl_number] = {"1":{"torusSGD":low_graph}}
@@ -107,7 +99,9 @@ def search_min_stress_len(graph, file_name):
             low = low_multipl_number
             low_multipl_number = high_multipl_number
             high_multipl_number = high - (lr_diff-2*x)
-            usable_lr = "HIGH"
+
+            low_graph = high_graph    
+            high_graph= get_midium_graph(graph, file_name, high_multipl_number, maxd, index_time)
         else:
             data.append([high_multipl_number, high_graph["stress"]])
             all_log[maxd*high_multipl_number] = {"2":{"torusSGD":high_graph}}
@@ -115,7 +109,10 @@ def search_min_stress_len(graph, file_name):
             high = high_multipl_number
             high_multipl_number = low_multipl_number
             low_multipl_number = low + lr_diff-2*x
-            usable_lr = "LOW"
+
+            high_graph = low_graph
+            low_graph = get_midium_graph(graph, file_name, low_multipl_number, maxd, index_time)
+        
         lr_diff = high-low
         x = (3-math.sqrt(5))/2*lr_diff
         
@@ -139,14 +136,6 @@ def search_min_stress_len(graph, file_name):
     show_stress_graph([row[0] for row in sorted_data],[row[1] for row in sorted_data], file_name)
 
 
-    
-        
-
-
-
-
-
-
 files = glob.glob("./graph/*")
 graphs = []
 
@@ -158,7 +147,7 @@ for filepath in files:
 
 
 sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes))
-log_file_name = "result1124"
+log_file_name = "result1124_2"
 setup.set_dir_name(log_file_name)
 log.create_log_folder()
 
