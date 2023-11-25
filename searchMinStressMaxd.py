@@ -2,11 +2,13 @@ import glob
 from networkx.readwrite import json_graph
 import json
 import setup
-from algorithm.SGDBase import SGD, torusSGD
+from algorithm.SGDBase import torusSGD
 from common import drawGraph, log, initGraph
 import re
 import matplotlib.pyplot as plt
 import math
+import os
+import shutil
 
 """
 torusでstressを最も低くするlenghtを求める
@@ -22,23 +24,21 @@ def create_graph(graph, file_name, multiple_num, maxd, i):
     return _log
 
 
-def get_midium_graph(graph, file_name, multiple_num, maxd, i, loop_value=25):
+def get_midium_graph(graph, file_name, multiple_num, maxd,loop_value=25):
     all_log = dict()
     stress = []
+    _len = multiple_num*maxd
     for j in range(loop_value):
         print("get midium", j)
-        _len = multiple_num*maxd
         time = setup.get_time()
-        index_time = str(i) + str(time)
+        index_time = str(j) + str(time)
         drawGraph.set_time(index_time)
         _log = torusSGD.torus_sgd(graph, file_name, _len, _len, multiple_num)
         all_log[index_time] = _log
         stress.append([index_time, _log["stress"]])
 
     sorted_stress = sorted(stress,  key=lambda x: x[1])
-    return all_log[sorted_stress[len(sorted_stress)//2][0]]
-
-
+    return all_log[sorted_stress[len(sorted_stress)//2][0]], sorted_stress[len(sorted_stress)//2][0] 
 
 def show_stress_graph(x, y, file_name):
     plt.figure(figsize=(8, 6))  # グラフのサイズを設定
@@ -50,9 +50,37 @@ def show_stress_graph(x, y, file_name):
     plt.title(file_name)
     plt.legend()  # 凡例を表示
 
-    plt.show()
+    dir_name = setup.get_dir_name()
+    new_dir_path = './' + dir_name + "/stress_by_len/" 
+
+    if not os.path.isdir(new_dir_path):
+        os.mkdir(new_dir_path)
+
+    img_path = './' + dir_name+'/stress_by_len/' + file_name+'.png'
+    plt.savefig(img_path)
 
 
+def save_best_graph(best_graph_time, best_log, file_name, _len):
+    dir_name = setup.get_dir_name()
+    new_dir_path = './' + dir_name + "/best/" 
+
+    if not os.path.isdir(new_dir_path):
+        os.mkdir(new_dir_path)
+
+    # 画像の保存
+    new_dir_path = './' + dir_name + "/best/img" 
+
+    if not os.path.isdir(new_dir_path):
+        os.mkdir(new_dir_path)
+
+    img_file_name = file_name + "-" + str(_len) + "-" + best_graph_time + ".png"
+    
+    shutil.copyfile(dir_name + "/torusSGD_wrap/" + img_file_name, new_dir_path+ "/" + img_file_name)  
+    print("saved", new_dir_path+ "/" + img_file_name)
+
+    # ログの保存
+    best_log["len"] = _len
+    log.create_log(best_log, file_name+"-best")
 
 def search_min_stress_len(graph, file_name):
     maxd = initGraph.get_maxd(graph, file_name)
@@ -66,10 +94,8 @@ def search_min_stress_len(graph, file_name):
     low_multipl_number = x
     high_multipl_number = high - x
 
-    time = setup.get_time()
-    index_time = str(0) + str(time)
-    low_graph= get_midium_graph(graph, file_name, low_multipl_number, maxd, index_time)
-    high_graph = get_midium_graph(graph, file_name, high_multipl_number, maxd, index_time)
+    low_graph, low_graph_time= get_midium_graph(graph, file_name, low_multipl_number, maxd)
+    high_graph, high_graph_time = get_midium_graph(graph, file_name, high_multipl_number, maxd)
 
     data = []
     all_log = {"file": file_name}
@@ -80,9 +106,6 @@ def search_min_stress_len(graph, file_name):
     
     for i in range(1, count):
         print(i, low, high)
-        time = setup.get_time()
-        index_time = str(i) + str(time)
-
         """
         計算量をなんとかしたい
         1. ここを中央値にする(最低ライン)
@@ -100,8 +123,9 @@ def search_min_stress_len(graph, file_name):
             low_multipl_number = high_multipl_number
             high_multipl_number = high - (lr_diff-2*x)
 
-            low_graph = high_graph    
-            high_graph= get_midium_graph(graph, file_name, high_multipl_number, maxd, index_time)
+            low_graph = high_graph
+            low_graph_time = high_graph_time    
+            high_graph, high_graph_time= get_midium_graph(graph, file_name, high_multipl_number, maxd)
         else:
             data.append([high_multipl_number, high_graph["stress"]])
             all_log[maxd*high_multipl_number] = {"2":{"torusSGD":high_graph}}
@@ -111,7 +135,8 @@ def search_min_stress_len(graph, file_name):
             low_multipl_number = low + lr_diff-2*x
 
             high_graph = low_graph
-            low_graph = get_midium_graph(graph, file_name, low_multipl_number, maxd, index_time)
+            high_graph_time = low_graph_time
+            low_graph, low_graph_time = get_midium_graph(graph, file_name, low_multipl_number, maxd)
         
         lr_diff = high-low
         x = (3-math.sqrt(5))/2*lr_diff
@@ -121,8 +146,12 @@ def search_min_stress_len(graph, file_name):
     
     if low_graph["stress"] > high_graph["stress"]:
         print("min", high_multipl_number, maxd*high_multipl_number)
+        all_log["best"] = high_graph
+        save_best_graph(high_graph_time, high_graph, file_name, maxd*high_multipl_number)
     else:
         print("min", low_multipl_number, maxd*low_multipl_number)
+        all_log["best"] = low_graph
+        save_best_graph(low_graph_time, low_graph, file_name, maxd*low_multipl_number)
 
     sorted_data = sorted(data, key=lambda x: x[0])
 
@@ -147,13 +176,13 @@ for filepath in files:
 
 
 sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes))
-log_file_name = "result1124_2"
+log_file_name = "result1125_all"
 setup.set_dir_name(log_file_name)
 log.create_log_folder()
 
-# graph_names = ["hoffman_singleton", "chvatal", "icosahedral",
-#                "dodecahedral", "florentine_families", "moebius_kantor"]
-graph_names = ["dodecahedral"]
+graph_names = ["hoffman_singleton", "chvatal", "icosahedral",
+               "dodecahedral", "florentine_families", "moebius_kantor"]
+# graph_names = ["dodecahedral"]
 
 for g in sorted_graphs:
     if not g["name"] in graph_names:
