@@ -4,8 +4,8 @@ from common import log
 from common import drawGraph
 
 
-DEFAULT_LOOP1 = 200
-DEFAULT_LOOP2 = 100
+DEFAULT_LOOP1 = 30
+DEFAULT_LOOP2 = 10
 DEFAULT_TERAM = 10
 DEFAULT_DIR_NAME = "result"
 

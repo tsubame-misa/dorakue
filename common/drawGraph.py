@@ -61,8 +61,8 @@ def create_and_save_graph(graph, pos, node_color, edge_color, alg_dir_name, widt
     G.add_edges_from(graph.edges)
 
     plt.figure(figsize=(12, 12))
-    nx.draw_networkx(G, pos, False,
-                     node_color=node_color, edge_color=edge_color, node_size=50, font_size=5)
+    nx.draw_networkx(G, pos, False, with_labels=False,
+                     node_color=node_color, edge_color=edge_color, node_size=20, font_size=5)
 
     dir_name = setup.get_dir_name()
 
@@ -152,7 +152,7 @@ def max_dict(pos):
 
 def draw_node(pos, ax):
     for p in pos:
-        C = pat.Circle(xy=(p[0], p[1]), radius=2.5, color="blue")
+        C = pat.Circle(xy=(p[0], p[1]), radius=1.5, color="blue")
         ax.add_patch(C)
 
 

@@ -4,7 +4,7 @@ import setup
 import itertools
 
 
-def torus_sgd(graph, file_name, _width=None, _height=None):
+def torus_sgd(graph, file_name, _width=None, _height=None, multiple_num=1):
     calcDrawInfo.clear_dorakue()
     loop = setup.get_SGD_loop()
     node_len = len(graph.nodes)
@@ -32,7 +32,7 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
 
     height = maxd if _height == None else _height
     width = maxd if _width == None else _width
-    pos = initGraph.get_pos(node_len, width, height)
+    pos = initGraph.get_pos(node_len, width, height, multiple_num)
 
     eps = 0.1
     eta_max = 1/(min(list(itertools.chain.from_iterable(w))))
@@ -102,8 +102,8 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
     # edge_score = [(d[node2num[str(u)]][node2num[str(v)]] -
     #                calcDrawInfo.dist(fin_pos, node2num[str(u)], node2num[str(v)]))**2 for u, v in graph.edges]
 
-    drawGraph.draw_graph(graph, fin_pos, delta, edge_score,
-                         node_len, "torusSGD", width, height, file_name)
+    # drawGraph.draw_graph(graph, fin_pos, delta, edge_score,
+    #                      node_len, "torusSGD", width, height, file_name)
     drawGraph.torus_graph_drawing(
         pos, l, node2num, graph, width, "torusSGD_wrap", file_name)
     # kame_log = aestheticsMeasures.calc_evaluation_values(
@@ -121,4 +121,4 @@ def torus_sgd(graph, file_name, _width=None, _height=None):
     log.add_log("torusSGD", kame_log)
     debug.add_node_b(fin_pos)
 
-    return kame_log["dist"]["sum"]
+    return kame_log

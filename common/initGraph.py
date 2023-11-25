@@ -11,6 +11,8 @@ PAIR_INDEX = []
 DORAKUE = False
 
 
+
+
 def clear():
     global POS, PAIR_INDEX, SHORTEST_PATH
     POS = []
@@ -90,11 +92,11 @@ def init_pos(node_len, width, height):
         POS.append([x, y])
 
 
-def get_pos(node_len, width, height):
+def get_pos(node_len, width, height, multiple_num=1):
     global POS
     if len(POS) == 0:
         init_pos(node_len, width, height)
-    pos0 = [[x, y] for x, y in POS]
+    pos0 = [[x*multiple_num, y*multiple_num] for x, y in POS]
     return pos0
 
 

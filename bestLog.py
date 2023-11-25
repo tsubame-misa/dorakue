@@ -6,27 +6,33 @@ from networkx.readwrite import json_graph
 import math
 import re
 
+"""
+おそらくいらなくなるはず
+"""
+
 tmp = {"edge_length_variance": 0,
        "minimum_angle": 0,
        "edge_crossings": 0,
        "dist_variance": 0,
-       "dist_mean": 0,
+       #    "dist_mean": 0,
        #    "wrap_dist_variance": 0,
        #    "wrap_dist_mean": 0,
        "delta_variance": 0,
-       "delta_mean": 0,
+       #    "delta_mean": 0,
        #    "wrap_delta_variance": 0,
        #    "wrap_delta_mean": 0,
        "count": 0}
 
 torus_good_count = 0
-all_graph_count = len(glob.glob("./result_sgd_0725_all_log/log/*"))
+log_file_path = "./result_sgd_0728_4/log/*"
+# all_graph_count = len(glob.glob("./result_sgd_0725_all_log/log/*"))
+all_graph_count = len(glob.glob(log_file_path))
+
+all_result = dict()
 
 files = []
 pd.set_option('display.max_columns', 20)
-for filepath in glob.glob("./result_sgd_0725_all_log/log/*"):
-    # json.load関数を使ったjsonファイルの読み込み
-    # with open('./result_sgd_0725_2/log/cubical-20230724224257.json') as f:
+for filepath in glob.glob(log_file_path):
     with open(filepath) as f:
         data = json.load(f)
 
@@ -82,21 +88,22 @@ for filepath in glob.glob("./result_sgd_0725_all_log/log/*"):
                     torus_evaluation = aestheticsMeasures.calc_torus_evaluation_values(
                         delta, dist_score, graph, node2num, pos, l, float(_len))
 
-                    alg_sum_result[alg]["dist_mean"] += torus_evaluation["dist"]["mean"]
+                    # alg_sum_result[alg]["dist_mean"] += torus_evaluation["dist"]["mean"]
                     alg_sum_result[alg]["dist_variance"] += torus_evaluation["dist"]["sd"]
                     alg_sum_result[alg]["delta_variance"] += torus_evaluation["delta"]["sd"]
-                    alg_sum_result[alg]["delta_mean"] += torus_evaluation["delta"]["mean"]
+                    # alg_sum_result[alg]["delta_mean"] += torus_evaluation["delta"]["mean"]
 
                     alg_sum_result[alg]["edge_length_variance"] += torus_evaluation["edge_length_variance"]
                     alg_sum_result[alg]["minimum_angle"] += torus_evaluation["minimum_angle"]
                     alg_sum_result[alg]["edge_crossings"] += torus_evaluation["edge_crossings"]
                     alg_sum_result[alg]["count"] += 1
+                    # print("wrap", torus_evaluation["wrap"])
 
                 else:
                     alg_sum_result[alg]["dist_variance"] += data[_len][time][alg]["dist"]["sd"]
-                    alg_sum_result[alg]["dist_mean"] += data[_len][time][alg]["dist"]["mean"]
+                    # alg_sum_result[alg]["dist_mean"] += data[_len][time][alg]["dist"]["mean"]
                     alg_sum_result[alg]["delta_variance"] += data[_len][time][alg]["delta"]["sd"]
-                    alg_sum_result[alg]["delta_mean"] += data[_len][time][alg]["delta"]["mean"]
+                    # alg_sum_result[alg]["delta_mean"] += data[_len][time][alg]["delta"]["mean"]
                     # alg_sum_result[alg]["wrap_dist_variance"] += data[_len][time][alg]["dist"]["sd"]
                     # alg_sum_result[alg]["wrap_dist_mean"] += data[_len][time][alg]["dist"]["mean"]
                     # alg_sum_result[alg]["wrap_delta_variance"] += data[_len][time][alg]["delta"]["sd"]
@@ -157,10 +164,14 @@ for filepath in glob.glob("./result_sgd_0725_all_log/log/*"):
     if max(goood_cnts) >= (len(tmp)-1)//2:
         torus_good_count += 1
 
+    all_result[filename] = result[best_len]
+    all_result[filename]["len"] = best_len
+    all_result[filename]["node"] = len(graph.nodes)
+
     print("len", _lens)
     print("best len", best_len, "トーラスの方が良かった個数",
           max(goood_cnts), "diff", max(diff))
-    pd.options.display.float_format = '{:.8f}'.format
+    pd.options.display.float_format = '{:.12f}'.format
     print(df.T)
     print()
     print("@@@@@@@@@@@@@@@@@@@@@@@@@@@")
@@ -168,3 +179,39 @@ for filepath in glob.glob("./result_sgd_0725_all_log/log/*"):
 print("graph", all_graph_count, "torus_good_graph",
       torus_good_count, "%", torus_good_count/all_graph_count)
 # print(result)
+
+print()
+print()
+print("---------------------------------------------------------------")
+
+matome = {"15": {"SGD": tmp.copy(), "torusSGD": tmp.copy()},
+          "50": {"SGD": tmp.copy(), "torusSGD": tmp.copy()},
+          "100": {"SGD": tmp.copy(), "torusSGD": tmp.copy()}}
+
+for filename in all_result.keys():
+    node = "100"
+    if all_result[filename]["node"] <= 15:
+        node = "15"
+    elif all_result[filename]["node"] <= 50:
+        node = "50"
+
+    for alg in all_result[filename].keys():
+        if not(alg == "torusSGD" or alg == "SGD"):
+            continue
+        for k in tmp.keys():
+            if k == "count":
+                matome[node][alg][k] += 1
+            else:
+                matome[node][alg][k] += all_result[filename][alg][k]
+
+
+for node in matome:
+    for alg in ["SGD", "torusSGD"]:
+        for k in tmp.keys():
+            if k == "count":
+                continue
+            if matome[node][alg][k] > 0:
+                matome[node][alg][k] /= matome[node][alg]["count"]
+
+
+print(matome)

@@ -1,1 +1,717 @@
-{"graph":{"links":[{"visible":true,"source":{"nodeIndex":0,"id":0,"name":"7","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":0,"x":369.11788577565306,"y":538.8190597696379},"target":{"nodeIndex":1,"id":0,"name":"4","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":1,"x":355.0552972444303,"y":423.81419997827567}},{"visible":true,"source":{"nodeIndex":0,"id":0,"name":"7","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":0,"x":369.11788577565306,"y":538.8190597696379},"target":{"nodeIndex":2,"id":0,"name":"3","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":2,"x":299.37264042883214,"y":584.2041582061344}},{"visible":true,"source":{"nodeIndex":0,"id":0,"name":"7","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":0,"x":369.11788577565306,"y":538.8190597696379},"target":{"nodeIndex":3,"id":0,"name":"5","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":3,"x":233.61729573542297,"y":469.27567031880034}},{"visible":true,"source":{"nodeIndex":0,"id":0,"name":"7","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":0,"x":369.11788577565306,"y":538.8190597696379},"target":{"nodeIndex":4,"id":0,"name":"1","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":4,"x":455.89493313445274,"y":455.9846054513735}},{"visible":true,"source":{"nodeIndex":0,"id":0,"name":"7","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":0,"x":369.11788577565306,"y":538.8190597696379},"target":{"nodeIndex":7,"id":0,"name":"10","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":7,"x":216.8392580910144,"y":574.9825518908235}},{"visible":true,"source":{"nodeIndex":1,"id":0,"name":"4","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":1,"x":355.0552972444303,"y":423.81419997827567},"target":{"nodeIndex":2,"id":0,"name":"3","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":2,"x":299.37264042883214,"y":584.2041582061344}},{"visible":true,"source":{"nodeIndex":1,"id":0,"name":"4","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":1,"x":355.0552972444303,"y":423.81419997827567},"target":{"nodeIndex":3,"id":0,"name":"5","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":3,"x":233.61729573542297,"y":469.27567031880034}},{"visible":true,"source":{"nodeIndex":1,"id":0,"name":"4","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":1,"x":355.0552972444303,"y":423.81419997827567},"target":{"nodeIndex":4,"id":0,"name":"1","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":4,"x":455.89493313445274,"y":455.9846054513735}},{"visible":true,"source":{"nodeIndex":1,"id":0,"name":"4","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":1,"x":355.0552972444303,"y":423.81419997827567},"target":{"nodeIndex":5,"id":4,"name":"6","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":5,"x":310.4991757850724,"y":481.3250190370831}},{"visible":true,"source":{"nodeIndex":2,"id":0,"name":"3","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":2,"x":299.37264042883214,"y":584.2041582061344},"target":{"nodeIndex":3,"id":0,"name":"5","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":3,"x":233.61729573542297,"y":469.27567031880034}},{"visible":true,"source":{"nodeIndex":2,"id":0,"name":"3","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":2,"x":299.37264042883214,"y":584.2041582061344},"target":{"nodeIndex":5,"id":4,"name":"6","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":5,"x":310.4991757850724,"y":481.3250190370831}},{"visible":true,"source":{"nodeIndex":2,"id":0,"name":"3","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":2,"x":299.37264042883214,"y":584.2041582061344},"target":{"nodeIndex":6,"id":0,"name":"8","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":6,"x":227.18197396016373,"y":696.360111084964}},{"visible":true,"source":{"nodeIndex":2,"id":0,"name":"3","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":2,"x":299.37264042883214,"y":584.2041582061344},"target":{"nodeIndex":7,"id":0,"name":"10","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":7,"x":216.8392580910144,"y":574.9825518908235}},{"visible":true,"source":{"nodeIndex":3,"id":0,"name":"5","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":3,"x":233.61729573542297,"y":469.27567031880034},"target":{"nodeIndex":5,"id":4,"name":"6","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":5,"x":310.4991757850724,"y":481.3250190370831}},{"visible":true,"source":{"nodeIndex":3,"id":0,"name":"5","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":3,"x":233.61729573542297,"y":469.27567031880034},"target":{"nodeIndex":7,"id":0,"name":"10","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":7,"x":216.8392580910144,"y":574.9825518908235}},{"visible":true,"source":{"nodeIndex":4,"id":0,"name":"1","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":4,"x":455.89493313445274,"y":455.9846054513735},"target":{"nodeIndex":5,"id":4,"name":"6","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":5,"x":310.4991757850724,"y":481.3250190370831}},{"visible":true,"source":{"nodeIndex":5,"id":4,"name":"6","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":5,"x":310.4991757850724,"y":481.3250190370831},"target":{"nodeIndex":7,"id":0,"name":"10","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":7,"x":216.8392580910144,"y":574.9825518908235}},{"visible":true,"source":{"nodeIndex":6,"id":0,"name":"8","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":6,"x":227.18197396016373,"y":696.360111084964},"target":{"nodeIndex":7,"id":0,"name":"10","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":7,"x":216.8392580910144,"y":574.9825518908235}}],"nodes":[{"nodeIndex":0,"id":0,"name":"7","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":0,"x":369.11788577565306,"y":538.8190597696379},{"nodeIndex":1,"id":0,"name":"4","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":1,"x":355.0552972444303,"y":423.81419997827567},{"nodeIndex":2,"id":0,"name":"3","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":2,"x":299.37264042883214,"y":584.2041582061344},{"nodeIndex":3,"id":0,"name":"5","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":3,"x":233.61729573542297,"y":469.27567031880034},{"nodeIndex":4,"id":0,"name":"1","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":4,"x":455.89493313445274,"y":455.9846054513735},{"nodeIndex":5,"id":4,"name":"6","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":5,"x":310.4991757850724,"y":481.3250190370831},{"nodeIndex":6,"id":0,"name":"8","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":6,"x":227.18197396016373,"y":696.360111084964},{"nodeIndex":7,"id":0,"name":"10","width":60,"height":40,"visible":true,"relativeX":0,"relativeY":5,"index":7,"x":216.8392580910144,"y":574.9825518908235}]},"shortestPath":{"0":{"0":[0],"1":[0,1],"2":[0,2],"3":[0,3],"4":[0,4],"5":[0,1,5],"6":[0,2,6],"7":[0,7]},"1":{"0":[1,0],"1":[1],"2":[1,2],"3":[1,3],"4":[1,4],"5":[1,5],"6":[1,2,6],"7":[1,0,7]},"2":{"0":[2,0],"1":[2,1],"2":[2],"3":[2,3],"4":[2,0,4],"5":[2,5],"6":[2,6],"7":[2,7]},"3":{"0":[3,0],"1":[3,1],"2":[3,2],"3":[3],"4":[3,0,4],"5":[3,5],"6":[3,2,6],"7":[3,7]},"4":{"0":[4,0],"1":[4,1],"2":[4,0,2],"3":[4,0,3],"4":[4],"5":[4,5],"6":[4,0,2,6],"7":[4,0,7]},"5":{"0":[5,1,0],"1":[5,1],"2":[5,2],"3":[5,3],"4":[5,4],"5":[5],"6":[5,2,6],"7":[5,7]},"6":{"0":[6,2,0],"1":[6,2,1],"2":[6,2],"3":[6,2,3],"4":[6,2,0,4],"5":[6,2,5],"6":[6],"7":[6,7]},"7":{"0":[7,0],"1":[7,0,1],"2":[7,2],"3":[7,3],"4":[7,0,4],"5":[7,5],"6":[7,6],"7":[7]}},"linkLength":120}
+{
+  "graph": {
+    "links": [
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 0,
+          "id": 0,
+          "name": "7",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 0,
+          "x": 369.11788577565306,
+          "y": 538.8190597696379
+        },
+        "target": {
+          "nodeIndex": 1,
+          "id": 0,
+          "name": "4",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 1,
+          "x": 355.0552972444303,
+          "y": 423.81419997827567
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 0,
+          "id": 0,
+          "name": "7",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 0,
+          "x": 369.11788577565306,
+          "y": 538.8190597696379
+        },
+        "target": {
+          "nodeIndex": 2,
+          "id": 0,
+          "name": "3",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 2,
+          "x": 299.37264042883214,
+          "y": 584.2041582061344
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 0,
+          "id": 0,
+          "name": "7",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 0,
+          "x": 369.11788577565306,
+          "y": 538.8190597696379
+        },
+        "target": {
+          "nodeIndex": 3,
+          "id": 0,
+          "name": "5",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 3,
+          "x": 233.61729573542297,
+          "y": 469.27567031880034
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 0,
+          "id": 0,
+          "name": "7",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 0,
+          "x": 369.11788577565306,
+          "y": 538.8190597696379
+        },
+        "target": {
+          "nodeIndex": 4,
+          "id": 0,
+          "name": "1",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 4,
+          "x": 455.89493313445274,
+          "y": 455.9846054513735
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 0,
+          "id": 0,
+          "name": "7",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 0,
+          "x": 369.11788577565306,
+          "y": 538.8190597696379
+        },
+        "target": {
+          "nodeIndex": 7,
+          "id": 0,
+          "name": "10",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 7,
+          "x": 216.8392580910144,
+          "y": 574.9825518908235
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 1,
+          "id": 0,
+          "name": "4",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 1,
+          "x": 355.0552972444303,
+          "y": 423.81419997827567
+        },
+        "target": {
+          "nodeIndex": 2,
+          "id": 0,
+          "name": "3",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 2,
+          "x": 299.37264042883214,
+          "y": 584.2041582061344
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 1,
+          "id": 0,
+          "name": "4",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 1,
+          "x": 355.0552972444303,
+          "y": 423.81419997827567
+        },
+        "target": {
+          "nodeIndex": 3,
+          "id": 0,
+          "name": "5",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 3,
+          "x": 233.61729573542297,
+          "y": 469.27567031880034
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 1,
+          "id": 0,
+          "name": "4",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 1,
+          "x": 355.0552972444303,
+          "y": 423.81419997827567
+        },
+        "target": {
+          "nodeIndex": 4,
+          "id": 0,
+          "name": "1",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 4,
+          "x": 455.89493313445274,
+          "y": 455.9846054513735
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 1,
+          "id": 0,
+          "name": "4",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 1,
+          "x": 355.0552972444303,
+          "y": 423.81419997827567
+        },
+        "target": {
+          "nodeIndex": 5,
+          "id": 4,
+          "name": "6",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 5,
+          "x": 310.4991757850724,
+          "y": 481.3250190370831
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 2,
+          "id": 0,
+          "name": "3",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 2,
+          "x": 299.37264042883214,
+          "y": 584.2041582061344
+        },
+        "target": {
+          "nodeIndex": 3,
+          "id": 0,
+          "name": "5",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 3,
+          "x": 233.61729573542297,
+          "y": 469.27567031880034
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 2,
+          "id": 0,
+          "name": "3",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 2,
+          "x": 299.37264042883214,
+          "y": 584.2041582061344
+        },
+        "target": {
+          "nodeIndex": 5,
+          "id": 4,
+          "name": "6",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 5,
+          "x": 310.4991757850724,
+          "y": 481.3250190370831
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 2,
+          "id": 0,
+          "name": "3",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 2,
+          "x": 299.37264042883214,
+          "y": 584.2041582061344
+        },
+        "target": {
+          "nodeIndex": 6,
+          "id": 0,
+          "name": "8",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 6,
+          "x": 227.18197396016373,
+          "y": 696.360111084964
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 2,
+          "id": 0,
+          "name": "3",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 2,
+          "x": 299.37264042883214,
+          "y": 584.2041582061344
+        },
+        "target": {
+          "nodeIndex": 7,
+          "id": 0,
+          "name": "10",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 7,
+          "x": 216.8392580910144,
+          "y": 574.9825518908235
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 3,
+          "id": 0,
+          "name": "5",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 3,
+          "x": 233.61729573542297,
+          "y": 469.27567031880034
+        },
+        "target": {
+          "nodeIndex": 5,
+          "id": 4,
+          "name": "6",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 5,
+          "x": 310.4991757850724,
+          "y": 481.3250190370831
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 3,
+          "id": 0,
+          "name": "5",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 3,
+          "x": 233.61729573542297,
+          "y": 469.27567031880034
+        },
+        "target": {
+          "nodeIndex": 7,
+          "id": 0,
+          "name": "10",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 7,
+          "x": 216.8392580910144,
+          "y": 574.9825518908235
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 4,
+          "id": 0,
+          "name": "1",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 4,
+          "x": 455.89493313445274,
+          "y": 455.9846054513735
+        },
+        "target": {
+          "nodeIndex": 5,
+          "id": 4,
+          "name": "6",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 5,
+          "x": 310.4991757850724,
+          "y": 481.3250190370831
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 5,
+          "id": 4,
+          "name": "6",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 5,
+          "x": 310.4991757850724,
+          "y": 481.3250190370831
+        },
+        "target": {
+          "nodeIndex": 7,
+          "id": 0,
+          "name": "10",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 7,
+          "x": 216.8392580910144,
+          "y": 574.9825518908235
+        }
+      },
+      {
+        "visible": true,
+        "source": {
+          "nodeIndex": 6,
+          "id": 0,
+          "name": "8",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 6,
+          "x": 227.18197396016373,
+          "y": 696.360111084964
+        },
+        "target": {
+          "nodeIndex": 7,
+          "id": 0,
+          "name": "10",
+          "width": 60,
+          "height": 40,
+          "visible": true,
+          "relativeX": 0,
+          "relativeY": 5,
+          "index": 7,
+          "x": 216.8392580910144,
+          "y": 574.9825518908235
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "nodeIndex": 0,
+        "id": 0,
+        "name": "7",
+        "width": 60,
+        "height": 40,
+        "visible": true,
+        "relativeX": 0,
+        "relativeY": 5,
+        "index": 0,
+        "x": 369.11788577565306,
+        "y": 538.8190597696379
+      },
+      {
+        "nodeIndex": 1,
+        "id": 0,
+        "name": "4",
+        "width": 60,
+        "height": 40,
+        "visible": true,
+        "relativeX": 0,
+        "relativeY": 5,
+        "index": 1,
+        "x": 355.0552972444303,
+        "y": 423.81419997827567
+      },
+      {
+        "nodeIndex": 2,
+        "id": 0,
+        "name": "3",
+        "width": 60,
+        "height": 40,
+        "visible": true,
+        "relativeX": 0,
+        "relativeY": 5,
+        "index": 2,
+        "x": 299.37264042883214,
+        "y": 584.2041582061344
+      },
+      {
+        "nodeIndex": 3,
+        "id": 0,
+        "name": "5",
+        "width": 60,
+        "height": 40,
+        "visible": true,
+        "relativeX": 0,
+        "relativeY": 5,
+        "index": 3,
+        "x": 233.61729573542297,
+        "y": 469.27567031880034
+      },
+      {
+        "nodeIndex": 4,
+        "id": 0,
+        "name": "1",
+        "width": 60,
+        "height": 40,
+        "visible": true,
+        "relativeX": 0,
+        "relativeY": 5,
+        "index": 4,
+        "x": 455.89493313445274,
+        "y": 455.9846054513735
+      },
+      {
+        "nodeIndex": 5,
+        "id": 4,
+        "name": "6",
+        "width": 60,
+        "height": 40,
+        "visible": true,
+        "relativeX": 0,
+        "relativeY": 5,
+        "index": 5,
+        "x": 310.4991757850724,
+        "y": 481.3250190370831
+      },
+      {
+        "nodeIndex": 6,
+        "id": 0,
+        "name": "8",
+        "width": 60,
+        "height": 40,
+        "visible": true,
+        "relativeX": 0,
+        "relativeY": 5,
+        "index": 6,
+        "x": 227.18197396016373,
+        "y": 696.360111084964
+      },
+      {
+        "nodeIndex": 7,
+        "id": 0,
+        "name": "10",
+        "width": 60,
+        "height": 40,
+        "visible": true,
+        "relativeX": 0,
+        "relativeY": 5,
+        "index": 7,
+        "x": 216.8392580910144,
+        "y": 574.9825518908235
+      }
+    ]
+  },
+  "shortestPath": {
+    "0": {
+      "0": [0],
+      "1": [0, 1],
+      "2": [0, 2],
+      "3": [0, 3],
+      "4": [0, 4],
+      "5": [0, 1, 5],
+      "6": [0, 2, 6],
+      "7": [0, 7]
+    },
+    "1": {
+      "0": [1, 0],
+      "1": [1],
+      "2": [1, 2],
+      "3": [1, 3],
+      "4": [1, 4],
+      "5": [1, 5],
+      "6": [1, 2, 6],
+      "7": [1, 0, 7]
+    },
+    "2": {
+      "0": [2, 0],
+      "1": [2, 1],
+      "2": [2],
+      "3": [2, 3],
+      "4": [2, 0, 4],
+      "5": [2, 5],
+      "6": [2, 6],
+      "7": [2, 7]
+    },
+    "3": {
+      "0": [3, 0],
+      "1": [3, 1],
+      "2": [3, 2],
+      "3": [3],
+      "4": [3, 0, 4],
+      "5": [3, 5],
+      "6": [3, 2, 6],
+      "7": [3, 7]
+    },
+    "4": {
+      "0": [4, 0],
+      "1": [4, 1],
+      "2": [4, 0, 2],
+      "3": [4, 0, 3],
+      "4": [4],
+      "5": [4, 5],
+      "6": [4, 0, 2, 6],
+      "7": [4, 0, 7]
+    },
+    "5": {
+      "0": [5, 1, 0],
+      "1": [5, 1],
+      "2": [5, 2],
+      "3": [5, 3],
+      "4": [5, 4],
+      "5": [5],
+      "6": [5, 2, 6],
+      "7": [5, 7]
+    },
+    "6": {
+      "0": [6, 2, 0],
+      "1": [6, 2, 1],
+      "2": [6, 2],
+      "3": [6, 2, 3],
+      "4": [6, 2, 0, 4],
+      "5": [6, 2, 5],
+      "6": [6],
+      "7": [6, 7]
+    },
+    "7": {
+      "0": [7, 0],
+      "1": [7, 0, 1],
+      "2": [7, 2],
+      "3": [7, 3],
+      "4": [7, 0, 4],
+      "5": [7, 5],
+      "6": [7, 6],
+      "7": [7]
+    }
+  },
+  "linkLength": 120
+}

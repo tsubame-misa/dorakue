@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import glob
 import json
-import matplotlib.pyplot as plt
 import setup
 import re
 import os
@@ -15,8 +14,8 @@ maxdを変化させた場合の評価値の変化のグラフを表示する
 def generate_liner_graph(maxd_x, torus_maxd_y, maxd_y, file_name, dir_name, itemname):
     # プロット設定
     plt.figure(figsize=(8, 6))  # グラフのサイズを設定
-    plt.plot(maxd_x, maxd_y, marker='o',
-             label='no-torus', linestyle='-', color='r')
+    # plt.plot(maxd_x, maxd_y, marker='o',
+    #          label='no-torus', linestyle='-', color='r')
     plt.plot(maxd_x, torus_maxd_y, marker='o',
              label='torus', linestyle='-', color='b')
 
@@ -69,7 +68,7 @@ def create_compare_fig(images, filename, dir_name):
     plt.close()
 
 
-folder_name = "result_1117_detail"
+folder_name = "result"
 # folder_name = "./past/result0718"
 for filepath in glob.glob("./" + folder_name + "/log/*"):
     with open(filepath) as f:
@@ -93,24 +92,24 @@ for filepath in glob.glob("./" + folder_name + "/log/*"):
         images = []
 
         for _len in maxd_x:
-            stress_array = [data[_len][i]["SGD"]["delta"]["sum"]
-                            for i in data[_len].keys()]
-            stress_array = [data[_len][i]["SGD"]["stress"]
-                            for i in data[_len].keys()]
-            crossing = [data[_len][i]["SGD"]["edge_crossings"]
-                        for i in data[_len].keys()]
-            edge_length_v = [data[_len][i]["SGD"]["edge_length_variance"]
-                             for i in data[_len].keys()]
-            min_angle = [data[_len][i]["SGD"]["minimum_angle"]
-                         for i in data[_len].keys()]
-            _node_resolution = [data[_len][i]["SGD"]["node_resolution"]
-                         for i in data[_len].keys()]
+            # stress_array = [data[_len][i]["SGD"]["delta"]["sum"]
+            #                 for i in data[_len].keys()]
+            # stress_array = [data[_len][i]["SGD"]["stress"]
+            #                 for i in data[_len].keys()]
+            # crossing = [data[_len][i]["SGD"]["edge_crossings"]
+            #             for i in data[_len].keys()]
+            # edge_length_v = [data[_len][i]["SGD"]["edge_length_variance"]
+            #                  for i in data[_len].keys()]
+            # min_angle = [data[_len][i]["SGD"]["minimum_angle"]
+            #              for i in data[_len].keys()]
+            # _node_resolution = [data[_len][i]["SGD"]["node_resolution"]
+            #              for i in data[_len].keys()]
 
-            maxd_y.append(sum(stress_array)/len(stress_array))
-            edge_crossing.append(sum(crossing)/len(crossing))
-            edge_length_variance.append(sum(edge_length_v)/len(edge_length_v))
-            minimum_angle.append(sum(min_angle)/len(min_angle))
-            node_resolution.append(sum(_node_resolution)/len(_node_resolution))
+            # maxd_y.append(sum(stress_array)/len(stress_array))
+            # edge_crossing.append(sum(crossing)/len(crossing))
+            # edge_length_variance.append(sum(edge_length_v)/len(edge_length_v))
+            # minimum_angle.append(sum(min_angle)/len(min_angle))
+            # node_resolution.append(sum(_node_resolution)/len(_node_resolution))
 
             stress_array = [data[_len][i]["torusSGD"]["delta"]["sum"]
                             for i in data[_len].keys()]
@@ -138,7 +137,7 @@ for filepath in glob.glob("./" + folder_name + "/log/*"):
     # print(maxd_y)
     # print(filepath)
     # maxd_x = [0.25, 0.5,  0.75,  1, 2**0.5, 2, 3, 4, 5, 6, 7, 8, 9]
-    maxd_x = [0.2, 0.4,  0.6, 0.8, 1, 1.2, 1.4, 1.6,1.8,2]
+    # maxd_x = [0.2, 0.4,  0.6, 0.8, 1, 1.2, 1.4, 1.6,1.8,2]
     # generate_liner_graph(maxd_x[:6], torus_maxd_y[:6],
     #                      maxd_y[:6], filename, folder_name)
 
