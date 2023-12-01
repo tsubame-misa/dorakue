@@ -24,12 +24,12 @@ def create_graph(graph, file_name, multiple_num, maxd, i):
     return _log
 
 
-def get_midium_graph(graph, file_name, multiple_num, maxd,loop_value=25):
+def get_midium_graph(graph, file_name, multiple_num, maxd,loop_value=50):
     all_log = dict()
     stress = []
     _len = multiple_num*maxd
     for j in range(loop_value):
-        print("get midium", j)
+        # print("get midium", j)
         time = setup.get_time()
         index_time = str(j) + str(time)
         drawGraph.set_time(index_time)
@@ -83,6 +83,7 @@ def save_best_graph(best_graph_time, best_log, file_name, _len):
     log.create_log(best_log, file_name+"-best")
 
 def search_min_stress_len(graph, file_name):
+    setup.init()
     maxd = initGraph.get_maxd(graph, file_name)
     count = 20
 
@@ -100,7 +101,6 @@ def search_min_stress_len(graph, file_name):
     data = []
     all_log = {"file": file_name}
 
-    setup.init()
     initGraph.get_pos(len(graph.nodes()), maxd, maxd)
     setup.set_dir_name(log_file_name)
     
@@ -185,7 +185,7 @@ graph_names = ["hoffman_singleton", "chvatal", "icosahedral",
 # graph_names = ["dodecahedral"]
 
 for g in sorted_graphs:
-    if not g["name"] in graph_names:
+    if g["name"] in graph_names:
         continue
     print(g["name"], "size", len(g["graph"].nodes))
     search_min_stress_len(g["graph"], g["name"])
