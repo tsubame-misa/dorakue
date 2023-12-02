@@ -86,6 +86,7 @@ def save_best_graph(best_graph_time, best_log, file_name, maxd, multipl_number):
 
 def search_min_stress_len(graph, file_name):
     setup.init()
+    setup.set_dir_name(log_file_name)
     maxd = initGraph.get_maxd(graph, file_name)
     count = 20
 
@@ -104,7 +105,6 @@ def search_min_stress_len(graph, file_name):
     all_log = {"file": file_name}
 
     initGraph.get_pos(len(graph.nodes()), maxd, maxd)
-    setup.set_dir_name(log_file_name)
     
     for i in range(1, count):
         print(i, low, high)
@@ -168,6 +168,7 @@ def search_min_stress_len(graph, file_name):
 
 
 files = glob.glob("./graph/*")
+files = glob.glob("./scallFreeGraph/*")
 graphs = []
 
 for filepath in files:
@@ -178,16 +179,12 @@ for filepath in files:
 
 
 sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes))
-log_file_name = "result1125_all"
+log_file_name = "result_scale_free_1202"
 setup.set_dir_name(log_file_name)
 log.create_log_folder()
 
-graph_names = ["hoffman_singleton", "chvatal", "icosahedral",
-               "dodecahedral", "florentine_families", "moebius_kantor"]
-# graph_names = ["dodecahedral"]
-
 for g in sorted_graphs:
-    if g["name"] in graph_names:
+    if len(g["graph"].nodes) > 100:
         continue
     print(g["name"], "size", len(g["graph"].nodes))
     search_min_stress_len(g["graph"], g["name"])
