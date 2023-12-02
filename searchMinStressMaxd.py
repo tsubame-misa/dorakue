@@ -60,7 +60,8 @@ def show_stress_graph(x, y, file_name):
     plt.savefig(img_path)
 
 
-def save_best_graph(best_graph_time, best_log, file_name, _len):
+def save_best_graph(best_graph_time, best_log, file_name, maxd, multipl_number):
+    _len = maxd*multipl_number
     dir_name = setup.get_dir_name()
     new_dir_path = './' + dir_name + "/best/" 
 
@@ -80,6 +81,7 @@ def save_best_graph(best_graph_time, best_log, file_name, _len):
 
     # ログの保存
     best_log["len"] = _len
+    best_log["multipl_number"] = multipl_number
     log.create_log(best_log, file_name+"-best")
 
 def search_min_stress_len(graph, file_name):
@@ -147,11 +149,11 @@ def search_min_stress_len(graph, file_name):
     if low_graph["stress"] > high_graph["stress"]:
         print("min", high_multipl_number, maxd*high_multipl_number)
         all_log["best"] = high_graph
-        save_best_graph(high_graph_time, high_graph, file_name, maxd*high_multipl_number)
+        save_best_graph(high_graph_time, high_graph, file_name, maxd, high_multipl_number)
     else:
         print("min", low_multipl_number, maxd*low_multipl_number)
         all_log["best"] = low_graph
-        save_best_graph(low_graph_time, low_graph, file_name, maxd*low_multipl_number)
+        save_best_graph(low_graph_time, low_graph, file_name, maxd, low_multipl_number)
 
     sorted_data = sorted(data, key=lambda x: x[0])
 
