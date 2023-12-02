@@ -60,12 +60,9 @@ def torus_sgd(graph, file_name, _width=None, _height=None, multiple_num=1):
                 rx = 0
                 ry = 0
             else:
-                rx = (calcDrawInfo.dist_around(pos, i, j, width, height, l[i][j])-d[_i][_j])/2 * (pos_ij[0]) / \
-                    calcDrawInfo.dist_around(pos, i, j, width, height, l[i][j])
-                ry = (calcDrawInfo.dist_around(pos, i, j, width, height, l[i][j])-d[_i][_j])/2 * \
-                    (pos_ij[1]) / \
-                    calcDrawInfo.dist_around(pos, i, j, width, height, l[i][j])
-
+                wrap_d = calcDrawInfo.dist_around(pos, i, j, width, height, l[i][j])
+                rx = (wrap_d-d[_i][_j])/2 * (pos_ij[0]) / wrap_d
+                ry = (wrap_d-d[_i][_j])/2 * (pos_ij[1]) / wrap_d
             pos[i][0] = pos[i][0]-mu*rx
             pos[i][1] = pos[i][1]-mu*ry
             pos[j][0] = pos[j][0]+mu*rx
@@ -80,7 +77,9 @@ def torus_sgd(graph, file_name, _width=None, _height=None, multiple_num=1):
 
     center_idx = 0
     min_edge_len = float("inf")
+
     # 最適な中心を選ぶ
+    # DOTO:パンニングにすえ変える？というかこれがどこまで機能してるんだ？
     for i in range(node_len):
         diff_x, diff_y, _pos = calcDrawInfo.shift_center(
             pos0, i, node_len, width, height)

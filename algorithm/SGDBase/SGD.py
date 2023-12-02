@@ -18,6 +18,9 @@ def sgd(graph, file_name, _width=None, _height=None):
     # 理想的なバネの長さ(今回はL=1のため最短経路と一致)
     l = [[0]*node_len for i in range(node_len)]
 
+    # print(graph.nodes)
+    # print(d)
+
     maxd = initGraph.get_maxd(graph, file_name)
     for _i in graph.nodes:
         for _j in graph.nodes:
@@ -25,6 +28,7 @@ def sgd(graph, file_name, _width=None, _height=None):
             j = node2num[str(_j)]
             if i == j:
                 continue
+            # print(_i, _j)
             w[i][j] = pow(d[_i][_j], -2)
             l[i][j] = d[_i][_j]
             k[i][j] = 1/(d[_i][_j]*d[_i][_j])
@@ -77,4 +81,4 @@ def sgd(graph, file_name, _width=None, _height=None):
     log.add_log("SGD", kame_log)
     debug.add_node_a(pos)
 
-    return kame_log["dist"]["sum"]
+    return kame_log
