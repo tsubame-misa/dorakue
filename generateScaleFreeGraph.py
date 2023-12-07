@@ -15,7 +15,7 @@ for i in range(10):
     scale_free_graph = nx.Graph(largest_sub_graph)
     for j in scale_free_graph.nodes:
         if scale_free_graph.has_edge(j,j):
-            G.remove_edge(j,j)
+            scale_free_graph.remove_edge(j,j)
     data = nx.node_link_data(scale_free_graph)
     path = os.getcwd()
 
