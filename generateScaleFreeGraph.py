@@ -2,13 +2,14 @@ import networkx as nx
 import os
 import json
 
-new_dir_path = './scallFreeGraph/'
+new_dir_path = './scallFreeGraph2/'
 
 if not os.path.isdir(new_dir_path):
     os.mkdir(new_dir_path)
 
-for i in range(10):
-    G = nx.scale_free_graph(100)
+for i in range(1):
+    n = 1000
+    G = nx.scale_free_graph(n)
     undirected_G = G.to_undirected()
     largest_cc = max(nx.connected_components(undirected_G), key=len)
     largest_sub_graph = undirected_G.subgraph(largest_cc).copy()
@@ -19,5 +20,5 @@ for i in range(10):
     data = nx.node_link_data(scale_free_graph)
     path = os.getcwd()
 
-    with open(path + "/"+new_dir_path+"/100-"+ str(i) +".json", "w") as f:
+    with open(path + "/"+new_dir_path + str(n) + "-" + str(i) +".json", "w") as f:
         json.dump(data, f)
