@@ -191,5 +191,7 @@ log.create_log_folder()
 
 for g in sorted_graphs:
     print(g["name"], "size", len(g["graph"].nodes))
+    if not g["name"] == "house_x":
+        continue
     search_min_stress_len(g["graph"], g["name"])
     print("---------------------")
