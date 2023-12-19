@@ -24,21 +24,16 @@ def create_graph(graph, file_name, multiple_num, maxd, i):
     return _log
 
 
-def get_midium_graph(graph, file_name, multiple_num, maxd,loop_value=50):
+def get_midium_graph(graph, file_name, multiple_num, loop_value=50):
     """
     return 中央値を取るグラフ, bestなグラフ, bestなグラフのid
     """
     all_log = dict()
     stress = []
-    _len = multiple_num*maxd
     for j in range(loop_value):
-        print("get midium", j)
-        setup.init()
-        setup.set_dir_name(log_file_name)
         time = setup.get_time()
         index_time = str(j) + str(time)
-        drawGraph.set_time(index_time)
-        _log = torusSGD.torus_sgd(graph, file_name, _len, _len, multiple_num)
+        _log =  egraphTorusSGD.torus_sgd(graph, file_name, multiple_num, j, index_time)
         all_log[index_time] = _log
         stress.append([index_time, _log["stress"]])
 
@@ -65,8 +60,7 @@ def show_stress_graph(x, y, file_name):
     plt.savefig(img_path)
 
 
-def save_best_graph(best_graph_time, best_log, file_name, maxd, multipl_number):
-    _len = maxd*multipl_number
+def save_best_graph(best_graph_time, best_log, file_name, multipl_number):
     dir_name = setup.get_dir_name()
     new_dir_path = './' + dir_name + "/best/" 
 
@@ -79,24 +73,16 @@ def save_best_graph(best_graph_time, best_log, file_name, maxd, multipl_number):
     if not os.path.isdir(new_dir_path):
         os.mkdir(new_dir_path)
 
-    img_file_name = file_name + "-" + str(_len) + "-" + best_graph_time + ".png"
+    img_file_name = file_name + "-" + str(multipl_number) + "-" + best_graph_time + ".png"
     
     shutil.copyfile(dir_name + "/torusSGD_wrap/" + img_file_name, new_dir_path+ "/" + img_file_name)  
     print("saved", new_dir_path+ "/" + img_file_name)
 
     # ログの保存
-    best_log["len"] = _len
     best_log["multipl_number"] = multipl_number
     log.create_log(best_log, file_name+"-best")
 
-def search_min_stress_len(graph, file_name):
-    # setup.init()
-    # setup.set_dir_name(log_file_name)
-    egraphTorusSGD.torus_sgd(graph, file_name, 1.5)
-    exit()
-
-    
-    maxd = initGraph.get_maxd(graph, file_name)
+def search_min_stress_len(graph, file_name, log_file_name="test"):
     count = 20
 
     low = 0
@@ -107,13 +93,11 @@ def search_min_stress_len(graph, file_name):
     low_multipl_number = x
     high_multipl_number = high - x
 
-    low_graph, low_best_graph, low_best_graph_time = get_midium_graph(graph, file_name, low_multipl_number, maxd)
-    high_graph, high_bset_graph, high_best_graph_time = get_midium_graph(graph, file_name, high_multipl_number, maxd)
+    low_graph, low_best_graph, low_best_graph_time = get_midium_graph(graph, file_name, low_multipl_number)
+    high_graph, high_best_graph, high_best_graph_time = get_midium_graph(graph, file_name, high_multipl_number)
 
     data = []
     all_log = {"file": file_name}
-
-    initGraph.get_pos(len(graph.nodes()), maxd, maxd)
     
     for i in range(1, count):
         print(i, low, high)
@@ -128,7 +112,7 @@ def search_min_stress_len(graph, file_name):
             
         if low_graph["stress"] > high_graph["stress"]:
             data.append([low_multipl_number, low_graph["stress"]])
-            all_log[maxd*low_multipl_number] = {"1":{"torusSGD":low_graph}}
+            all_log[low_multipl_number] = {"1":{"torusSGD":low_graph}}
 
             low = low_multipl_number
             low_multipl_number = high_multipl_number
@@ -136,10 +120,10 @@ def search_min_stress_len(graph, file_name):
 
             low_graph = high_graph
             low_best_graph_time = high_best_graph_time    
-            high_graph, high_best_graph, high_best_graph_time = get_midium_graph(graph, file_name, high_multipl_number, maxd)
+            high_graph, high_best_graph, high_best_graph_time = get_midium_graph(graph, file_name, high_multipl_number)
         else:
             data.append([high_multipl_number, high_graph["stress"]])
-            all_log[maxd*high_multipl_number] = {"2":{"torusSGD":high_graph}}
+            all_log[high_multipl_number] = {"2":{"torusSGD":high_graph}}
 
             high = high_multipl_number
             high_multipl_number = low_multipl_number
@@ -147,31 +131,26 @@ def search_min_stress_len(graph, file_name):
 
             high_graph = low_graph
             high_best_graph_time = low_best_graph_time
-            low_graph, low_best_graph, low_best_graph_time = get_midium_graph(graph, file_name, low_multipl_number, maxd)
+            low_graph, low_best_graph, low_best_graph_time = get_midium_graph(graph, file_name, low_multipl_number)
         
         lr_diff = high-low
         x = (3-math.sqrt(5))/2*lr_diff
         
-        if abs(maxd*low_multipl_number-maxd*high_multipl_number) < 1:
+        if abs(low_multipl_number-high_multipl_number) < 0.0001:
             break
     
     if low_graph["stress"] > high_graph["stress"]:
-        print("min", high_multipl_number, maxd*high_multipl_number)
+        print("min", high_multipl_number)
         all_log["best"] = high_best_graph
-        save_best_graph(high_best_graph_time, high_best_graph, file_name, maxd, high_multipl_number)
+        save_best_graph(high_best_graph_time, high_best_graph, file_name, high_multipl_number)
     else:
-        print("min", low_multipl_number, maxd*low_multipl_number)
+        print("min", low_multipl_number)
         all_log["best"] = low_best_graph
-        save_best_graph(low_best_graph_time, low_best_graph, file_name, maxd, low_multipl_number)
+        save_best_graph(low_best_graph_time, low_best_graph, file_name, low_multipl_number)
 
     sorted_data = sorted(data, key=lambda x: x[0])
 
     log.create_log(all_log, file_name)
-    # print(sorted_data)
-    # print()
-    # print(data)
-    # print([row[0] for row in sorted_data])
-    # print([row[1] for row in sorted_data])
 
     show_stress_graph([row[0] for row in sorted_data],[row[1] for row in sorted_data], file_name)
 
@@ -195,10 +174,9 @@ def main():
 
     for g in sorted_graphs:
         print(g["name"], "size", len(g["graph"].nodes))
-        if not len(g["graph"].nodes) == 16:
-            continue
-        search_min_stress_len(g["graph"], g["name"])
-        print("---------------------")
+        # if not len(g["graph"].nodes) == 16:
+        #     continue
+        search_min_stress_len(g["graph"], g["name"], log_file_name)
 
 
 if __name__ == '__main__':

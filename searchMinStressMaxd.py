@@ -32,8 +32,7 @@ def get_midium_graph(graph, file_name, multiple_num, maxd,loop_value=50):
     stress = []
     _len = multiple_num*maxd
     for j in range(loop_value):
-        if j%5 == 0:
-            print("get midium", j)
+        print("get midium", j)
         setup.init()
         setup.set_dir_name(log_file_name)
         time = setup.get_time()
@@ -105,7 +104,7 @@ def search_min_stress_len(graph, file_name):
     high_multipl_number = high - x
 
     low_graph, low_best_graph, low_best_graph_time = get_midium_graph(graph, file_name, low_multipl_number, maxd)
-    high_graph, high_bset_graph, high_best_graph_time = get_midium_graph(graph, file_name, high_multipl_number, maxd)
+    high_graph, high_best_graph, high_best_graph_time = get_midium_graph(graph, file_name, high_multipl_number, maxd)
 
     data = []
     all_log = {"file": file_name}
@@ -154,11 +153,11 @@ def search_min_stress_len(graph, file_name):
     
     if low_graph["stress"] > high_graph["stress"]:
         print("min", high_multipl_number, maxd*high_multipl_number)
-        all_log["best"] = high_graph
+        all_log["best"] = high_best_graph
         save_best_graph(high_best_graph_time, high_best_graph, file_name, maxd, high_multipl_number)
     else:
         print("min", low_multipl_number, maxd*low_multipl_number)
-        all_log["best"] = low_graph
+        all_log["best"] = low_best_graph
         save_best_graph(low_best_graph_time, low_best_graph, file_name, maxd, low_multipl_number)
 
     sorted_data = sorted(data, key=lambda x: x[0])
@@ -174,7 +173,7 @@ def search_min_stress_len(graph, file_name):
 
 
 files = glob.glob("./graph/*")
-# files = glob.glob("./scallFreeGraph2/*")
+files = glob.glob("./scallFreeGraph2/*")
 graphs = []
 
 for filepath in files:
@@ -185,13 +184,17 @@ for filepath in files:
 
 
 sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes))
-log_file_name = "result_chose_best_1214"
+log_file_name = "result_chose_best_scale_free_1215"
 setup.set_dir_name(log_file_name)
 log.create_log_folder()
 
+# used = ["100-2"]
+
 for g in sorted_graphs:
     print(g["name"], "size", len(g["graph"].nodes))
-    if not g["name"] == "house_x":
+    # inuif g["name"] in used:
+    #     conte
+    if len(g["graph"].nodes) < 200:
         continue
     search_min_stress_len(g["graph"], g["name"])
     print("---------------------")
