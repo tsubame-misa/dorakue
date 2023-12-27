@@ -1,4 +1,4 @@
-from common import calcDrawInfo
+from common import calcDrawInfo, egraphCalcDrawInfo
 import math
 import numpy as np
 import itertools
@@ -123,12 +123,14 @@ def select_node(pos, u, v, _len, ideal_dist):
     best_pos = [pos[v][0], pos[v][1]]
     _dist = float("inf")
 
+    #FIXME:理想距離じゃなくて最短距離で撮る
+
     for x in x_list:
         for y in y_list:
             ax = pos[u][0] - x
             ay = pos[u][1] - y
             adist = (ax ** 2 + ay ** 2) ** 0.5
-            if abs(_dist-ideal_dist) > abs(adist-ideal_dist):
+            if _dist > adist:
                 best_pos[0] = x
                 best_pos[1] = y
                 _dist = adist
@@ -273,3 +275,106 @@ def torus_edge_pair(graph, node2num,  pos, l,  _len):
             edge_lines.append(line)
 
     return edge_lines
+
+
+"""
+egarph
+"""
+def calc_egraph_edge_length_variance(pos, graph):
+    l = []
+    for u, v in graph.edges:
+        l.append(egraphCalcDrawInfo.dist_around(pos, u, v))
+    l_mean = calc_mean(l)
+    variance = sum([((l_mean/l_mean) - (l[i]/l_mean))
+                   ** 2 for i in range(len(l))])/len(l)
+    return variance
+
+
+def calc_egraph_minimum_angle(pos, l, edge_len):
+    _sum = 0
+    for key in pos:
+        # 近接ノード
+        # print(l[key])
+        # print([v for (k, v) in l[key].items()])
+        # print()
+        near_i = [k for (k, v) in l[key].items() if v == edge_len]
+        # print("near_i", near_i)
+        # 理想の角度
+        ideal_theta = 360/len(near_i)
+        # ある点を基準に角度をとる
+        thetas_from_zero = []
+        thetas = []
+        for v in near_i:
+            thetas_from_zero.append(egraphCalcDrawInfo.calc_deg(pos, key, v))
+        # ソートしないと隣同士の角度が取れないのでソート
+        thetas_from_zero = sorted(thetas_from_zero, reverse=True)
+        for j in range(len(thetas_from_zero)-1):
+            thetas.append(thetas_from_zero[j]-thetas_from_zero[j+1])
+        thetas.append(thetas_from_zero[-1]+(360-thetas_from_zero[0]))
+
+        min_theta = min(thetas)
+        _sum += abs(ideal_theta-min_theta)/ideal_theta
+    return _sum/len(pos)
+
+
+def calc_egraph_edge_crossings(graph, pos, wrap=False):
+    count = 0
+    is_wrap = False
+    if wrap:
+        torus_edges = egraphCalcDrawInfo.torus_edge_pair(graph, pos)
+        edge_pair = [list(p) for p in itertools.combinations(torus_edges, 2)]
+
+        if len(torus_edges) > len(graph.edges):
+            is_wrap = True
+
+        for i in range(len(edge_pair)):
+            n1 = list(edge_pair[i][0][0])
+            n2 = list(edge_pair[i][0][1])
+            n3 = list(edge_pair[i][1][0])
+            n4 = list(edge_pair[i][1][1])
+            if is_cross(n1, n2, n3, n4):
+                count += 1
+    return count, is_wrap
+
+
+def calc_egraph_node_resolution(graph, pos, maxd):
+    node_pair = [list(p) for p in itertools.combinations(graph.nodes, 2)]
+    node_resolution = 0
+    r = 1/(len(graph.nodes())**0.5)
+    for u, v in node_pair:
+        d = egraphCalcDrawInfo.dist_around(pos, u, v)
+        a = (1 - d/(r*maxd))**2
+        node_resolution += max(0, a)
+    return node_resolution
+
+
+def calc_egraph_stress(graph, pos, d):
+    stress = 0
+    node_pair = [list(p) for p in itertools.combinations(graph.nodes, 2)]
+    for u, v in node_pair:
+        # _d = egraphCalcDrawInfo.dist_around(pos, u, v)
+        # w = 1/(_d**2)
+        # stress += w*((egraphCalcDrawInfo.dist_around(pos, u, v) - d[u][v])**2)
+        
+        w = 1/((d[u][v])**2)
+        stress += w*((egraphCalcDrawInfo.dist_around(pos, u, v) - d[u][v])**2)
+    return stress
+
+
+def calc_egraph_torus_evaluation_values(graph, pos, maxd, d, edge_len):
+    # l=d
+    edge_length_variance = calc_egraph_edge_length_variance(pos, graph)
+    minimum_angle = calc_egraph_minimum_angle(pos, d, edge_len)
+    edge_crossings, wrap = calc_egraph_edge_crossings(graph, pos, True)
+    node_resolution = calc_egraph_node_resolution(graph, pos, maxd)
+
+    # 先生のでOK
+    # stress = calc_egraph_stress(graph, pos, d)
+
+    print(edge_length_variance, minimum_angle, edge_crossings, node_resolution)
+
+    return {"edge_length_variance": edge_length_variance,
+            # "minimum_angle": minimum_angle,
+            "edge_crossings": edge_crossings,
+            "node_resolution": node_resolution,
+            "wrap": wrap}

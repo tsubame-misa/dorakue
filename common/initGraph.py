@@ -6,6 +6,7 @@ import networkx as nx
 
 
 SHORTEST_PATH = dict()
+EGRAPH_SHORTEST_PATH = dict()
 POS = []
 PAIR_INDEX = []
 DORAKUE = False
@@ -66,17 +67,29 @@ def get_node2num_memoized(graph):
     return node2num
 
 
-def get_shortest_path(graph, node_len, node2num, file_name):
+def get_shortest_path(graph, file_name, is_egraph=False, edge_len=None):
     # メモ化
-    if file_name in SHORTEST_PATH:
-        return SHORTEST_PATH[file_name]
+    if is_egraph:
+        if file_name in EGRAPH_SHORTEST_PATH:
+            if edge_len in EGRAPH_SHORTEST_PATH[file_name]:
+                return EGRAPH_SHORTEST_PATH[file_name][edge_len]
+        if file_name in SHORTEST_PATH:
+            return SHORTEST_PATH[file_name]
+        
+    if is_egraph:
+        UNIT_EDGE_LENGTH = edge_len
+    else:
+        UNIT_EDGE_LENGTH = setup.get_edge_width()
 
-    UNIT_EDGE_LENGTH = setup.get_edge_width()
     d = dict(nx.all_pairs_dijkstra_path_length(
         graph, weight=lambda u, v, e: UNIT_EDGE_LENGTH))
 
     # 辞書に保存
-    SHORTEST_PATH[file_name] = d
+    if is_egraph:
+        EGRAPH_SHORTEST_PATH[file_name] = {}
+        EGRAPH_SHORTEST_PATH[file_name][edge_len] = d
+    else:
+        SHORTEST_PATH[file_name] = d
     return d
 
 
@@ -117,14 +130,9 @@ def get_random_pair(graph, loop, t):
 
 
 @cache
-def get_maxd(graph, file_name):
-    node_len = len(graph.nodes)
-    node2num = get_node2num_memoized(graph)
-
+def get_maxd(graph, file_name, is_egraph=False, edge_len=None):
     # 最短経路
-    d = get_shortest_path(graph, node_len, node2num, file_name)
-    # 重み(バネの強さ)
-    k = [[0]*node_len for i in range(node_len)]
+    d = get_shortest_path(graph, file_name, is_egraph, edge_len)
 
     maxd = 0
     # for i in range(node_len):
