@@ -332,8 +332,20 @@ def calc_egraph_edge_crossings(graph, pos, wrap=False):
             n2 = list(edge_pair[i][0][1])
             n3 = list(edge_pair[i][1][0])
             n4 = list(edge_pair[i][1][1])
+            # if is_cross(n1, n2, n3, n4):
+            #     x, y = intersection(n1, n2, n3, n4)
+            #     print(x, y)
+            #     if x >= 0 and x <= 1 and y >= 0 and y <= 1:
+            #         count += 1
+        for i in range(len(edge_pair)):
+            n1 = list(edge_pair[i][0][0])
+            n2 = list(edge_pair[i][0][1])
+            n3 = list(edge_pair[i][1][0])
+            n4 = list(edge_pair[i][1][1])
             if is_cross(n1, n2, n3, n4):
-                count += 1
+                pos = intersection(n1, n2, n3, n4)
+                if pos[0] >= 0 and pos[0] <= 1 and pos[1] >= 0 and pos[1] <= 1:
+                    count += 1
     return count, is_wrap
 
 
@@ -369,12 +381,13 @@ def calc_egraph_torus_evaluation_values(graph, pos, maxd, d, edge_len):
     node_resolution = calc_egraph_node_resolution(graph, pos, maxd)
 
     # 先生のでOK
-    # stress = calc_egraph_stress(graph, pos, d)
+    stress = calc_egraph_stress(graph, pos, d)
 
-    print(edge_length_variance, minimum_angle, edge_crossings, node_resolution)
+    # print(edge_length_variance, minimum_angle, edge_crossings, node_resolution)
 
     return {"edge_length_variance": edge_length_variance,
-            # "minimum_angle": minimum_angle,
+            "minimum_angle": minimum_angle,
             "edge_crossings": edge_crossings,
             "node_resolution": node_resolution,
+            "stress":stress,
             "wrap": wrap}
