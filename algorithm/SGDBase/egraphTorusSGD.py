@@ -1,15 +1,41 @@
 import networkx as nx
 import egraph as eg
 import matplotlib.pyplot as plt
-from common  import drawEgraph, aestheticsMeasures, initGraph
+from common  import drawEgraph, aestheticsMeasures, initGraph, egraphCalcDrawInfo
 
-def torus_sgd(original_graph, file_name, multiple_num=1.0, random_idx=0, time="xxxx"):
+def centered_graph(pos, graph):
+    min_edge_len = float("inf")
+    for p in pos:
+        diff_x, diff_y, _pos = egraphCalcDrawInfo.shift_center(pos, p, 1, 1)
+        max_edge_len = max(
+            egraphCalcDrawInfo.dist_around(_pos, u, v) for u, v in graph.edges)
+        if min_edge_len > max_edge_len:
+            min_edge_len = max_edge_len
+            center_idx = p
+
+    diff_x, diff_y, fin_pos = egraphCalcDrawInfo.shift_center(pos, center_idx, 1, 1)
+
+    return fin_pos
+
+
+def tuple2array(pos):
+    new_pos = {}
+    for p in pos:
+        new_pos[p] = [pos[p][0], pos[p][1]]
+    return new_pos
+
+
+def torus_sgd(original_graph, file_name, multiple_num=1.0, random_idx=0, time="xxxx", is_chen=False):
     graph = eg.Graph()
     indices = {}
     for u in original_graph.nodes:
         indices[u] = graph.add_node(u)
     for u, v in original_graph.edges:
         graph.add_edge(indices[u], indices[v], (u, v))
+
+    diameter = nx.diameter(original_graph)
+    if is_chen:
+        multiple_num = (max(diameter, 2) + 1)/diameter
 
     size = nx.diameter(original_graph) * multiple_num
 
@@ -21,7 +47,7 @@ def torus_sgd(original_graph, file_name, multiple_num=1.0, random_idx=0, time="x
     rng = eg.Rng.seed_from(random_idx)  # random seed
     sgd = eg.FullSgd.new_with_distance_matrix(d)
     scheduler = sgd.scheduler(
-        100,  # number of iterations
+        20,  # number of iterations
         0.1,  # eps: eta_min = eps * min d[i, j] ^ 2
     )
 
@@ -35,14 +61,18 @@ def torus_sgd(original_graph, file_name, multiple_num=1.0, random_idx=0, time="x
 
     pos = {u: (drawing.x(i) , drawing.y(i)) for u, i in indices.items()}
 
+    array_pos = tuple2array(pos)
+    fin_pos = centered_graph(array_pos, original_graph)
+
     maxd = initGraph.get_maxd(original_graph, file_name, True, 1/size)
     d = initGraph.get_shortest_path(original_graph, file_name, True, 1/size)
-    log = aestheticsMeasures.calc_egraph_torus_evaluation_values(original_graph, pos, maxd, d, 1/size)
+    log = aestheticsMeasures.calc_egraph_torus_evaluation_values(original_graph, fin_pos, maxd, d, 1/size)
     log["multiple_num"] = multiple_num
     log["stress"] = s
-    log["pos"] = pos
+    log["pos"] = fin_pos
+    if is_chen:
+        log["is_chen"] = True 
 
-    drawEgraph.torus_graph_drawing(pos, original_graph, file_name, multiple_num, time, False)
-    exit()
+    drawEgraph.torus_graph_drawing(fin_pos, original_graph, file_name, multiple_num, time, False)
 
     return log

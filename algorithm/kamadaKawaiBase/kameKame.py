@@ -9,7 +9,7 @@ def kamada_kawai(graph, file_name, _width=None, _height=None):
     node2num = initGraph.get_node2num_memoized(graph)
 
     # 最短経路
-    d = initGraph.get_shortest_path(graph, node_len, node2num, file_name)
+    d = initGraph.get_shortest_path(graph, file_name)
     # 重み(バネの強さ)
     k = [[0]*node_len for i in range(node_len)]
     # 理想的なバネの長さ(今回はL=1のため最短経路と一致)

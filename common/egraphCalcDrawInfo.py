@@ -243,3 +243,15 @@ def calc_deg(pos, u, v):
         theta = 360 - theta
 
     return theta
+
+
+def shift_center(pos, idx, width, height):
+    diff_x = pos[idx][0]-width/2
+    diff_y = pos[idx][1]-height/2
+
+    for i in pos:
+        pos[i][0] = pos[i][0] - diff_x
+        pos[i][1] -= diff_y
+        pos[i] = dorakue(pos[i], width, height)
+
+    return diff_x, diff_y, pos

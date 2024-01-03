@@ -1,0 +1,6 @@
+1, 2 nx.random_partition_graph([10] * 10, p_in=0.9, p_out=0.01) 
+3, 4 nx.random_partition_graph([10] * 10, p_in=0.9, p_out=0.02) 
+6, 7 nx.random_partition_graph([15] * 10, p_in=0.9, p_out=0.02) 
+8, 9 nx.random_partition_graph([15] * 10, p_in=0.9, p_out=0.01) 
+10, 11 nx.random_partition_graph([20] * 10, p_in=0.9, p_out=0.01) 
+12, 13 nx.random_partition_graph([20] * 10, p_in=0.9, p_out=0.02) 

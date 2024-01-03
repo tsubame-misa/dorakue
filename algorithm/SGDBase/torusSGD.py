@@ -11,7 +11,7 @@ def torus_sgd(graph, file_name, _width=None, _height=None, multiple_num=1):
     node2num = initGraph.get_node2num_memoized(graph)
 
     # 最短経路
-    d = initGraph.get_shortest_path(graph, node_len, node2num, file_name)
+    d = initGraph.get_shortest_path(graph, file_name)
     # 重み
     w = [[1]*node_len for i in range(node_len)]
     # 重み(バネの強さ)

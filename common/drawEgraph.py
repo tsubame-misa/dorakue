@@ -1,14 +1,30 @@
 
 import matplotlib.pyplot as plt
-import networkx as nx
 import plotly.express as px
-import matplotlib.image as mpimg
 import os
-import re
 import setup
 import matplotlib.patches as pat
 from matplotlib import collections
-import itertools
+from common import calcDrawInfo, egraphCalcDrawInfo
+
+
+list_colors = px.colors.sequential.Plasma
+IMAGE_PATH = []
+TIME = ""
+
+def set_time(time):
+    global TIME
+    TIME = time
+
+def clear():
+    global IMAGE_PATH, TIME
+    IMAGE_PATH = []
+    TIME = ""
+
+def get_dir():
+    cwd = os.getcwd()
+    return cwd
+
 
 def create_pos9(pos):
     add_len = [-1, 0, 1]
@@ -44,8 +60,12 @@ def select_node(pos, u, v):
     return best_pos, is_wrap    
 
 def draw_node(pos, ax):
+    x = [p[0] for p in pos]
+    y = [p[1] for p in pos]
+    size = max(max(x)-min(x) ,max(y)-min(y))
+
     for p in pos:
-        C = pat.Circle(xy=(p[0], p[1]), radius=0.005, color=(0.3, 0.3, 0.3, 0.5))
+        C = pat.Circle(xy=(p[0], p[1]), radius=1/(size*100), color=(0.3, 0.3, 0.3, 0.5))
         ax.add_patch(C)
 
 def draw_edge(graph, pos, ax, debug=False):
@@ -57,7 +77,6 @@ def draw_edge(graph, pos, ax, debug=False):
         best_pos, is_wrap = select_node(pos, i, j)
 
         if is_wrap:
-            
             line = [(pos[i][0], pos[i][1]),
                     (best_pos[0], best_pos[1])]
             if debug:
@@ -94,7 +113,32 @@ def draw_edge(graph, pos, ax, debug=False):
     ax.add_collection(line_collection)    
 
 
-def torus_graph_drawing(pos, graph, name, debug=False):
+
+def test(pos, graph):
+    min_edge_len = float("inf")
+    for p in pos:
+        diff_x, diff_y, _pos = egraphCalcDrawInfo.shift_center(pos, p, 1, 1)
+        max_edge_len = max(
+            egraphCalcDrawInfo.dist_around(_pos, u, v) for u, v in graph.edges)
+        if min_edge_len > max_edge_len:
+            min_edge_len = max_edge_len
+            center_idx = p
+
+    diff_x, diff_y, fin_pos = egraphCalcDrawInfo.shift_center(pos, center_idx, 1, 1)
+
+    return fin_pos
+
+
+def tuple2array(pos):
+    new_pos = {}
+    for p in pos:
+        new_pos[p] = [pos[p][0], pos[p][1]]
+    return new_pos
+
+def torus_graph_drawing(_pos, graph, name, multiple_num, time="xxx", debug=False):
+    array_pos = tuple2array(_pos)
+    pos = test(array_pos, graph)
+
     fig = plt.figure(figsize=(12, 12))
     ax = fig.add_subplot(111)
     ax.tick_params(labelbottom=False, labelleft=False,
@@ -122,13 +166,11 @@ def torus_graph_drawing(pos, graph, name, debug=False):
 
     dir_name = setup.get_dir_name()
 
-    # img_path = get_dir()+'/'+dir_name+'/' + alg_dir_name + '/' + \
-    #     str(name) + '-' + str(_len) + '-' + TIME + '.png'
-
-    img_path = "sample.png"
+    img_path = get_dir()+'/'+dir_name+'/torusSGD_wrap/' + \
+        str(name) + '-' + str(multiple_num) + '-' + time + '.png'
 
     plt.savefig(img_path)
-    # IMAGE_PATH.append(img_path)
+    IMAGE_PATH.append(img_path)
 
     plt.clf()
     plt.close()

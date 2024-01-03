@@ -296,11 +296,7 @@ def calc_egraph_minimum_angle(pos, l, edge_len):
     _sum = 0
     for key in pos:
         # 近接ノード
-        # print(l[key])
-        # print([v for (k, v) in l[key].items()])
-        # print()
         near_i = [k for (k, v) in l[key].items() if v == edge_len]
-        # print("near_i", near_i)
         # 理想の角度
         ideal_theta = 360/len(near_i)
         # ある点を基準に角度をとる

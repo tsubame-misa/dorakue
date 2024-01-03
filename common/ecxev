@@ -1,0 +1,15 @@
+def get_midium_graph(graph, file_name, multiple_num, maxd,loop_value=50):
+    all_log = dict()
+    stress = []
+    _len = multiple_num*maxd
+    for j in range(loop_value):
+        # print("get midium", j)
+        time = setup.get_time()
+        index_time = str(j) + str(time)
+        drawGraph.set_time(index_time)
+        _log = torusSGD.torus_sgd(graph, file_name, _len, _len, multiple_num)
+        all_log[index_time] = _log
+        stress.append([index_time, _log["stress"]])
+
+    sorted_stress = sorted(stress,  key=lambda x: x[1])
+    return all_log[sorted_stress[len(sorted_stress)//2][0]], sorted_stress[len(sorted_stress)//2][0] 

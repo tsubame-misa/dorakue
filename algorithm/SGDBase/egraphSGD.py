@@ -24,7 +24,7 @@ def sgd(original_graph, file_name, random_idx=0):
         lambda _: 1/size,  # edge length
     )
     scheduler = sgd.scheduler(
-        100,  # number of iterations
+        20,  # number of iterations
         0.1,  # eps: eta_min = eps * min d[i, j] ^ 2
     )
 
