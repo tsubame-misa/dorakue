@@ -1,7 +1,5 @@
 import datetime
-from common import calcDrawInfo, initGraph
-from common import log
-from common import drawGraph
+from common import initGraph, log, drawGraph, drawEgraph
 
 
 DEFAULT_LOOP1 = 30
@@ -49,6 +47,7 @@ def get_time():
 def init(time=None):
     global LOOP1, LOOP2, TERM, LOG_DIR_NAME
     drawGraph.clear()
+    drawEgraph.clear()
     log.clear()
     initGraph.clear()
     LOOP1 = DEFAULT_LOOP1
