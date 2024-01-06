@@ -62,6 +62,10 @@ def torus_sgd(original_graph, file_name, multiple_num=1.0, random_idx=0, time="x
     cn = int(eg.crossing_number(graph, drawing, ce))
     nr = eg.node_resolution(drawing)
 
+    edge_segments = []
+    for u, v in original_graph.edges:
+        edge_segments.append(drawing.edge_segments(indices[u], indices[v]))
+
     pos = {u: (drawing.x(i) , drawing.y(i)) for u, i in indices.items()}
 
     array_pos = tuple2array(pos)
@@ -78,6 +82,6 @@ def torus_sgd(original_graph, file_name, multiple_num=1.0, random_idx=0, time="x
     if is_chen:
         log["is_chen"] = True 
 
-    drawEgraph.torus_graph_drawing(fin_pos, original_graph, file_name, multiple_num, time, False)
+    drawEgraph.torus_graph_drawing(fin_pos, original_graph, file_name, multiple_num, time, edge_segments, pos, False)
 
     return log

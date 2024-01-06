@@ -65,8 +65,20 @@ def draw_node(pos, ax):
     size = max(max(x)-min(x) ,max(y)-min(y))
 
     for p in pos:
-        C = pat.Circle(xy=(p[0], p[1]), radius=1/(size*100), color=(0.3, 0.3, 0.3, 0.5))
+        # C = pat.Circle(xy=(p[0], p[1]), radius=1/(size*100), color=(0.3, 0.3, 0.3, 0.5))
+        C = pat.Circle(xy=(p[0], p[1]), radius=0.01, color=(0.3, 0.3, 0.3, 0.4))
         ax.add_patch(C)
+        
+
+def draw_edge_by_segments(segments, ax):
+    edge_lines = []
+    for edges in segments:
+        for e in edges:
+            edge_lines.append(e)
+
+    line_collection = collections.LineCollection(
+            edge_lines, color=(0.3, 0.3, 0.3), linewidths=(0.5,))
+    ax.add_collection(line_collection)
 
 def draw_edge(graph, pos, ax, debug=False):
     edge_lines = []
@@ -135,7 +147,7 @@ def tuple2array(pos):
         new_pos[p] = [pos[p][0], pos[p][1]]
     return new_pos
 
-def torus_graph_drawing(_pos, graph, name, multiple_num, time="xxx", debug=False):
+def torus_graph_drawing(_pos, graph, name, multiple_num, time="xxx", edge_segments=None, egraph_pos=None, debug=False):
     array_pos = tuple2array(_pos)
     pos = test(array_pos, graph)
 
@@ -161,13 +173,20 @@ def torus_graph_drawing(_pos, graph, name, multiple_num, time="xxx", debug=False
         ax.set_ylim(0, _len)
 
     pos9 = create_pos9(pos)
-    draw_edge(graph, pos, ax, debug)
-    draw_node(pos9, ax)
+    if edge_segments:
+        draw_edge_by_segments(edge_segments, ax)
+        draw_node([v for v in egraph_pos.values()], ax)
+    else:
+        draw_edge(graph, pos, ax, debug)
+        draw_node(pos9, ax)
+   
 
     dir_name = setup.get_dir_name()
 
     img_path = get_dir()+'/'+dir_name+'/torusSGD_wrap/' + \
         str(name) + '-' + str(multiple_num) + '-' + time + '.png'
+
+    # print(img_psath)
 
     plt.savefig(img_path)
     IMAGE_PATH.append(img_path)
