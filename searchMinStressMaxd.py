@@ -11,6 +11,7 @@ import os
 import shutil
 
 """
+覚えてない...
 torusでstressを最も低くするlenghtを求める
 (maxdを何倍したものがstressが低くなるか)
 """
@@ -24,7 +25,7 @@ def create_graph(graph, file_name, multiple_num, maxd, i):
     return _log
 
 
-def get_midium_graph(graph, file_name, multiple_num, maxd,loop_value=50):
+def get_midium_graph(graph, file_name, multiple_num, maxd,loop_value=5):
     """
     return 中央値を取るグラフ, bestなグラフ, bestなグラフのid
     """
@@ -174,6 +175,7 @@ def search_min_stress_len(graph, file_name):
 
 files = glob.glob("./graph/*")
 files = glob.glob("./scallFreeGraph2/*")
+files = glob.glob("./dwtGraph/*")
 graphs = []
 
 for filepath in files:
@@ -184,7 +186,7 @@ for filepath in files:
 
 
 sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes))
-log_file_name = "result_chose_best_scale_free_1215"
+log_file_name = "test_dwt_misato"
 setup.set_dir_name(log_file_name)
 log.create_log_folder()
 
@@ -192,9 +194,5 @@ log.create_log_folder()
 
 for g in sorted_graphs:
     print(g["name"], "size", len(g["graph"].nodes))
-    # inuif g["name"] in used:
-    #     conte
-    if len(g["graph"].nodes) < 200:
-        continue
     search_min_stress_len(g["graph"], g["name"])
     print("---------------------")

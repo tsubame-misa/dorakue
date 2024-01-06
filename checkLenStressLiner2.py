@@ -1,3 +1,6 @@
+"""
+ストレスが各セルサイズでnoTorusよりもどの程度良くなっているか
+"""
 import glob
 from networkx.readwrite import json_graph
 import json
@@ -107,7 +110,7 @@ def generate_stress_liner_graph(graph, file_name, dir_name):
     y = []
     torus = []
     no_torus = []
-    for i in range(50): 
+    for i in range(20): 
         print(i)
         key, torus_value, sgd_value = get_stress_by_len(graph, file_name)
         x = key
@@ -142,6 +145,7 @@ def generate_stress_liner_graph(graph, file_name, dir_name):
 def main():
     files = glob.glob("./graph/*")
     # files = glob.glob("./scallFreeGraph2/*")
+    files = glob.glob("./dwtGraph/*")
     
     graphs = []
     for filepath in files:
@@ -152,17 +156,16 @@ def main():
 
 
     sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes))
-    log_file_name = "test_liner_debug1222"
+    log_file_name = "test_05_3"
     setup.set_dir_name(log_file_name)
     log.create_log_folder()
 
 
     for g in sorted_graphs:
-        if not g["name"] == "octahedral":
-            continue
         print(g["name"], "size", len(g["graph"].nodes))
         generate_stress_liner_graph(g["graph"], g["name"], log_file_name)
         print("---------------------")
+        exit()
 
 
 if __name__ == '__main__':

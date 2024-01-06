@@ -8,6 +8,10 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import setup
 
+"""
+douhNetで使用されているグラフに対する評価値の導出
+"""
+
 
 def draw_graph(graph, pos, name):
     G = nx.DiGraph()
@@ -36,7 +40,7 @@ for filepath in glob.glob("./doughNetGraph/default/*"):
 
     node_len = len(graph.nodes)
     node2num = initGraph.get_node2num_memoized(graph)
-    d = initGraph.get_shortest_path(graph, node_len, node2num, filename)
+    d = initGraph.get_shortest_path(graph, filename)
     # l=1のため最短経路と一致
     l = [[0]*node_len for i in range(node_len)]
     k = [[0]*node_len for i in range(node_len)]

@@ -16,7 +16,7 @@ torusでstressを最も低くするlenghtを求める
 """
 
 
-def get_midium_graph(graph, file_name, multiple_num, loop_value=1):
+def get_midium_graph(graph, file_name, multiple_num, loop_value=20):
     """
     return ストレスの平均, 中央値を取るグラフ, bestなグラフ, bestなグラフのid
     """
@@ -75,7 +75,7 @@ def save_best_graph(best_graph_time, best_log, file_name, multipl_number):
     best_log["multipl_number"] = multipl_number
     log.create_log(best_log, file_name+"-best")
 
-def search_min_stress_len(graph, file_name, log_file_name="test"):
+def search_min_stress_len(graph, file_name, loop=20, log_file_name="test"):
     low = 0
     high = 3
 
@@ -84,8 +84,8 @@ def search_min_stress_len(graph, file_name, log_file_name="test"):
     low_multipl_number = x
     high_multipl_number = high - x
 
-    low_graph_stress, low_graph, low_best_graph, low_best_graph_time = get_midium_graph(graph, file_name, low_multipl_number)
-    high_graph_stress,  high_graph, high_best_graph, high_best_graph_time = get_midium_graph(graph, file_name, high_multipl_number)
+    low_graph_stress, low_graph, low_best_graph, low_best_graph_time = get_midium_graph(graph, file_name, low_multipl_number, loop)
+    high_graph_stress,  high_graph, high_best_graph, high_best_graph_time = get_midium_graph(graph, file_name, high_multipl_number, loop)
 
     data = []
     all_log = {"file": file_name}
@@ -114,7 +114,7 @@ def search_min_stress_len(graph, file_name, log_file_name="test"):
             low_graph_stress = high_graph_stress
             low_graph = high_graph
             low_best_graph_time = high_best_graph_time    
-            high_graph_stress, high_graph, high_best_graph, high_best_graph_time = get_midium_graph(graph, file_name, high_multipl_number)
+            high_graph_stress, high_graph, high_best_graph, high_best_graph_time = get_midium_graph(graph, file_name, high_multipl_number, loop)
         else:
             data.append([high_multipl_number, high_graph["stress"]])
             all_log[high_multipl_number] = {"2":{"torusSGD":high_graph, "avarage":high_graph_stress}}
@@ -126,7 +126,7 @@ def search_min_stress_len(graph, file_name, log_file_name="test"):
             high_graph_stress = low_graph_stress
             high_graph = low_graph
             high_best_graph_time = low_best_graph_time
-            low_graph_stress, low_graph, low_best_graph, low_best_graph_time = get_midium_graph(graph, file_name, low_multipl_number)
+            low_graph_stress, low_graph, low_best_graph, low_best_graph_time = get_midium_graph(graph, file_name, low_multipl_number, loop)
         
         lr_diff = high-low
         x = (3-math.sqrt(5))/2*lr_diff
@@ -146,14 +146,20 @@ def search_min_stress_len(graph, file_name, log_file_name="test"):
 
     show_stress_graph([row[0] for row in sorted_data],[row[1] for row in sorted_data], file_name)
 
+    if low_graph_stress > high_graph_stress:
+        return high_best_graph
+    else:
+        return low_best_graph
+
 
 def main():
-    # files = glob.glob("./graph/*")
+    # files = glob.glob("./graph_networkx_only/*")
     # files = glob.glob("./scallFreeGraph2/*")
     # files = glob.glob("./dwtGraph/*")
     # files = glob.glob("./chen2021Graph/*")
-    files = glob.glob("./randomGraphs/*")
-    # files = glob.glob("./doughNetGraph/default/*")
+    # files = glob.glob("./chen2021Graph2/*")
+    # files = glob.glob("./randomGraphs/*")
+    files = glob.glob("./doughNetGraph/default/*")
 
     # 使用するグラフをノード数順に並び替える
     graphs = []
@@ -161,22 +167,23 @@ def main():
         if filepath[-3:]=="txt":
             continue
         graph = json_graph.node_link_graph(json.load(open(filepath)))
-        file_name = re.split('[/.]', filepath)[3]
+        file_name = re.split('[/.]', filepath)[4]
+        # file_name = re.split('[/]', filepath)[2][:-5]
         obj = {"name": file_name, "graph": graph}
         graphs.append(obj)
     sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes))
     
     # log_file_name = "search_by_avarage_15_20"
     # log_file_name = "test_0102_honban_3_20_20loop_2"
-    log_file_name = "che21_honban"
+    log_file_name = "uuu_test"
     setup.set_dir_name(log_file_name)
     log.create_log_folder()
 
     for g in sorted_graphs:
-        if len(g["graph"].nodes) < 800:
+        if not g["name"]=="10":
             continue
         print(g["name"], "size", len(g["graph"].nodes))
-        search_min_stress_len(g["graph"], g["name"], log_file_name)
+        search_min_stress_len(g["graph"], g["name"], 1)
        
 
 

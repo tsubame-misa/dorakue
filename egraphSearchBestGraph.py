@@ -24,7 +24,7 @@ def create_graph(graph, file_name, multiple_num, maxd, i):
     return _log
 
 
-def get_midium_graph(graph, file_name, multiple_num, loop_value=50):
+def get_midium_graph(graph, file_name, multiple_num, loop_value=10):
     """
     return 中央値を取るグラフ, bestなグラフ, bestなグラフのid
     """
@@ -158,6 +158,7 @@ def search_min_stress_len(graph, file_name, log_file_name="test"):
 def main():
     files = glob.glob("./graph/*")
     # files = glob.glob("./scallFreeGraph2/*")
+    # files = glob.glob("./dwtGraph/*")
 
     # 使用するグラフをノード数順に並び替える
     graphs = []
@@ -173,9 +174,9 @@ def main():
     log.create_log_folder()
 
     for g in sorted_graphs:
+        if len(g["graph"].nodes) < 30:
+            continue
         print(g["name"], "size", len(g["graph"].nodes))
-        # if not len(g["graph"].nodes) == 16:
-        #     continue
         search_min_stress_len(g["graph"], g["name"], log_file_name)
 
 
