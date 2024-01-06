@@ -33,14 +33,21 @@ def sgd(original_graph, file_name, random_idx=0):
         sgd.apply(drawing, eta)
     scheduler.run(step)
     s = eg.stress(drawing, d)
+    ce = eg.crossing_edges(graph, drawing)
+    cn = int(eg.crossing_number(graph, drawing, ce))
+    nr = eg.node_resolution(drawing)
 
     pos = {u: (drawing.x(i), drawing.y(i)) for u, i in indices.items()}
     
     maxd = initGraph.get_maxd(original_graph, file_name, True, 1/size)
     d = initGraph.get_shortest_path(original_graph, file_name, True, 1/size)
     log = aestheticsMeasures.calc_egraph_torus_evaluation_values(original_graph, pos, maxd, d, 1/size)
+    
     log["stress"] = s
-    log["pos"] = pos
+    log["pos"] = pos 
+    log["edge_crossings"] = cn
+    log["node_resolution"] = nr
+
 
     drawGraph.create_and_save_graph(original_graph, pos, "#88888899", "#888888", "SGD", 1, 1, file_name)
 

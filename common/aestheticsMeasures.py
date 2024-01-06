@@ -365,17 +365,17 @@ def calc_egraph_torus_evaluation_values(graph, pos, maxd, d, edge_len):
     # l=d
     edge_length_variance = calc_egraph_edge_length_variance(pos, graph, edge_len)
     minimum_angle = calc_egraph_minimum_angle(pos, d, edge_len)
-    edge_crossings, wrap = calc_egraph_edge_crossings(graph, pos, True)
+    # edge_crossings, wrap = calc_egraph_edge_crossings(graph, pos, True)
     # node_resolution = calc_egraph_node_resolution(graph, pos, maxd)
 
     # 先生のでOK
-    stress = calc_egraph_stress(graph, pos, d)
+    # stress = calc_egraph_stress(graph, pos, d)
 
     # print(edge_length_variance, minimum_angle, edge_crossings, node_resolution)
 
     return {"edge_length_variance": edge_length_variance,
-            "minimum_angle": minimum_angle,
-            "edge_crossings": edge_crossings,
+            "minimum_angle": minimum_angle}
+            # "edge_crossings": edge_crossings,
             # "node_resolution": node_resolution,
-            "stress":stress,
-            "wrap": wrap}
+            # "stress":stress
+            # "wrap": wrap}

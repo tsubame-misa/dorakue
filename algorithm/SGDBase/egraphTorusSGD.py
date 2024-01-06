@@ -58,6 +58,9 @@ def torus_sgd(original_graph, file_name, multiple_num=1.0, random_idx=0, time="x
     scheduler.run(step)
 
     s = eg.stress(drawing, d)
+    ce = eg.crossing_edges(graph, drawing)
+    cn = int(eg.crossing_number(graph, drawing, ce))
+    nr = eg.node_resolution(drawing)
 
     pos = {u: (drawing.x(i) , drawing.y(i)) for u, i in indices.items()}
 
@@ -69,6 +72,8 @@ def torus_sgd(original_graph, file_name, multiple_num=1.0, random_idx=0, time="x
     log = aestheticsMeasures.calc_egraph_torus_evaluation_values(original_graph, fin_pos, maxd, d, 1/size)
     log["multiple_num"] = multiple_num
     log["stress"] = s
+    log["edge_crossings"] = cn
+    log["node_resolution"] = nr
     log["pos"] = fin_pos
     if is_chen:
         log["is_chen"] = True 

@@ -1,6 +1,5 @@
 /__pycache__
 /common/__pycache__
-/graph
 /algorithm/kamadaKawaiBase/__pycache__
 /algorithm/SGDBase/__pycache__
 /algorithm/__pycache__
@@ -8,5 +7,5 @@
 /comp_result
 /egraph-rs
 /past
-/contest_graph
+/graphSet/contest_graph
 /gomi
