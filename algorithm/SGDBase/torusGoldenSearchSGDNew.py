@@ -183,6 +183,7 @@ def torus_golden_search_new(graph, file_name, log_file_name="test", avg_loog = 2
             break
     
     if low_graph["stress"] > high_graph["stress"]:
+        data.append([high_multipl_number, high_graph["stress"]])
         print("min", high_multipl_number)
         all_log["best"] = high_best_graph
         save_best_graph(high_best_graph_time, high_best_graph, file_name, high_multipl_number)
@@ -190,9 +191,11 @@ def torus_golden_search_new(graph, file_name, log_file_name="test", avg_loog = 2
             debug_log(data, all_log, file_name+str(index))
         # new_graph, best_graph, graph_time =  get_torus_graph(graph, file_name, high_multipl_number, pos=high_graph["pos"], 
         #                             pre_multiple_num=pre_multipl_number, use_pre_pos=use_pre_pos, loop=15)
-        return high_graph
-        return new_graph
+        new_graph, best_graph, graph_time =  get_midium_graph(graph, file_name, high_multipl_number, avg_loog)
+        # return high_graph
+        return best_graph
     else:
+        data.append([low_multipl_number, low_graph["stress"]])
         print("min", low_multipl_number)
         all_log["best"] = low_best_graph
         save_best_graph(low_best_graph_time, low_best_graph, file_name, low_multipl_number)
@@ -200,5 +203,6 @@ def torus_golden_search_new(graph, file_name, log_file_name="test", avg_loog = 2
             debug_log(data, all_log, file_name+str(index))
         # new_graph, best_graph, graph_time =  get_torus_graph(graph, file_name, low_multipl_number, pos=low_graph["pos"], 
         #                             pre_multiple_num=pre_multipl_number, use_pre_pos=use_pre_pos, loop=15)
-        return low_graph
-        return new_graph
+        new_graph, best_graph, graph_time =  get_midium_graph(graph, file_name, high_multipl_number, avg_loog)
+        # return low_graph
+        return best_graph
