@@ -114,8 +114,8 @@ def torus_golden_search_new(graph, file_name, log_file_name="test", avg_loog = 2
     low_multipl_number = x
     high_multipl_number = high - x
 
-    low_graph, low_best_graph, low_best_graph_time = get_midium_graph(graph, file_name, low_multipl_number, avg_loog)
-    high_graph, high_best_graph, high_best_graph_time = get_midium_graph(graph, file_name, high_multipl_number, avg_loog)
+    low_graph, low_best_graph, low_best_graph_time = get_midium_graph(graph, file_name, low_multipl_number, 1)
+    high_graph, high_best_graph, high_best_graph_time = get_midium_graph(graph, file_name, high_multipl_number, 1)
     pre_multipl_number = 1
 
     data = [[low_multipl_number, low_graph["stress"]],[high_multipl_number, high_graph["stress"]]]
