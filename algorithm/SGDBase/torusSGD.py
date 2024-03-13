@@ -4,9 +4,8 @@ import setup
 import itertools
 
 
-def torus_sgd(graph, file_name, _width=None, _height=None, multiple_num=1):
+def torus_sgd(graph, file_name, _width=None, _height=None, multiple_num=1, time="XXX", pre_pos=None, _eta=None, loop=30, start_idx=0):
     calcDrawInfo.clear_dorakue()
-    loop = setup.get_SGD_loop()
     node_len = len(graph.nodes)
     node2num = initGraph.get_node2num_memoized(graph)
 
@@ -19,7 +18,24 @@ def torus_sgd(graph, file_name, _width=None, _height=None, multiple_num=1):
     # 理想的なバネの長さ(今回はL=1のため最短経路と一致)
     l = [[0]*node_len for i in range(node_len)]
 
+    print("----------------------")
+
     maxd = initGraph.get_maxd(graph, file_name)
+
+    height = maxd if _height == None else _height
+    width = maxd if _width == None else _width
+
+    height *= multiple_num
+    width *= multiple_num
+
+    if pre_pos:
+        pos = pre_pos
+    else:
+        pos = initGraph.get_pos(node_len, width, height, multiple_num)
+
+    max_r = 0
+    min_r = float("inf")
+
     for _i in graph.nodes:
         for _j in graph.nodes:
             i = node2num[str(_i)]
@@ -29,27 +45,61 @@ def torus_sgd(graph, file_name, _width=None, _height=None, multiple_num=1):
             w[i][j] = pow(d[_i][_j], -2)
             l[i][j] = d[_i][_j]
             k[i][j] = 1/(d[_i][_j]*d[_i][_j])
-
-    height = maxd if _height == None else _height
-    width = maxd if _width == None else _width
-    pos = initGraph.get_pos(node_len, width, height, multiple_num)
+           
+            # if not _eta is None:
+            #     wrap_d = calcDrawInfo.dist_around(pos, i, j, width, height, l[i][j])
+            #     r = abs((wrap_d-d[_i][_j])/2)
+            #     if max_r < r:
+            #         max_r = r
+            #     if min_r > r:
+            #         min_r = r
+                # if r==0:
+                #     w[i][j] = 1
+                # else :
+                #     w[i][j] = pow(r, -2)
 
     eps = 0.1
+    # if not _eta is None:
+    #     print(min_r,max_r)
+    #     eta_max = max_r #0.1/(max_r**-2)
+    #     eta_min = eps/min_r
+    # else:
     eta_max = 1/(min(list(itertools.chain.from_iterable(w))))
     eta_min = eps/(max(list(itertools.chain.from_iterable(w))))
     eta = eta_max
     _lamda = -1*math.log(eta_min/eta_max)/loop
+    diff = float("inf")
 
-    for t in range(loop):
+    print(eps, eta_max, eta_min, _lamda)
+
+    start = 0
+    if not _eta is None:
+        start = start_idx
+        loop = start+5
+
+    for t in range(start,loop):
         pair_index = initGraph.get_random_pair(graph, loop, t)
 
-        eta = eta_max*pow(math.e, -1*_lamda*t)
+        if _eta is None:
+            eta = eta_max*pow(math.e, -1*_lamda*t)
+        else:
+            eta = eta_max*pow(math.e, -1*_lamda*t)
+            # if t > 3:
+            #     print("1/t schadule", eta)
+            # eta /= (1+_lamda*t)
+        
+        print(eta)
 
         for _i, _j in pair_index:
 
             i = node2num[str(_i)]
             j = node2num[str(_j)]
             mu = w[i][j]*eta
+
+
+            # print(mu, w[i][j], eta)
+            # exit()
+
             if mu > 1:
                 mu = 1
 
@@ -68,12 +118,17 @@ def torus_sgd(graph, file_name, _width=None, _height=None, multiple_num=1):
             pos[j][0] = pos[j][0]+mu*rx
             pos[j][1] = pos[j][1]+mu*ry
 
+            # 停止条件
+            if diff > abs(mu*((wrap_d-d[_i][_j])/2)):
+                diff = abs(mu*((wrap_d-d[_i][_j])/2))
+
             pos[i] = calcDrawInfo.dorakue(pos[i], width, height)
             pos[j] = calcDrawInfo.dorakue(pos[j], width, height)
+        
+        if not _eta is None and diff < 0.03:
+            break
 
     pos0 = [[x, y] for x, y in pos]
-
-    isWrap = calcDrawInfo.get_has_dorakue()
 
     center_idx = 0
     min_edge_len = float("inf")
@@ -103,20 +158,23 @@ def torus_sgd(graph, file_name, _width=None, _height=None, multiple_num=1):
 
     # drawGraph.draw_graph(graph, fin_pos, delta, edge_score,
     #                      node_len, "torusSGD", width, height, file_name)
+   
     drawGraph.torus_graph_drawing(
-        pos, l, node2num, graph, width, "torusSGD_wrap", file_name)
+        pos, l, node2num, graph, width, multiple_num, "torusSGD_wrap", file_name, time)
+
     # kame_log = aestheticsMeasures.calc_evaluation_values(
     #     delta, edge_score, graph, node2num, fin_pos, l, width, height,  calcDrawInfo.get_has_dorakue())
     kame_log = aestheticsMeasures.calc_torus_evaluation_values(
         delta, edge_score, graph, node2num, pos, l, float(width), maxd, d)
 
-    kame_log["wrap"] = isWrap
+    # kame_log["wrap"] = isWrap
     kame_log["pos"] = fin_pos
-    kame_log["k"] = k
-    kame_log["l"] = l
-    kame_log["d"] = d
-    kame_log["node2num"] = node2num
-    kame_log["node_len"] = node_len
+    kame_log["multipl_number"] = multiple_num
+    # kame_log["k"] = k
+    # kame_log["l"] = l
+    # kame_log["d"] = d
+    # kame_log["node2num"] = node2num
+    # kame_log["node_len"] = node_len
     log.add_log("torusSGD", kame_log)
     debug.add_node_b(fin_pos)
 
