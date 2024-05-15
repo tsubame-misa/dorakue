@@ -1,7 +1,11 @@
+import os
 import networkx as nx
 import egraph as eg
 import matplotlib.pyplot as plt
-from common  import drawEgraph, aestheticsMeasures, initGraph, egraphCalcDrawInfo
+from common  import egraphCalcDrawInfo
+import networkx as nx
+import egraph as eg
+import matplotlib.pyplot as plt
 
 def centered_graph(pos, graph):
     min_edge_len = float("inf")
@@ -18,14 +22,8 @@ def centered_graph(pos, graph):
     return fin_pos
 
 
-def tuple2array(pos):
-    new_pos = {}
-    for p in pos:
-        new_pos[p] = [pos[p][0], pos[p][1]]
-    return new_pos
 
-
-def torus_sgd(original_graph, file_name, multiple_num=1.0, random_idx=0, time="xxxx", is_chen=False, my_drawing=None):
+def torus_sgd(original_graph, name, dir, multiple_num=1.0, random_idx=0, time="xxxx", is_chen=False, my_drawing=None):
     graph = eg.Graph()
     indices = {}
     for u in original_graph.nodes:
@@ -38,17 +36,13 @@ def torus_sgd(original_graph, file_name, multiple_num=1.0, random_idx=0, time="x
         multiple_num = (max(diameter, 2) + 1)/diameter
 
     size = nx.diameter(original_graph) * multiple_num
-
+    d = eg.all_sources_bfs(
+        graph,
+        1 / size,  # edge length
+    )
     drawing = eg.DrawingTorus2d.initial_placement(graph)
-    low_distance = eg.DistanceMatrix(graph)
-    d = eg.all_sources_bfs(graph, 1)
-    n = graph.node_count()
-    for i in range(n):
-        for j in range(n):
-            low_distance.set(i, j, d.get(i, j) / (diameter * multiple_num))
-    sgd = eg.FullSgd.new_with_distance_matrix(low_distance)
-    
     rng = eg.Rng.seed_from(random_idx)  # random seed
+    sgd = eg.FullSgd.new_with_distance_matrix(d)
     scheduler = sgd.scheduler(
         100,  # number of iterations
         0.1,  # eps: eta_min = eps * min d[i, j] ^ 2
@@ -59,32 +53,38 @@ def torus_sgd(original_graph, file_name, multiple_num=1.0, random_idx=0, time="x
         sgd.apply(drawing, eta)
     scheduler.run(step)
 
-    s = eg.stress(drawing, d)
-    # ce = eg.crossing_edges(graph, drawing)
-    # cn = int(eg.crossing_number(graph, drawing, ce))
-    # nr = eg.node_resolution(drawing)
+    pos = {u: (drawing.x(i) * size, drawing.y(i) * size)
+           for u, i in indices.items()}
+    nx_edge_graph = nx.Graph()
+    edge_pos = {}
+    for e in graph.edge_indices():
+        u, v = graph.edge_endpoints(e)
+        segments = drawing.edge_segments(u, v)
+        for i, ((x1, y1), (x2, y2)) in enumerate(segments):
+            eu = f'{u}:{v}:{i}:0'
+            ev = f'{u}:{v}:{i}:1'
+            nx_edge_graph.add_edge(eu, ev)
+            edge_pos[eu] = (x1 * size, y1 * size)
+            edge_pos[ev] = (x2 * size, y2 * size)
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.set_xlim(0, size)
+    ax.set_ylim(0, size)
+    nx.draw_networkx_nodes(original_graph, pos, ax=ax, node_color="#6f6f6fcf", node_size=100)
+    nx.draw_networkx_edges(nx_edge_graph, edge_pos, ax=ax)
 
-    edge_segments = []
-    for u, v in original_graph.edges:
-        edge_segments.append(drawing.edge_segments(indices[u], indices[v]))
+    if not os.path.isdir(dir):
+        os.mkdir(dir)
+    img_path ='./'+dir+'/torusSGD_wrap/' + \
+        str(name) + '-' + str(size) + '-' + time + '.png'
+    plt.savefig(img_path)
 
-    pos = {u: (drawing.x(i) , drawing.y(i)) for u, i in indices.items()}
 
-    array_pos = tuple2array(pos)
-    fin_pos = centered_graph(array_pos, original_graph)
-
-    maxd = initGraph.get_maxd(original_graph, file_name, True, 1/size)
-    d = initGraph.get_shortest_path(original_graph, file_name, True, 1/size)
-    log = aestheticsMeasures.calc_egraph_torus_evaluation_values(original_graph, fin_pos, maxd, d, 1/size)
-    log["multiple_num"] = multiple_num
-    log["stress"] = s
-    # log["edge_crossings"] = cn
-    # log["node_resolution"] = nr
-    log["pos"] = fin_pos
-    # log["drawing"] = drawing
-    if is_chen:
-        log["is_chen"] = True 
-
-    drawEgraph.torus_graph_drawing(fin_pos, original_graph, file_name, multiple_num, time, edge_segments, pos, False)
-
+    
+    ec = eg.crossing_edges(graph, drawing)
+    log = {"multiple_num":size, 
+           "stress":eg.stress(drawing, d) , 
+           "edge_crossings":eg.crossing_number_with_crossing_edges(ec),
+           "minimum_angle": eg.crossing_angle_with_crossing_edges(ec), 
+           "node_resolution":eg.node_resolution(drawing), 
+           "pos":pos}
     return log
