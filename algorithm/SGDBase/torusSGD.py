@@ -18,8 +18,6 @@ def torus_sgd(graph, file_name, _width=None, _height=None, multiple_num=1, time=
     # 理想的なバネの長さ(今回はL=1のため最短経路と一致)
     l = [[0]*node_len for i in range(node_len)]
 
-    print("----------------------")
-
     maxd = initGraph.get_maxd(graph, file_name)
 
     height = maxd if _height == None else _height
@@ -33,9 +31,6 @@ def torus_sgd(graph, file_name, _width=None, _height=None, multiple_num=1, time=
     else:
         pos = initGraph.get_pos(node_len, width, height, multiple_num)
 
-    max_r = 0
-    min_r = float("inf")
-
     for _i in graph.nodes:
         for _j in graph.nodes:
             i = node2num[str(_i)]
@@ -45,36 +40,19 @@ def torus_sgd(graph, file_name, _width=None, _height=None, multiple_num=1, time=
             w[i][j] = pow(d[_i][_j], -2)
             l[i][j] = d[_i][_j]
             k[i][j] = 1/(d[_i][_j]*d[_i][_j])
-           
-            # if not _eta is None:
-            #     wrap_d = calcDrawInfo.dist_around(pos, i, j, width, height, l[i][j])
-            #     r = abs((wrap_d-d[_i][_j])/2)
-            #     if max_r < r:
-            #         max_r = r
-            #     if min_r > r:
-            #         min_r = r
-                # if r==0:
-                #     w[i][j] = 1
-                # else :
-                #     w[i][j] = pow(r, -2)
+
 
     eps = 0.1
-    # if not _eta is None:
-    #     print(min_r,max_r)
-    #     eta_max = max_r #0.1/(max_r**-2)
-    #     eta_min = eps/min_r
-    # else:
     eta_max = 1/(min(list(itertools.chain.from_iterable(w))))
     eta_min = eps/(max(list(itertools.chain.from_iterable(w))))
     eta = eta_max
     _lamda = -1*math.log(eta_min/eta_max)/loop
     diff = float("inf")
 
-    print(eps, eta_max, eta_min, _lamda)
-
     start = 0
     if not _eta is None:
-        start = start_idx
+        start = 0 + start_idx
+        # 5回まで
         loop = start+5
 
     for t in range(start,loop):
@@ -86,19 +64,15 @@ def torus_sgd(graph, file_name, _width=None, _height=None, multiple_num=1, time=
             eta = eta_max*pow(math.e, -1*_lamda*t)
             # if t > 3:
             #     print("1/t schadule", eta)
-            # eta /= (1+_lamda*t)
+            #     eta /= (1+_lamda*t)
         
-        print(eta)
+        # print(t, eta, _lamda)
 
         for _i, _j in pair_index:
 
             i = node2num[str(_i)]
             j = node2num[str(_j)]
             mu = w[i][j]*eta
-
-
-            # print(mu, w[i][j], eta)
-            # exit()
 
             if mu > 1:
                 mu = 1
@@ -160,7 +134,7 @@ def torus_sgd(graph, file_name, _width=None, _height=None, multiple_num=1, time=
     #                      node_len, "torusSGD", width, height, file_name)
    
     drawGraph.torus_graph_drawing(
-        pos, l, node2num, graph, width, multiple_num, "torusSGD_wrap", file_name, time)
+        pos, l, node2num, graph, width, multiple_num, "torusSGD_wrap", file_name, time, debug=False)
 
     # kame_log = aestheticsMeasures.calc_evaluation_values(
     #     delta, edge_score, graph, node2num, fin_pos, l, width, height,  calcDrawInfo.get_has_dorakue())

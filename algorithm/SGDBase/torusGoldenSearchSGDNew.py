@@ -17,7 +17,7 @@ def convertPos(pos, multiple_num, pre_multiple_num):
    
 
 
-def get_midium_graph(graph, file_name, multiple_num, loop_value):
+def get_midium_graph(graph, file_name, multiple_num, loop_value, iteration_value = 30):
     """
     return 中央値を取るグラフ, bestなグラフ, bestなグラフのid
     """
@@ -26,7 +26,7 @@ def get_midium_graph(graph, file_name, multiple_num, loop_value):
     for j in range(loop_value):
         time = setup.get_time()
         index_time = str(j) + str(time)
-        _log =  torusSGD.torus_sgd(graph, file_name, multiple_num=multiple_num, time=index_time)
+        _log =  torusSGD.torus_sgd(graph, file_name, multiple_num=multiple_num, time=index_time, loop=iteration_value)
         all_log[index_time] = _log
         stress.append([index_time, _log["stress"]])
 
@@ -40,7 +40,7 @@ def get_torus_graph(graph, file_name, multiple_num, pos=None, pre_multiple_num=N
     if pos and use_pre_pos==2:
         pos = convertPos(pos, multiple_num, pre_multiple_num)
 
-    _log =  torusSGD.torus_sgd(graph, file_name, multiple_num=multiple_num, time=index_time, pre_pos = pos, _eta=True, start_idx=x)
+    _log =  torusSGD.torus_sgd(graph, file_name, multiple_num=multiple_num, time=index_time, loop=12, pre_pos = pos, _eta=True, start_idx=x)
     
     return _log, _log, index_time
 
@@ -81,7 +81,7 @@ def save_best_graph(best_graph_time, best_log, file_name, multipl_number):
     img_file_name = file_name + "-" + str(multipl_number) + "-" + best_graph_time + ".png"
     
     shutil.copyfile(dir_name + "/torusSGD_wrap/" + img_file_name, new_dir_path+ "/" + img_file_name)  
-    print("saved", new_dir_path+ "/" + img_file_name)
+    # print("saved", new_dir_path+ "/" + img_file_name)
 
     # ログの保存
     best_log["multipl_number"] = multipl_number
@@ -90,7 +90,7 @@ def save_best_graph(best_graph_time, best_log, file_name, multipl_number):
 
 def debug_log(data, all_log, file_name):
     sorted_data = sorted(data, key=lambda x: x[0])
-    print(sorted_data)
+    # print(sorted_data)
 
     log.create_log(all_log, file_name)
 
@@ -114,15 +114,15 @@ def torus_golden_search_new(graph, file_name, log_file_name="test", avg_loog = 2
     low_multipl_number = x
     high_multipl_number = high - x
 
-    low_graph, low_best_graph, low_best_graph_time = get_midium_graph(graph, file_name, low_multipl_number, 1)
-    high_graph, high_best_graph, high_best_graph_time = get_midium_graph(graph, file_name, high_multipl_number, 1)
+    low_graph, low_best_graph, low_best_graph_time = get_midium_graph(graph, file_name, low_multipl_number, 1, 15)
+    high_graph, high_best_graph, high_best_graph_time = get_midium_graph(graph, file_name, high_multipl_number, 1, 15)
     pre_multipl_number = 1
 
     data = [[low_multipl_number, low_graph["stress"]],[high_multipl_number, high_graph["stress"]]]
     all_log = {"file": file_name}
     
-    for i in range(1, count):
-        print(i, low, high)
+    for i in range(count):
+        # print(i, low, high)
         """
         計算量をなんとかしたい
         1. ここを中央値にする(最低ライン)
@@ -148,9 +148,6 @@ def torus_golden_search_new(graph, file_name, log_file_name="test", avg_loog = 2
                 high_graph, high_best_graph, high_best_graph_time = \
                     get_torus_graph(graph, file_name, high_multipl_number, pos=high_best_graph["pos"], 
                                     pre_multiple_num=pre_multipl_number, use_pre_pos=use_pre_pos, x=i)
-                low_graph, low_best_graph, low_best_graph_time = \
-                    get_torus_graph(graph, file_name, low_multipl_number, pos=high_best_graph["pos"], 
-                                    pre_multiple_num=pre_multipl_number, use_pre_pos=use_pre_pos, x=i)
             else:
                 high_graph, high_best_graph, high_best_graph_time = get_midium_graph(graph, file_name, high_multipl_number, avg_loog)
             pre_multipl_number = high_multipl_number
@@ -169,9 +166,6 @@ def torus_golden_search_new(graph, file_name, log_file_name="test", avg_loog = 2
                 low_graph, low_best_graph, low_best_graph_time = \
                     get_torus_graph(graph, file_name, low_multipl_number, pos=low_best_graph["pos"], 
                                     pre_multiple_num=pre_multipl_number, use_pre_pos=use_pre_pos, x=i)
-                high_graph, high_best_graph, high_best_graph_time = \
-                    get_torus_graph(graph, file_name, high_multipl_number, pos=low_best_graph["pos"], 
-                                    pre_multiple_num=pre_multipl_number, use_pre_pos=use_pre_pos, x=i)
             else:
                 low_graph, low_best_graph, low_best_graph_time = get_midium_graph(graph, file_name, low_multipl_number, avg_loog)
             pre_multipl_number = low_multipl_number
@@ -179,30 +173,27 @@ def torus_golden_search_new(graph, file_name, log_file_name="test", avg_loog = 2
         lr_diff = high-low
         x = (3-math.sqrt(5))/2*lr_diff
         
-        if abs(low_multipl_number-high_multipl_number) < 0.001:
+        if abs(low_multipl_number-high_multipl_number) < 0.01:
             break
     
     if low_graph["stress"] > high_graph["stress"]:
         data.append([high_multipl_number, high_graph["stress"]])
-        print("min", high_multipl_number)
+        # print("min", high_multipl_number)
         all_log["best"] = high_best_graph
         save_best_graph(high_best_graph_time, high_best_graph, file_name, high_multipl_number)
         if debug:
             debug_log(data, all_log, file_name+str(index))
-        # new_graph, best_graph, graph_time =  get_torus_graph(graph, file_name, high_multipl_number, pos=high_graph["pos"], 
-        #                             pre_multiple_num=pre_multipl_number, use_pre_pos=use_pre_pos, loop=15)
+        return high_best_graph
         new_graph, best_graph, graph_time =  get_midium_graph(graph, file_name, high_multipl_number, avg_loog)
-        # return high_graph
         return best_graph
     else:
         data.append([low_multipl_number, low_graph["stress"]])
-        print("min", low_multipl_number)
+        # print("min", low_multipl_number)
         all_log["best"] = low_best_graph
         save_best_graph(low_best_graph_time, low_best_graph, file_name, low_multipl_number)
         if debug:
             debug_log(data, all_log, file_name+str(index))
-        # new_graph, best_graph, graph_time =  get_torus_graph(graph, file_name, low_multipl_number, pos=low_graph["pos"], 
-        #                             pre_multiple_num=pre_multipl_number, use_pre_pos=use_pre_pos, x=15)
+        return low_best_graph
         new_graph, best_graph, graph_time =  get_midium_graph(graph, file_name, high_multipl_number, avg_loog)
         # return low_graph
         return best_graph
