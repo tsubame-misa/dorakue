@@ -25,7 +25,7 @@ def tuple2array(pos):
     return new_pos
 
 
-def torus_sgd(original_graph, file_name, multiple_num=1.0, random_idx=0, time="xxxx", is_chen=False):
+def torus_sgd(original_graph, file_name, multiple_num=1.0, random_idx=0, time="xxxx", is_chen=False, my_drawing=None):
     graph = eg.Graph()
     indices = {}
     for u in original_graph.nodes:
@@ -39,28 +39,30 @@ def torus_sgd(original_graph, file_name, multiple_num=1.0, random_idx=0, time="x
 
     size = nx.diameter(original_graph) * multiple_num
 
-    d = eg.all_sources_bfs(
-        graph,
-        1 / size, # edge length
-    )
-    drawing = eg.DrawingTorus.initial_placement(graph)
+    drawing = eg.DrawingTorus2d.initial_placement(graph)
+    low_distance = eg.DistanceMatrix(graph)
+    d = eg.all_sources_bfs(graph, 1)
+    n = graph.node_count()
+    for i in range(n):
+        for j in range(n):
+            low_distance.set(i, j, d.get(i, j) / (diameter * multiple_num))
+    sgd = eg.FullSgd.new_with_distance_matrix(low_distance)
+    
     rng = eg.Rng.seed_from(random_idx)  # random seed
-    sgd = eg.FullSgd.new_with_distance_matrix(d)
     scheduler = sgd.scheduler(
-        20,  # number of iterations
+        100,  # number of iterations
         0.1,  # eps: eta_min = eps * min d[i, j] ^ 2
     )
 
     def step(eta):
-        # print(eg.stress(drawing, d))
         sgd.shuffle(rng)
         sgd.apply(drawing, eta)
     scheduler.run(step)
 
     s = eg.stress(drawing, d)
-    ce = eg.crossing_edges(graph, drawing)
-    cn = int(eg.crossing_number(graph, drawing, ce))
-    nr = eg.node_resolution(drawing)
+    # ce = eg.crossing_edges(graph, drawing)
+    # cn = int(eg.crossing_number(graph, drawing, ce))
+    # nr = eg.node_resolution(drawing)
 
     edge_segments = []
     for u, v in original_graph.edges:
@@ -76,9 +78,10 @@ def torus_sgd(original_graph, file_name, multiple_num=1.0, random_idx=0, time="x
     log = aestheticsMeasures.calc_egraph_torus_evaluation_values(original_graph, fin_pos, maxd, d, 1/size)
     log["multiple_num"] = multiple_num
     log["stress"] = s
-    log["edge_crossings"] = cn
-    log["node_resolution"] = nr
+    # log["edge_crossings"] = cn
+    # log["node_resolution"] = nr
     log["pos"] = fin_pos
+    # log["drawing"] = drawing
     if is_chen:
         log["is_chen"] = True 
 
