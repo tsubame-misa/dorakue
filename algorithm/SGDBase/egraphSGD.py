@@ -1,9 +1,9 @@
+import os
 import networkx as nx
 import egraph as eg
-from common import initGraph, aestheticsMeasures, drawGraph
+import matplotlib.pyplot as plt
 
-
-def sgd(original_graph, file_name, random_idx=0):
+def sgd(original_graph, file_name, dir_name,  random_idx=0, time="xxxx", ):
     graph = eg.Graph()
     indices = {}
     for u in original_graph.nodes:
@@ -11,17 +11,14 @@ def sgd(original_graph, file_name, random_idx=0):
     for u, v in original_graph.edges:
         graph.add_edge(indices[u], indices[v], (u, v))
 
-    size = nx.diameter(original_graph) 
-    d = eg.all_sources_bfs(
-        graph,
-        1 / size, # edge length
-    )
-
-    drawing = eg.Drawing2D.initial_placement(graph)
+    drawing = eg.DrawingEuclidean2d.initial_placement(graph)
     rng = eg.Rng.seed_from(random_idx)  # random seed
-    sgd = eg.FullSgd(
+    size = nx.diameter(original_graph) 
+    sgd = eg.SparseSgd(
         graph,
         lambda _: 1/size,  # edge length
+        50,  # number of pivots
+        rng,
     )
     scheduler = sgd.scheduler(
         20,  # number of iterations
@@ -32,25 +29,32 @@ def sgd(original_graph, file_name, random_idx=0):
         sgd.shuffle(rng)
         sgd.apply(drawing, eta)
     scheduler.run(step)
-    s = eg.stress(drawing, d)
-    ce = eg.crossing_edges(graph, drawing)
-    cn = int(eg.crossing_number(graph, drawing, ce))
-    nr = eg.node_resolution(drawing)
 
     pos = {u: (drawing.x(i), drawing.y(i)) for u, i in indices.items()}
     
-    maxd = initGraph.get_maxd(original_graph, file_name, True, 1/size)
-    # d = initGraph.get_shortest_path(original_graph, file_name, True, 1/size)
-    # log = aestheticsMeasures.calc_egraph_torus_evaluation_values(original_graph, pos, maxd, d, 1/size)
-    
-    # log["stress"] = s
-    # log["pos"] = pos 
-    # log["edge_crossings"] = cn
-    # log["node_resolution"] = nr
+    G = nx.DiGraph()
+    G.add_nodes_from(original_graph.nodes)
+    G.add_edges_from(original_graph.edges)
+    plt.figure(figsize=(12, 12))
+    nx.draw_networkx(G, pos, False, with_labels=False,
+                     node_color="#88888899", edge_color="#888888", node_size=20, font_size=5)
 
+    if not os.path.isdir(dir_name):
+        os.mkdir(dir_name)
+    img_path ='./'+dir_name+'/SGD/' + \
+        str(file_name) + '-' + time + '.png'
+    plt.savefig(img_path)
 
-    drawGraph.create_and_save_graph(original_graph, pos, "#88888899", "#888888", "SGD", 1, 1, file_name)
+    d = eg.all_sources_bfs(
+        graph,
+        1 / size, # edge length
+    )
 
-    # return log
-
-
+    ec = eg.crossing_edges(graph, drawing)
+    log = {"multiple_num": -1, 
+           "stress": eg.stress(drawing, d) , 
+           "edge_crossings":eg.crossing_number_with_crossing_edges(ec),
+           "minimum_angle": eg.crossing_angle_with_crossing_edges(ec), 
+           "node_resolution":eg.node_resolution(drawing), 
+           "pos":pos}
+    return log

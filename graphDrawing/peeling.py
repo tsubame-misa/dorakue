@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from common import log
 import setup
+from  generateColorGraph import get_chromatic_number
 
 import csv
 import statistics
@@ -73,10 +74,10 @@ def calc_graph_degree(G):
 
 
 def main():
-    # files = glob.glob("./graphSet/networkx/*")
+    files = glob.glob("./graphSet/networkx/*")
     # files = glob.glob("./graphSet/doughNetGraph/default/*")
     # files = glob.glob("./graphSet/randomPartitionNetwork /*")
-    files = glob.glob("./graphSet/suiteSparse/*")
+    # files = glob.glob("./graphSet/suiteSparse/*")
 
 
     with open("./graphSet/info2.json") as f:
@@ -86,10 +87,10 @@ def main():
     for filepath in files:
         graph = json_graph.node_link_graph(json.load(open(filepath)))
         file_name = re.split('[/]', filepath)[-1][:-5]
-        # obj = {"name": file_name, "graph": graph, "type":graph_info["Networkx"][file_name]["type"]}
+        obj = {"name": file_name, "graph": graph, "type":graph_info["Networkx"][file_name]["type"]}
         # obj = {"name": file_name, "graph": graph, "type":graph_info["Real world"][file_name]["type"]}
         # obj = {"name": file_name, "graph": graph, "type":graph_info["Random Partition2"][file_name]["type"]}
-        obj = {"name": file_name, "graph": graph, "type":graph_info["SuiteSparse Matrix"][file_name]["type"]}
+        # obj = {"name": file_name, "graph": graph, "type":graph_info["SuiteSparse Matrix"][file_name]["type"]}
         graphs.append(obj)
 
 
@@ -98,7 +99,7 @@ def main():
     setup.set_dir_name(log_file_name)
     log.create_log_folder()
 
-    csv_data = [["name", "type", "degree_avg", "degree_s2","degree_midian", "degree_mod", "degree_quartile_deviation" "node", "peeled nodes", "edges", "peeled edges"]]
+    csv_data = [["name", "type", "chromatic_num", "degree_avg", "degree_s2","degree_midian", "degree_mod", "degree_quartile_deviation" "node", "peeled nodes", "edges", "peeled edges"]]
 
     for g in sorted_graphs:
         # if g["name"]=="lowThrust_1":
@@ -107,13 +108,14 @@ def main():
         edge_be = g["graph"].number_of_edges()
         print(g["name"], "size", len(g["graph"].nodes))
         peeled_graph = peeling_graph(g["graph"], g["name"], log_file_name)
-        result = calc_graph_degree(peeled_graph)
-        csv_data.append([g["name"], g["type"], result["avg"], result["s2"], result["midian"], result["mod"], result["quartile_deviation"],
+        degree_result = calc_graph_degree(peeled_graph)
+        chromatic_num = get_chromatic_number(g["graph"], g["name"])
+        csv_data.append([g["name"], g["type"], chromatic_num,  degree_result["avg"], degree_result["s2"], degree_result["midian"], degree_result["mod"], degree_result["quartile_deviation"],
                          node_be, peeled_graph.number_of_nodes(), edge_be, peeled_graph.number_of_edges()])
         print("---------------------")
 
     # CSVファイル名
-    csv_file = "degree_info_spase" + ".csv"
+    csv_file = "degree_info_network" + ".csv"
     # CSVファイルにデータを書き込む
     with open(csv_file, mode='w', newline='') as file:
         writer = csv.writer(file)

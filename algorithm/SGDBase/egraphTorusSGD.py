@@ -75,13 +75,13 @@ def torus_sgd(original_graph, name, dir, multiple_num=1.0, random_idx=0, time="x
     if not os.path.isdir(dir):
         os.mkdir(dir)
     img_path ='./'+dir+'/torusSGD_wrap/' + \
-        str(name) + '-' + str(size) + '-' + time + '.png'
+        str(name) + '-' + str(multiple_num) + '-' + time + '.png'
     plt.savefig(img_path)
 
 
     
     ec = eg.crossing_edges(graph, drawing)
-    log = {"multiple_num":size, 
+    log = {"multiple_num":multiple_num, 
            "stress":eg.stress(drawing, d) , 
            "edge_crossings":eg.crossing_number_with_crossing_edges(ec),
            "minimum_angle": eg.crossing_angle_with_crossing_edges(ec), 
