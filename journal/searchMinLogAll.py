@@ -10,6 +10,7 @@ from networkx.readwrite import json_graph
 import json
 import setup
 from algorithm.SGDBase import egraphTorusSGD
+from algorithm.SGDBase import egraphTorusWeightingSGD
 from common import drawGraph, log
 import re
 import matplotlib.pyplot as plt
@@ -25,15 +26,22 @@ lenの変化でstessがどう変わるか線形探索
 
 
 COUNT = 80
+LOOP = 20
 
 
-def create_graph(graph, file_name, dir_name, multiple_num, i):
+def create_graph(graph, file_name, dir_name, multiple_num, i, weigthing):
     time = setup.get_time()
     index_time = str(i) + str(time)
     drawGraph.set_time(index_time)
-    torus_log = egraphTorusSGD.torus_sgd(
-        graph, file_name, dir_name, multiple_num, i, index_time
-    )
+    if weigthing:
+        torus_log = egraphTorusWeightingSGD.torus_sgd_weighting(
+            graph, file_name, dir_name, multiple_num, i, index_time
+        )
+    else:
+        torus_log = egraphTorusSGD.torus_sgd(
+            graph, file_name, dir_name, multiple_num, i, index_time
+        )
+
     return torus_log
 
 
@@ -59,30 +67,38 @@ def save_graph(data, x, optimal_cell, chen_cell_size, dir_name, name, metrics):
     plt.savefig(img_path)
 
 
-def get_stress_by_len(graph, file_name, dir_name):
+def get_stress_by_len(graph, file_name, dir_name, weigthing):
     data = []
     all_log = {}
     for i in range(1, COUNT + 1):
         initGraph.clear()
         n = math.floor(i * 0.05 * 100) / 100
-        for j in range(20):
+        for j in range(LOOP):
             print(file_name, n)
-            torus_log = create_graph(graph, file_name, dir_name, n, j)
+            torus_log = create_graph(graph, file_name, dir_name, n, j, weigthing)
             data.append([n, torus_log["stress"]])
             if n in all_log:
                 all_log[n].append(torus_log)
             else:
                 all_log[n] = [torus_log]
 
-    log.create_log(all_log, file_name)
     return all_log
 
 
+"""
+graph_file_dir_path, log_file_path, weigthing=True/False
+# files = ./graphSet/networkx/
+# files = ./graphSet/doughNetGraph/default/
+# files = ./graphSet/randomPartitionNetwork /
+# files = ./graphSet/suiteSparse/
+"""
+
+
 def main():
-    # files = glob.glob("./graphSet/networkx/*")
-    # files = glob.glob("./graphSet/doughNetGraph/default/*")
-    # files = glob.glob("./graphSet/randomPartitionNetwork /*")
-    files = glob.glob("./graphSet/suiteSparse/*")
+    args = sys.argv
+    files = glob.glob("./" + args[1] + "/*")
+    log_file_name = args[2]
+    weigthing = args[3]
 
     graphs = []
     for filepath in files:
@@ -92,23 +108,19 @@ def main():
         graphs.append(obj)
 
     sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes))
-    log_file_name = "metrics_liner_sparse"
+
     setup.set_dir_name(log_file_name)
     log.create_log_folder()
 
     for g in sorted_graphs:
-        if os.path.isfile("./metrics_liner_sparse/log/" + g["name"] + "-.json"):
+        if os.path.isfile(log_file_name + "/log/" + g["name"] + "-.json"):
             continue
         print(g["name"], "size", len(g["graph"].nodes))
-        # try:
-        all_log = get_stress_by_len(g["graph"], g["name"], log_file_name)
-        create_metrics_graph(all_log, g["graph"], log_file_name, g["name"])
-
-        # except:
-        #     print(g["name"], "でエラーが発生しました")
-        #     continue
-
-        # print("---------------------")
+        all_log = get_stress_by_len(g["graph"], g["name"], log_file_name, weigthing)
+        optimal_cell_size = create_metrics_graph(
+            all_log, g["graph"], log_file_name, g["name"]
+        )
+    log.create_log({"optimal_cell_size": optimal_cell_size, "data": all_log}, file_name)
 
 
 def create_metrics_graph(data_dict, graph, new_dir_path, name):
@@ -116,19 +128,18 @@ def create_metrics_graph(data_dict, graph, new_dir_path, name):
     chen_cell_size = (max(diameter, 2) + 1) / diameter
 
     x_idx = [x for x in data_dict.keys()]
-    print(x_idx)
     metrics = [
         "stress",
-        "edge_length_vaiance",
+        "ideal_edge_lengths",
         "edge_crossings",
-        "minimum_angle",
+        "crossing_angle_maximization",
         "node_resolution",
     ]
     liner_dict = {
         "stress": [],
-        "edge_length_vaiance": [],
+        "ideal_edge_lengths": [],
         "edge_crossings": [],
-        "minimum_angle": [],
+        "crossing_angle_maximization": [],
         "node_resolution": [],
     }
     for x in x_idx:
@@ -139,9 +150,7 @@ def create_metrics_graph(data_dict, graph, new_dir_path, name):
             liner_dict[m].append(x_data_m[n // 2])
 
     best_stress_comp = min(liner_dict["stress"])
-    print("best_stress_comp", best_stress_comp)
     best_idx = liner_dict["stress"].index(best_stress_comp)
-    print("best_idx", best_idx)
     optimal_cell_size = x_idx[best_idx]
 
     if not os.path.isdir(new_dir_path + "/metrics_liner"):
@@ -162,6 +171,7 @@ def create_metrics_graph(data_dict, graph, new_dir_path, name):
             name,
             m,
         )
+    return optimal_cell_size
 
 
 if __name__ == "__main__":
