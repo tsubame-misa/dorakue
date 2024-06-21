@@ -60,7 +60,7 @@ def show_stress_graph(x, y, file_name, dir_name):
     plt.savefig(img_path)
 
 
-def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx"):
+def cell_optimazation_3_search(original_graph, name, dir, idx=0, time="xxxx"):
     graph = eg.Graph()
     indices = {}
     for u in original_graph.nodes:
@@ -104,7 +104,7 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx"):
     low = 0
     high = 3.5
     lr_diff = high - low
-    x = (3 - math.sqrt(5)) / 2 * lr_diff
+    x = lr_diff / 3
 
     m1 = x
     low_drawing = eg.DrawingTorus2d.initial_placement(graph)
@@ -137,7 +137,7 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx"):
             data.append([m1, eg.stress(low_drawing, low_distance)])
             low = m1
             m1 = m2
-            m2 = high - (lr_diff - 2 * x)
+            m2 = high - x
 
             # low <- high
             for i in range(n):
@@ -172,7 +172,7 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx"):
             data.append([m2, eg.stress(high_drawing, high_distance)])
             high = m2
             m2 = m1
-            m1 = low + lr_diff - 2 * x
+            m1 = low + x
 
             # high <- low
             for i in range(n):
@@ -205,7 +205,7 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx"):
             )
 
         lr_diff = high - low
-        x = (3 - math.sqrt(5)) / 2 * lr_diff
+        x = lr_diff / 3
 
     if eg.stress(low_drawing, low_distance) > eg.stress(high_drawing, high_distance):
         drawing = high_drawing

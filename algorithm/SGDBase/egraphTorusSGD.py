@@ -2,26 +2,9 @@ import os
 import networkx as nx
 import egraph as eg
 import matplotlib.pyplot as plt
-from common import egraphCalcDrawInfo
 import networkx as nx
 import egraph as eg
 import matplotlib.pyplot as plt
-
-
-def centered_graph(pos, graph):
-    min_edge_len = float("inf")
-    for p in pos:
-        diff_x, diff_y, _pos = egraphCalcDrawInfo.shift_center(pos, p, 1, 1)
-        max_edge_len = max(
-            egraphCalcDrawInfo.dist_around(_pos, u, v) for u, v in graph.edges
-        )
-        if min_edge_len > max_edge_len:
-            min_edge_len = max_edge_len
-            center_idx = p
-
-    diff_x, diff_y, fin_pos = egraphCalcDrawInfo.shift_center(pos, center_idx, 1, 1)
-
-    return fin_pos
 
 
 def torus_sgd(
@@ -32,7 +15,6 @@ def torus_sgd(
     random_idx=0,
     time="xxxx",
     is_chen=False,
-    my_drawing=None,
 ):
     graph = eg.Graph()
     indices = {}
@@ -103,9 +85,9 @@ def torus_sgd(
     log = {
         "multiple_num": multiple_num,
         "stress": eg.stress(drawing, d),
-        "edge_length_vaiance": eg.ideal_edge_lengths(graph, drawing, d),
+        "ideal_edge_lengths": eg.ideal_edge_lengths(graph, drawing, d),
         "edge_crossings": eg.crossing_number_with_crossing_edges(ec),
-        "minimum_angle": eg.crossing_angle_with_crossing_edges(ec),
+        "crossing_angle_maximazation": eg.crossing_angle_with_crossing_edges(ec),
         "node_resolution": eg.node_resolution(drawing),
         "pos": pos,
     }
