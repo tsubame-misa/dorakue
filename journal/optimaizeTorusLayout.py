@@ -3,6 +3,7 @@ drawing optimaize cell size layout
 """
 
 import glob
+import os
 import sys
 from pathlib import Path
 import time
@@ -36,9 +37,7 @@ def main():
     # cell_size_files = glob.glob(
     #     "./graphDrawing/data/egraph/liner_egraph_random_20/log/save_best_len_log/*"
     # )
-    # cell_size_files = glob.glob(
-    #     "./graphDrawing/data/egraph/liner_egraph_sparse_20/log/save_best_len_log/*"
-    # )
+
     cell_info = dict()
 
     for filepath in cell_size_files:
@@ -55,15 +54,17 @@ def main():
         graphs.append(obj)
     sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes))
 
-    log_file_name = "misato"
+    log_file_name = "test"
     setup.set_dir_name(log_file_name)
     log.create_log_folder()
 
     for g in sorted_graphs:
-        print("------------------------------")
+        print(g["name"], "------------------------------")
+        # if os.path.isfile(log_file_name + "/log/" + g["name"] + "-all-.json"):
+        #     continue
         data = []
-        for i in range(20):
-            if g["name"] != "desargues":
+        for i in range(5):
+            if g["name"] != "les_miserables":
                 continue
 
             print(g["name"], i)
@@ -74,7 +75,8 @@ def main():
                 g["graph"],
                 g["name"],
                 log_file_name,
-                cell_info[g["name"]],
+                # cell_info[g["name"]],
+                4,
                 i,
                 index_time,
             )
