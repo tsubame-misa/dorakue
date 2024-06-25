@@ -53,18 +53,6 @@ def main():
 
     args = parser.parse_args()  # 引数を解析
 
-    # print("graph_file", args.graph_file)
-    # print("cell_size_file", args.cell_size_file)
-    # print("log_file_name", args.log_file_name)
-    # print(
-    #     "weigthing",
-    #     args.weigthing,
-    # )
-    # print(
-    #     "loop",
-    #     args.loo,
-    # )
-
     files = glob.glob(args.graph_file + "/*")
     cell_size_files = glob.glob(args.cell_size_file + "/*")
 
@@ -74,14 +62,6 @@ def main():
 
 
 def optimizeTorusLayout(files, cell_size_files, log_file_name, weigthing, loop):
-    # args = sys.argv
-    # files = glob.glob(args[1] + "/*")
-    # cell_size_files = glob.glob(args[2] + "/*")
-    # log_file_name = args[3]
-
-    # weigthing = args[4]
-    # LOOP = args[5]
-
     cell_info = dict()
 
     for filepath in cell_size_files:
