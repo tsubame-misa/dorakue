@@ -10,7 +10,6 @@ from networkx.readwrite import json_graph
 import json
 import setup
 from algorithm.SGDBase import egraphTorusSGD
-from algorithm.SGDBase import egraphTorusWeightingSGD
 from common import drawGraph, log
 import re
 import matplotlib.pyplot as plt
@@ -34,8 +33,8 @@ def create_graph(graph, file_name, dir_name, multiple_num, i, weigthing):
     index_time = str(i) + str(time)
     drawGraph.set_time(index_time)
     if weigthing:
-        torus_log = egraphTorusWeightingSGD.torus_sgd_weighting(
-            graph, file_name, dir_name, multiple_num, i, index_time
+        torus_log = egraphTorusSGD.torus_sgd(
+            graph, file_name, dir_name, multiple_num, i, index_time, weigthing=True
         )
     else:
         torus_log = egraphTorusSGD.torus_sgd(
@@ -120,7 +119,9 @@ def main():
         optimal_cell_size = create_metrics_graph(
             all_log, g["graph"], log_file_name, g["name"]
         )
-    log.create_log({"optimal_cell_size": optimal_cell_size, "data": all_log}, file_name)
+        log.create_log(
+            {"optimal_cell_size": optimal_cell_size, "data": all_log}, g["name"]
+        )
 
 
 def create_metrics_graph(data_dict, graph, new_dir_path, name):

@@ -2,9 +2,38 @@ import os
 import networkx as nx
 import egraph as eg
 import matplotlib.pyplot as plt
+from common import egraphCalcDrawInfo
 import networkx as nx
 import egraph as eg
 import matplotlib.pyplot as plt
+
+
+def centered_graph(pos, graph):
+    min_edge_len = float("inf")
+    for p in pos:
+        diff_x, diff_y, _pos = egraphCalcDrawInfo.shift_center(pos, p, 1, 1)
+        max_edge_len = max(
+            egraphCalcDrawInfo.dist_around(_pos, u, v) for u, v in graph.edges
+        )
+        if min_edge_len > max_edge_len:
+            min_edge_len = max_edge_len
+            center_idx = p
+
+    diff_x, diff_y, fin_pos = egraphCalcDrawInfo.shift_center(pos, center_idx, 1, 1)
+
+    return fin_pos
+
+
+class Weighting:
+    def __init__(self, graph, size):
+        self.graph = graph
+        self.size = size
+
+    def __call__(self, e):
+        u, v = self.graph.edge_endpoints(e)
+        u_set = set(self.graph.neighbors(u))
+        v_set = set(self.graph.neighbors(v))
+        return (len(u_set | v_set) - len(u_set & v_set)) / self.size
 
 
 def torus_sgd(
@@ -15,6 +44,7 @@ def torus_sgd(
     random_idx=0,
     time="xxxx",
     is_chen=False,
+    weigthing=False,
 ):
     graph = eg.Graph()
     indices = {}
@@ -23,15 +53,24 @@ def torus_sgd(
     for u, v in original_graph.edges:
         graph.add_edge(indices[u], indices[v], (u, v))
 
-    diameter = nx.diameter(original_graph)
+    if weigthing:
+        d = eg.all_sources_dijkstra(graph, Weighting(graph, 1))
+    else:
+        d = eg.all_sources_dijkstra(graph, lambda _: 1)
+
+    diameter = max(
+        d.get(u, v) for u in graph.node_indices() for v in graph.node_indices()
+    )
+
     if is_chen:
         multiple_num = (max(diameter, 2) + 1) / diameter
 
-    size = nx.diameter(original_graph) * multiple_num
-    d = eg.all_sources_bfs(
-        graph,
-        1 / size,  # edge length
-    )
+    size = diameter * multiple_num
+    if weigthing:
+        d = eg.all_sources_dijkstra(graph, Weighting(graph, size))
+    else:
+        d = eg.all_sources_dijkstra(graph, lambda _: 1 / size)
+
     drawing = eg.DrawingTorus2d.initial_placement(graph)
     rng = eg.Rng.seed_from(random_idx)  # random seed
     sgd = eg.FullSgd.new_with_distance_matrix(d)
@@ -62,7 +101,7 @@ def torus_sgd(
     ax.set_xlim(0, size)
     ax.set_ylim(0, size)
     nx.draw_networkx_nodes(
-        original_graph, pos, ax=ax, node_color="#6f6f6fcf", node_size=50
+        original_graph, pos, ax=ax, node_color="#6f6f6fcf", node_size=10
     )
     nx.draw_networkx_edges(nx_edge_graph, edge_pos, ax=ax)
 
@@ -87,7 +126,7 @@ def torus_sgd(
         "stress": eg.stress(drawing, d),
         "ideal_edge_lengths": eg.ideal_edge_lengths(graph, drawing, d),
         "edge_crossings": eg.crossing_number_with_crossing_edges(ec),
-        "crossing_angle_maximazation": eg.crossing_angle_with_crossing_edges(ec),
+        "crossing_angle_maximization": eg.crossing_angle_with_crossing_edges(ec),
         "node_resolution": eg.node_resolution(drawing),
         "pos": pos,
     }
