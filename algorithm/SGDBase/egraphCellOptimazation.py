@@ -96,11 +96,12 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
     t_max = gss_iterations * sgd_iterations
 
     if weigthing:
-        distance = eg.all_sources_dijkstra(graph, lambda _: 1)
+        # distance = eg.all_sources_dijkstra(graph, lambda _: 1)
+        distance = eg.all_sources_dijkstra(graph, Weighting(graph))
         w_min = (
             1
-            / min(
-                distance.get(i, j) / diameter
+            / max(
+                distance.get(i, j)
                 for i in range(n)
                 for j in range(n)
                 if distance.get(i, j) != 0
@@ -109,8 +110,8 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
         )
         w_max = (
             1
-            / max(
-                distance.get(i, j) / diameter
+            / min(
+                distance.get(i, j)
                 for i in range(n)
                 for j in range(n)
                 if distance.get(i, j) != 0
@@ -121,7 +122,7 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
         distance = eg.all_sources_dijkstra(graph, lambda _: 1)
         w_min = (
             1
-            / min(
+            / max(
                 distance.get(i, j)
                 for i in range(n)
                 for j in range(n)
@@ -131,7 +132,7 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
         )
         w_max = (
             1
-            / max(
+            / min(
                 distance.get(i, j)
                 for i in range(n)
                 for j in range(n)
@@ -140,7 +141,9 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
             ** 2
         )
 
-    scheduler = Scheduler(w_min, eps / w_max, t_max)
+    # scheduler = Scheduler(w_min, eps / w_max, t_max)
+    # TODO test
+    scheduler = Scheduler(1 / w_min, eps / w_max, t_max)
     eta = [scheduler(t) for t in range(t_max)]
 
     # 0-3.5が丁度良さそう
