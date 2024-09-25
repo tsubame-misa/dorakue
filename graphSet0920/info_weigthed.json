@@ -1,0 +1,295 @@
+{
+  "Networkx": {
+    "cubical": {
+      "modularity": 0.16666666666666663,
+      "diameter": 3,
+      "type": "c"
+    },
+    "davis_southern_women": {
+      "modularity": 0.306211336952405,
+      "diameter": 4,
+      "type": "a"
+    },
+    "house": { "modularity": 0.11111111111111113, "diameter": 2, "type": "c" },
+    "bull": { "modularity": 0.08000000000000004, "diameter": 3, "type": "a" },
+    "petersen": {
+      "modularity": 0.16666666666666663,
+      "diameter": 2,
+      "type": "b"
+    },
+    "sedgewick_maze": {
+      "modularity": 0.11999999999999994,
+      "diameter": 3,
+      "type": "b"
+    },
+    "florentine_families": {
+      "modularity": 0.08875000000000005,
+      "diameter": 5,
+      "type": "a"
+    },
+    "frucht": { "modularity": 0.3194444444444445, "diameter": 4, "type": "c" },
+    "chvatal": {
+      "modularity": 0.16666666666666663,
+      "diameter": 2,
+      "type": "b"
+    },
+    "desargues": {
+      "modularity": 0.30000000000000004,
+      "diameter": 5,
+      "type": "c"
+    },
+    "house_x": { "modularity": -0.03125, "diameter": 2, "type": "a" },
+    "dodecahedral": {
+      "modularity": 0.30000000000000004,
+      "diameter": 5,
+      "type": "c"
+    },
+    "heawood": {
+      "modularity": 0.20408163265306115,
+      "diameter": 3,
+      "type": "c"
+    },
+    "krackhardt_kite": {
+      "modularity": 0.09722222222222227,
+      "diameter": 4,
+      "type": "a"
+    },
+    "karate_club": {
+      "modularity": 0.3599605522682445,
+      "diameter": 5,
+      "type": "a"
+    },
+    "icosahedral": {
+      "modularity": 0.16666666666666663,
+      "diameter": 3,
+      "type": "c"
+    },
+    "octahedral": { "modularity": 0.0, "diameter": 2, "type": "c" },
+    "moebius_kantor": { "modularity": 0.25, "diameter": 4, "type": "b" },
+    "tutte": { "modularity": 0.396030245746692, "diameter": 8, "type": "b" },
+    "les_miserables": {
+      "modularity": 0.07386600237953594,
+      "diameter": 5,
+      "type": "a"
+    }
+  },
+  "Realworld": {
+    "16": { "modularity": 0.23944444444444446, "diameter": 4, "type": "b" },
+    "01": { "modularity": -0.006172839506172853, "diameter": 3, "type": "a" },
+    "17": { "modularity": 0.23944444444444446, "diameter": 4, "type": "b" },
+    "04": { "modularity": -0.006172839506172853, "diameter": 3, "type": "a" },
+    "18": { "modularity": -0.0034722222222221604, "diameter": 3, "type": "b" },
+    "03": { "modularity": -0.0078125, "diameter": 2, "type": "b" }
+  },
+  "Realworld2": {
+    "samll_world_11_1": {
+      "modularity": -0.0078125,
+      "diameter": 2,
+      "type": "b",
+      "biko": "ほぼa"
+    },
+    "samll_world_15_1": {
+      "modularity": -0.0078125,
+      "diameter": 2,
+      "type": "b"
+    },
+    "samll_world_15_2": {
+      "modularity": -0.0078125,
+      "diameter": 2,
+      "type": "b"
+    },
+    "samll_world_8_1": {
+      "modularity": -0.0078125,
+      "diameter": 2,
+      "type": "b",
+      "biko": "-"
+    },
+    "scale_free_11_3": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
+    "scall_free_11_7": { "modularity": -1, "diameter": 2, "type": "a" },
+    "scale_free_15_4": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
+    "scale_free_15_5": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
+    "scall_free_15_6": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
+    "scall_free_15_8": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
+    "scale_free_8_4": {
+      "modularity": -0.0078125,
+      "diameter": 2,
+      "type": "a",
+      "biko": "末尾がおかしい"
+    },
+    "scale_free_8_5": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
+    "small_wold_11_5": { "modularity": -0.0078125, "diameter": 2, "type": "b" },
+    "scall_free_11_9": { "modularity": -0.0078125, "diameter": 2, "type": "b" }
+  },
+  "SuiteSparseMatrix": {
+    "mesh2e1": { "diameter": 17, "type": "a" },
+    "lshp_406": { "diameter": 30, "type": "a" },
+    "bcsstm07": { "diameter": 16, "type": "a" },
+    "steam2": { "diameter": 16, "type": "a" },
+    "dermatology_5NN": { "diameter": 23, "type": "b" },
+    "cage4": { "diameter": 2, "type": "c" },
+    "micromass_10NN": { "diameter": 8, "type": "b" },
+    "G44": { "diameter": 4, "type": "b" },
+
+    "Ecoli_10NN": { "diameter": 9, "type": "a" },
+
+    "spaceShuttleEntry_1": { "diameter": 4, "type": "a" },
+    "ex21": { "diameter": 9, "type": "a" },
+    "dwt_209": { "diameter": 12, "type": "a" },
+    "can_61": { "diameter": 6, "type": "a" },
+    "dwt_878": { "diameter": 40, "type": "a" },
+    "iris_dataset_30NN": { "diameter": 7, "type": "a" },
+    "G8": { "diameter": 3, "type": "b" },
+    "can_445": { "diameter": 12, "type": "b" },
+    "G9": { "diameter": 3, "type": "b" },
+    "bcspwr01": { "diameter": 11, "type": "a" },
+    "lowThrust_1": { "diameter": 6, "type": "a" },
+    "dwt_66": { "diameter": 32, "type": "a" },
+    "ex1": { "diameter": 6, "type": "c" },
+    "bcsstk06": { "diameter": 16, "type": "a" },
+    "G15": { "diameter": 5, "type": "b" },
+    "M10PI_n": { "diameter": 178, "type": "a" },
+    "lshp_265": { "diameter": 24, "type": "a" },
+    "cdde6": { "diameter": 60, "type": "a" },
+    "plat362": { "diameter": 16, "type": "a" },
+    "mesh2em5": { "diameter": 17, "type": "a" },
+    "Vehicle_10NN": { "diameter": 31, "type": "a" },
+    "G21": { "diameter": 5, "type": "b" },
+
+    "Trefethen_20b": { "diameter": 3, "type": "c" },
+    "tumorAntiAngiogenesis_2": { "diameter": 4, "type": "a" },
+    "G7": { "diameter": 3, "type": "b" },
+    "hangGlider_1": { "diameter": 4, "type": "a" },
+    "bcsstk19": { "diameter": 86, "type": "a" },
+    "ash292": { "diameter": 25, "type": "a" },
+    "cage6": { "diameter": 6, "type": "b" },
+    "mycielskian8": { "diameter": 2, "type": "b" },
+    "lshp_577": { "diameter": 36, "type": "a" },
+    "G11": { "diameter": 54, "type": "b" },
+
+    "cdde1": { "diameter": 60, "type": "a" },
+    "dwt_918": { "diameter": 42, "type": "a" },
+    "mycielskian5": { "diameter": 2, "type": "b" },
+    "breasttissue_10NN": { "diameter": 4, "type": "b" }
+  },
+  "RandomPartition2": {
+    "10-30-0.75-0.001-7": {
+      "modularity": 0.13176303955169522,
+      "diameter": 15,
+      "type": "b"
+    },
+    "10-30-0.8-0.0001-6": {
+      "modularity": 0.4308128544423441,
+      "diameter": 6,
+      "type": "a"
+    },
+    "10-30-0.8-0.0001-5": {
+      "modularity": 0.49245273919753085,
+      "diameter": 10,
+      "type": "a"
+    },
+    "10-30-0.8-0.001-3": {
+      "modularity": 0.3692774931313581,
+      "diameter": 16,
+      "type": "b"
+    },
+    "10-30-0.8-0.001-2": {
+      "modularity": 0.3781168552812071,
+      "diameter": 15,
+      "type": "a"
+    },
+    "10-30-0.8-0.0001-4": {
+      "modularity": 0.48479591836734687,
+      "diameter": 5,
+      "type": "a"
+    },
+    "10-30-0.75-0.001-9": {
+      "diameter": 21,
+      "type": "a",
+      "modularity": 0.331591268633848
+    }
+  },
+  "RandomPartition": {
+    "5-5-0.8-0.05-2": {
+      "modularity": 0.2277091906721537,
+      "node": 25,
+      "edges": 54,
+      "type": "c"
+    },
+    "10-5-0.85-0.01-4": {
+      "modularity": 0.2863059013661271,
+      "node": 50,
+      "edges": 199,
+      "type": "b"
+    },
+    "5-5-0.8-0.05-3": {
+      "modularity": 0.3878604485582057,
+      "node": 25,
+      "edges": 53,
+      "type": "a",
+      "biko": "-"
+    },
+    "5-5-0.8-0.05-4": {
+      "modularity": 0.2721893491124261,
+      "node": 25,
+      "edges": 52,
+      "type": "b"
+    },
+    "10-5-0.85-0.01-3": {
+      "modularity": 0.3792713973251103,
+      "node": 40,
+      "edges": 167,
+      "type": "a"
+    },
+    "10-5-0.85-0.01-2": {
+      "modularity": 0.3155145746579417,
+      "node": 50,
+      "edges": 205,
+      "type": "b"
+    },
+    "10-5-0.8-0.01-1": {
+      "modularity": 0.31489797002869585,
+      "node": 50,
+      "edges": 194,
+      "type": "b"
+    },
+    "10-5-0.8-0.01-2": {
+      "modularity": 0.3277317554240631,
+      "node": 50,
+      "edges": 195,
+      "type": "c-",
+      "biko": "対象外でよさそう..."
+    },
+    "10-5-0.85-0.01-1": {
+      "modularity": 0.32637805994901115,
+      "node": 50,
+      "edges": 201,
+      "type": "a"
+    },
+    "10-5-0.85-0.01-0": {
+      "modularity": 0.48740160594913173,
+      "node": 40,
+      "edges": 159,
+      "type": "a",
+      "biko": "-"
+    },
+    "5-5-0.8-0.05-0": {
+      "modularity": 0.3182882414151924,
+      "node": 25,
+      "edges": 62,
+      "type": "b"
+    },
+    "10-5-0.8-0.01-4": {
+      "modularity": 0.32291305353220023,
+      "node": 50,
+      "edges": 186,
+      "type": "a"
+    },
+    "5-5-0.8-0.05-1": {
+      "modularity": 0.3600925596297614,
+      "node": 25,
+      "edges": 53,
+      "type": "b",
+      "biko": "-"
+    }
+  }
+}
