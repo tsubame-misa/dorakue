@@ -1,5 +1,6 @@
 import argparse
 import glob
+import os
 import sys
 from pathlib import Path
 
@@ -27,16 +28,21 @@ def main():
     parser = argparse.ArgumentParser()  # parserを定義
 
     # 受け取る引数を追加する
-    parser.add_argument("graph_file")  # 必須の引数を追加
     parser.add_argument("log_file_name")
-    parser.add_argument("--weigthing", default=False)
+    parser.add_argument("--weighting", action="store_true")
     parser.add_argument("--loop", default=20)
-
     args = parser.parse_args()  # 引数を解析
 
-    files = glob.glob(args.graph_file + "/*")
-
-    golden_section_search(files, args.log_file_name, args.weigthing, int(args.loop))
+    files = {
+        "./graphSet0920/networkx/*",
+        "./graphSet0920/doughNetGraph/default/*",
+        "./graphSet0920/doughNetGraph0920/*",
+        "./graphSet0920/randomPartitionNetwork/*",
+        "./graphSet0920/randomPartitionNetwork0920/*",
+        "./graphSet0920/suiteSparse/*",
+        "./graphSet0920/suiteSparse0920/*",
+    }
+    golden_section_search(files, args.log_file_name, args.weighting, int(args.loop))
 
 
 def golden_section_search(files, log_file_name, weigthing, loop):
@@ -52,6 +58,8 @@ def golden_section_search(files, log_file_name, weigthing, loop):
     log.create_log_folder()
 
     for g in sorted_graphs:
+        if os.path.isfile(log_file_name + "/log/" + g["name"] + "-all-.json"):
+            continue
         print(
             g["name"], len(g["graph"].nodes), len(g["graph"].edges), "-----------------"
         )

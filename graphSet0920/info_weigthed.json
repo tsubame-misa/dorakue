@@ -129,9 +129,7 @@
     "cage4": { "diameter": 2, "type": "c" },
     "micromass_10NN": { "diameter": 8, "type": "b" },
     "G44": { "diameter": 4, "type": "b" },
-
     "Ecoli_10NN": { "diameter": 9, "type": "a" },
-
     "spaceShuttleEntry_1": { "diameter": 4, "type": "a" },
     "ex21": { "diameter": 9, "type": "a" },
     "dwt_209": { "diameter": 12, "type": "a" },
@@ -154,7 +152,6 @@
     "mesh2em5": { "diameter": 17, "type": "a" },
     "Vehicle_10NN": { "diameter": 31, "type": "a" },
     "G21": { "diameter": 5, "type": "b" },
-
     "Trefethen_20b": { "diameter": 3, "type": "c" },
     "tumorAntiAngiogenesis_2": { "diameter": 4, "type": "a" },
     "G7": { "diameter": 3, "type": "b" },
@@ -165,11 +162,20 @@
     "mycielskian8": { "diameter": 2, "type": "b" },
     "lshp_577": { "diameter": 36, "type": "a" },
     "G11": { "diameter": 54, "type": "b" },
-
     "cdde1": { "diameter": 60, "type": "a" },
     "dwt_918": { "diameter": 42, "type": "a" },
     "mycielskian5": { "diameter": 2, "type": "b" },
     "breasttissue_10NN": { "diameter": 4, "type": "b" }
+  },
+  "SuiteSparseMatrix2": {
+    "can_161": { "type": "c" },
+    "Trefethen_20": { "type": "b" },
+    "can_73": { "type": "b" },
+    "can_96": { "type": "c" },
+    "Trefethen_150": { "type": "b" },
+    "ex5": { "type": "a" },
+    "mycielskian7": { "type": "b" },
+    "cat_ears_2_1": { "type": "b" }
   },
   "RandomPartition2": {
     "10-30-0.75-0.001-7": {
@@ -272,12 +278,6 @@
       "type": "a",
       "biko": "-"
     },
-    "5-5-0.8-0.05-0": {
-      "modularity": 0.3182882414151924,
-      "node": 25,
-      "edges": 62,
-      "type": "b"
-    },
     "10-5-0.8-0.01-4": {
       "modularity": 0.32291305353220023,
       "node": 50,
@@ -290,6 +290,12 @@
       "edges": 53,
       "type": "b",
       "biko": "-"
+    },
+    "random-10-5-1": {
+      "modularity": 0.3153122242917362,
+      "node": 50,
+      "edges": 202,
+      "type": "b"
     }
   }
 }
