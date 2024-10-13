@@ -1,5 +1,4 @@
 import collections
-import csv
 import glob
 import math
 import os
@@ -35,16 +34,141 @@ class Weighting:
         return (len(u_set | v_set) - len(u_set & v_set)) / self.size
 
 
-def get_avg_metrics(data):
+def torus_dist(u, v, size):
+    x_list = [v[0] - size, v[0], v[0] + size]
+    y_list = [v[1] - size, v[1], v[1] + size]
+
+    best_pos = [v[0], v[1]]
+    _dist = float("inf")
+
+    for x in x_list:
+        for y in y_list:
+            ax = u[0] - x
+            ay = u[1] - y
+            adist = (ax**2 + ay**2) ** 0.5
+            if _dist > adist:
+                best_pos[0] = ax
+                best_pos[1] = ay
+                _dist = adist
+
+    return _dist
+
+
+def calc_gabiel_property(pos, graph):
+    gp = 0
+    for i, j in graph.edges:
+        for v in graph.nodes:
+            if i == v or j == v:
+                continue
+            pos_i = pos[str(i)]
+            pos_j = pos[str(j)]
+            pos_v = pos[str(v)]
+            r_ij = math.hypot(pos_i[0] - pos_j[0], pos_i[1] - pos_j[1]) / 2
+            c_ij = [(pos_i[0] + pos_j[0]) / 2, (pos_i[1] + pos_j[1]) / 2]
+            d = r_ij - math.hypot(pos_v[0] - c_ij[0], pos_v[1] - c_ij[1])
+            if d > 0:
+                # 円の内側にノードがあるのでペナルティ
+                gp += max(0, d**2)
+            # gp += max(0, d**2)
+
+    return gp
+
+
+def neighborhood_preservation(pos, graph):
+    dist = [[[float("inf"), i] for i in range(len(pos))] for j in range(len(pos))]
+    node_name = [str(k) for k in graph.nodes.keys()]
+    for i in range(len(pos) - 1):
+        for j in range(i + 1, len(pos)):
+            pos_i = pos[node_name[i]]
+            pos_j = pos[node_name[j]]
+            d = math.hypot(pos_i[0] - pos_j[0], pos_i[1] - pos_j[1])
+            dist[i][j][0] = d
+            dist[j][i][0] = d
+
+    np = 0
+    for v in graph.nodes:
+        v_index = node_name.index(str(v))
+        degree = graph.degree(v)
+        sorted_d = sorted(dist[v_index], key=lambda x: x[0])
+        knn = set([i for value, i in sorted_d[:degree]])
+        rinsetu = set(nx.all_neighbors(graph, v))
+        jaccard = len(knn & rinsetu) / len(knn | rinsetu)
+
+        np += jaccard
+    np /= len(graph.nodes)
+    return np
+
+
+def calc_edge_length_variance(pos, original_graph, multiple_num, weigthing=False):
+    graph = eg.Graph()
+    indices = {}
+    for u in original_graph.nodes:
+        indices[u] = graph.add_node(u)
+    for u, v in original_graph.edges:
+        graph.add_edge(indices[u], indices[v], (u, v))
+
+    if weigthing:
+        d = eg.all_sources_dijkstra(graph, Weighting(graph, 1))
+    else:
+        d = eg.all_sources_dijkstra(graph, lambda _: 1)
+
+    diameter = max(
+        d.get(u, v) for u in graph.node_indices() for v in graph.node_indices()
+    )
+
+    size = diameter * multiple_num
+
+    dist_array = []
+    for i, j in original_graph.edges:
+        pos_i = pos[str(i)]
+        pos_j = pos[str(j)]
+        # torus なら torus上の距離でやらないといけない
+        d = torus_dist(pos_i, pos_j, size)
+        # d = math.hypot(pos_i[0] - pos_j[0], pos_i[1] - pos_j[1])
+        dist_array.append(d)
+    d_avg = sum(dist_array) / len(original_graph.edges)
+    elv = 0
+    for d in dist_array:
+        elv += (d - d_avg) ** 2
+    return elv / (len(original_graph.edges))
+
+
+def calc_minimum_angle(pos, graph):
+    # for v in graph.nodes:
+    #     neighbors = nx.all_neighbors(graph, v)
+    # print(neighbors)
+    # ideal_theta = 360 / len(neighbors)
+    # exit()
+    return
+
+
+def get_avg_metrics(data, graph, rename=False, weigthing=False):
     stress = []
     ec = []
     iel = []
     cam = []
     nr = []
+    elv = []
+    gp = []
+    np = []
+    ma = []
+
+    # print(data)
+    # exit()
 
     for d in data:
+        # _np = neighborhood_preservation(d["pos"], graph)
+        # np.append(_np)
+        # _gp = calc_gabiel_property(d["pos"], graph)
+        # gp.append(_gp)
+        # _elv = calc_edge_length_variance(
+        #     d["pos"], graph, d["multiple_num"], weigthing
+        # )
+        # elv.append(_elv)
+        # _ma = calc_minimum_angle(d["pos"], graph)
+        # ma.append(_ma)
         stress.append(d["stress"])
-        ec.append(d["edge_crossings"] + 1)
+        ec.append(d["edge_crossings"])
         iel.append(d["ideal_edge_lengths"])
         cam.append(d["crossing_angle_maximization"])
         nr.append(d["node_resolution"])
@@ -56,6 +180,28 @@ def get_avg_metrics(data):
         "iel": sum(iel) / n,
         "cam": sum(cam) / n,
         "nr": sum(nr) / n,
+        # "gp": sum(gp) / n,
+        # "np": sum(np) / n,
+        # "elv": sum(elv) / n,
+    }
+    return obj
+
+
+def get_median_data_metrics(data):
+    stress = []
+    n = len(data)
+    for d in data:
+        stress.append(d["stress"])
+
+    sorted_stress = sorted(stress)
+    best_idx = stress.index(sorted_stress[n // 2])
+
+    obj = {
+        "stress": data[best_idx]["stress"],
+        "ec": data[best_idx]["edge_crossings"],
+        "iel": data[best_idx]["ideal_edge_lengths"],
+        "cam": data[best_idx]["crossing_angle_maximization"],
+        "nr": data[best_idx]["node_resolution"],
     }
     return obj
 
@@ -80,53 +226,6 @@ def get_median_data_metrics(data):
     sorted_cam = sorted(cam)
     sorted_nr = sorted(nr)
 
-    # best_idx = stress.index(sorted_stress[n // 2])
-    # obj = {
-    #     "stress": data[best_idx]["stress"],
-    #     "ec": data[best_idx]["edge_crossings"],
-    #     "iel": data[best_idx]["ideal_edge_lengths"],
-    #     "cam": data[best_idx]["crossing_angle_maximization"],
-    #     "nr": data[best_idx]["node_resolution"],
-    # }
-    obj = {
-        "stress": sorted_stress[n // 2],
-        "ec": sorted_ec[n // 2],
-        "iel": sorted_iel[n // 2],
-        "cam": sorted_cam[n // 2],
-        "nr": sorted_nr[n // 2],
-    }
-    return obj
-
-
-def get_median_metrics(data, rename=False):
-    stress = []
-    ec = []
-    iel = []
-    cam = []
-    nr = []
-
-    if rename == "True":
-        for d in data:
-            stress.append(d["stress"])
-            ec.append(d["edge_crossings"])
-            iel.append(d["ideal_edge_lengths"])
-            cam.append(d["crossing_angle_maximization"])
-            nr.append(d["node_resolution"])
-    else:
-        for d in data:
-            stress.append(d["stress"])
-            ec.append(d["edge_crossings"])
-            iel.append(d["edge_length_vaiance"])
-            cam.append(d["minimum_angle"])
-            nr.append(d["node_resolution"])
-
-    sorted_stress = sorted(stress)
-    sorted_ec = sorted(ec)
-    sorted_iel = sorted(iel)
-    sorted_cam = sorted(cam)
-    sorted_nr = sorted(nr)
-
-    n = len(data)
     obj = {
         "stress": sorted_stress[n // 2],
         "ec": sorted_ec[n // 2],
@@ -152,8 +251,6 @@ def get_rate(chen, optimal, name="name", _type="-"):
     obj = dict()
     flg = False
     for key in chen.keys():
-        # if key == "iel":
-        #     continue
         if optimal[key] == 0:
             if chen[key] == 0:
                 obj[key] = 1
@@ -180,21 +277,27 @@ def get_rate(chen, optimal, name="name", _type="-"):
         print(name, _type, obj)
         print("------------------")
 
+    ## CSV
+    # print(
+    #     name,
+    #     ",",
+    #     _type,
+    #     ",",
+    #     obj["stress"],
+    #     ",",
+    #     obj["edge_crossings"],
+    #     ",",
+    #     obj["ideal_edge_lengths"],
+    #     ",",
+    #     obj["crossing_angle_maximization"],
+    #     ",",
+    #     obj["node_resolution"],
+    #     ",",
+    #     obj["gp"],
+    #     # ",",
+    #     # obj["np"],
+    # )
     return obj
-
-
-def download_csv(data):
-    with open("weigthing_uniform.csv", mode="w", newline="") as file:
-        # 辞書のキーをフィールド名として使用
-        fieldnames = data[0].keys()  # ["name", "age", "city"]
-
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-
-        # ヘッダーを書き込み
-        writer.writeheader()
-
-        # データ行を書き込み
-        writer.writerows(data)
 
 
 def show_box_plot(data, title, detail=False, fliers=False):
@@ -214,74 +317,17 @@ def show_box_plot(data, title, detail=False, fliers=False):
             plt.ylabel("rate (chen/optimal)")
             plt.axhline(y=1.0, color="red")
             plt.axhline(y=0.9, color="blue")
-            plt.axhline(y=1.1, color="blue")
             plt.show()
 
     # ボックスプロットの作成
     plt.figure(figsize=(10, 6))
-    sns.boxplot(x="Key", y="Value", data=df_melted, showfliers=fliers, color="white")
+    sns.boxplot(x="Key", y="Value", data=df_melted, color="white", showfliers=fliers)
     plt.title(title)
     plt.ylabel("rate (chen/optimal)")
     plt.axhline(y=1.0, color="blue", ls="--")
+    plt.axhline(y=0, color="white", ls="--")
     # plt.axhline(y=0.9, color="blue")
-    # plt.axhline(y=1.1, color="blue")
-    plt.ylim(bottom=0)
     plt.show()
-
-
-## これだと差が出ないのでダメ
-def getCompareBoxPlot(data):
-    filteredData = {
-        "iel": {"normal": [], "weigthing": []},
-        "cam": {"normal": [], "weigthing": []},
-        "nr": {"normal": [], "weigthing": []},
-    }
-
-    for d in data.values():
-        for edge_type in d.keys():
-            if not (edge_type == "normal" or edge_type == "weigthing"):
-                continue
-            for metrics in d[edge_type].keys():
-                if metrics in filteredData:
-                    filteredData[metrics][edge_type].append(d[edge_type][metrics])
-    print("filteredData", filteredData)
-    # Create the box plots
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5), sharey=True)
-
-    def getRange(data):
-        allData = data["normal"] + data["weigthing"]
-        print((min(allData), max(allData)))
-        return (min(allData), max(allData))
-
-    # Define y-limits for each category
-    y_limits = {
-        "iel": getRange(filteredData["iel"]),
-        "cam": getRange(filteredData["cam"]),
-        "nr": getRange(filteredData["nr"]),
-    }
-
-    # Plot for each category
-    for category, values in filteredData.items():
-        plt.figure(figsize=(6, 4))  # Create a new figure for each category
-        data = []
-        for key, value in values.items():
-            for item in value:
-                data.append([key, item])
-
-        df = pd.DataFrame(data, columns=["Type", "Value"])
-
-        sns.boxplot(
-            x="Type",
-            y="Value",
-            data=df,
-            palette={"normal": "red", "weigthing": "blue"},
-            showfliers=False,
-        )
-        plt.title(f"Boxplot for {category}")
-        # plt.ylim(y_limits[category])  # Set the y-axis limit based on the category
-
-    plt.show()
-    exit()
 
 
 def list2dict(data):
@@ -317,6 +363,7 @@ def main():
     args = sys.argv
     # optimal_liner_files = glob.glob(args[1] + "/*")
 
+    # TODO: 平均データでやる(現状1つ)
     # TODO: 平均データでやる(現状5つ)
     normal_files = [
         "./journal/data/liner/networkx_5/log/*",
@@ -354,15 +401,10 @@ def main():
         # _graph_info = json.load(f)
         _graph_info = [g for g in json.load(f).values()]
 
-    # with open("./graphSet/chen_weighting_cell_size.json") as f:
-    with open("./graphSet/chen_weighting_cell_size_median.json") as f:
-        chen_cell_size_info = json.load(f)
-
     graph_info = list2dict(_graph_info)
     results = {}
 
-    chen_size_dict = {}
-    csv_data = []
+    optimal_size_dict = {}
 
     for files_name in weighting_files:
         files = glob.glob(files_name)
@@ -372,62 +414,18 @@ def main():
             name = re.split("[/]", file)[-1][:-6]
             print(name)
 
-            if name in chen_cell_size_info:
-                chen_cell_size = chen_cell_size_info[name]
-            else:
-                graph = eg.Graph()
-                indices = {}
-                for u in graph_dict[name].nodes:
-                    indices[u] = graph.add_node(u)
-                for u, v in graph_dict[name].edges:
-                    graph.add_edge(indices[u], indices[v], (u, v))
+            optimal_size = data["optimal_cell_size"]
 
-                d = eg.all_sources_dijkstra(graph, Weighting(graph, 1))
-                diameter = max(
-                    d.get(u, v)
-                    for u in graph.node_indices()
-                    for v in graph.node_indices()
-                )
-                d_sum = sum(
-                    [d.get(indices[u], indices[v]) for u, v in graph_dict[name].edges]
-                )
-                # どうとるかで結構変わる？変わらない？
-                # 代表値
-                # 最頻値・
-                d_avg = d_sum / len(graph_dict[name].edges)
-                # sorted_edge = sorted(
-                #     [d.get(indices[u], indices[v]) for u, v in graph_dict[name].edges]
-                # )
-                # d_median = sorted_edge[len(graph_dict[name].edges) // 2]
-                chen_cell_size = (max(diameter, 2) + d_avg) / diameter
-                # chen_cell_size = "1.0"  # , int(chen_cell_size * 100) // 100
-                digit2 = ((chen_cell_size * 10) // 1) / 10
-                # print(digit2)
-                chen_cell_size = ((chen_cell_size * 100) // 1) / 100
-                # print(chen_cell_size)
+            optimal_size_dict[name] = optimal_size
 
-                if not (str(chen_cell_size) in data["data"]):
-                    diff = chen_cell_size - digit2
-                    if diff < 0.03:
-                        chen_cell_size = digit2
-                    elif diff < 0.07:
-                        chen_cell_size = digit2 + 0.05
-                    else:
-                        chen_cell_size = digit2 + 0.1
-                    chen_cell_size = ((chen_cell_size * 100) // 1) / 100
-                    # print("re", chen_cell_size)
-
-                print("chen_cell_size", chen_cell_size)
-
-            chen_size_dict[name] = chen_cell_size
-
-            # weigthing_res = get_avg_metrics(data["data"][str(chen_cell_size)])
-            weigthing_res = get_median_data_metrics(data["data"][str(chen_cell_size)])
+            weigthing_res = get_median_data_metrics(
+                data["data"][str(optimal_size)],
+            )
             results[name] = {}
             results[name]["weigthing"] = weigthing_res
             results[name]["type"] = graph_info[name]["type"]
 
-    print(chen_size_dict)
+    print(optimal_size)
 
     for files_name in normal_files:
         files = glob.glob(files_name)
@@ -437,21 +435,17 @@ def main():
             with open(file) as f:
                 data = json.load(f)
             name = re.split("[/]", file)[-1][:-6]
-            if not name in chen_size_dict:
-                continue
+
             print(name)
-            if str(chen_size_dict[name]) in data:
-                print("beforeData", name)
-                res = get_metrics(
-                    data[str(chen_size_dict[name])]["1"]["torusSGD"],
-                    graph_dict[name],
-                )
-            else:
-                # TODO:こっちでやる
-                # res = get_avg_metrics(
-                #     data["data"][str(chen_size_dict[name])]
-                # )
-                res = get_median_data_metrics(data["data"][str(chen_size_dict[name])])
+            # TODO:こっちでやる
+            optimal_size = data["optimal_cell_size"]
+            print(name, "normal", optimal_size)
+            res = get_median_data_metrics(
+                data["data"][str(optimal_size)],
+            )
+
+            if not name in results:
+                continue
             results[name]["normal"] = res
             rate_res = get_rate(
                 results[name]["normal"],
@@ -460,14 +454,6 @@ def main():
                 results[name]["type"],
             )
             results[name]["rate"] = rate_res
-            # csv_obj = rate_res
-            # csv_obj["name"] = name
-            # csv_obj["weigthed"] = chen_size_dict[name]
-            # csv_obj["uniform"] = chen_cell_size
-            # csv_obj["type"] = graph_info[name]["type"]
-            # csv_data.append(csv_obj)
-
-    # download_csv(csv_data)
 
     """
     比率での比較結果

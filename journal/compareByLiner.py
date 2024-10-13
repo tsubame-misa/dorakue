@@ -1,4 +1,5 @@
 import collections
+import csv
 import glob
 import math
 import re
@@ -141,31 +142,14 @@ def calc_minimum_angle(pos, graph):
     return
 
 
-def get_avg_metrics(data, graph, rename=False, weigthing=False):
+def get_avg_metrics(data):
     stress = []
     ec = []
     iel = []
     cam = []
     nr = []
-    elv = []
-    gp = []
-    np = []
-    ma = []
-
-    # print(data)
-    # exit()
 
     for d in data:
-        # _np = neighborhood_preservation(d["pos"], graph)
-        # np.append(_np)
-        # _gp = calc_gabiel_property(d["pos"], graph)
-        # gp.append(_gp)
-        # _elv = calc_edge_length_variance(
-        #     d["pos"], graph, d["multiple_num"], weigthing
-        # )
-        # elv.append(_elv)
-        # _ma = calc_minimum_angle(d["pos"], graph)
-        # ma.append(_ma)
         stress.append(d["stress"])
         ec.append(d["edge_crossings"])
         iel.append(d["ideal_edge_lengths"])
@@ -179,9 +163,6 @@ def get_avg_metrics(data, graph, rename=False, weigthing=False):
         "iel": sum(iel) / n,
         "cam": sum(cam) / n,
         "nr": sum(nr) / n,
-        # "gp": sum(gp) / n,
-        # "np": sum(np) / n,
-        # "elv": sum(elv) / n,
     }
     return obj
 
@@ -214,10 +195,6 @@ def get_median_metrics(data, rename=False):
 
     if rename == "True":
         for d in data:
-            # _np = neighborhood_preservation(d["pos"], graph)
-            # np.append(_np)
-            # _gp = calc_gabiel_property(d["pos"], graph)
-            # gp.append(_gp)
             stress.append(d["stress"])
             ec.append(d["edge_crossings"])
             iel.append(d["ideal_edge_lengths"])
@@ -225,10 +202,6 @@ def get_median_metrics(data, rename=False):
             nr.append(d["node_resolution"])
     else:
         for d in data:
-            # _np = neighborhood_preservation(d["pos"], graph)
-            # np.append(_np)
-            # _gp = calc_gabiel_property(d["pos"], graph)
-            # gp.append(_gp)
             stress.append(d["stress"])
             ec.append(d["edge_crossings"])
             iel.append(d["edge_length_vaiance"])
@@ -254,7 +227,7 @@ def get_median_metrics(data, rename=False):
 
 def get_rate(chen, optimal, name="name", _type="-"):
     obj = dict()
-    flg = False
+    flg = True
     for key in chen.keys():
         if optimal[key] == 0:
             if chen[key] == 0:
@@ -268,40 +241,13 @@ def get_rate(chen, optimal, name="name", _type="-"):
                 # obj[key] = 10 * chen[key]
         else:
             obj[key] = chen[key] / optimal[key]
-        # if key == "elv":
-        #     print(name, chen[key] / optimal[key], chen[key], optimal[key])
-
-        # if key == "minimum_angle" and _type != "a" and obj[key] < 0.8:
-        #     flg = True
-        #     print("|", name, "|", obj[key], "|", chen[key], "|", optimal[key], "|")
-
-        if obj[key] < 0.1:
-            print(name, key, obj[key], chen[key], optimal[key])
+        if obj[key] < 0.75:
+            flg = True
 
     if flg:
         print(name, _type, obj)
         print("------------------")
 
-    ## CSV
-    # print(
-    #     name,
-    #     ",",
-    #     _type,
-    #     ",",
-    #     obj["stress"],
-    #     ",",
-    #     obj["edge_crossings"],
-    #     ",",
-    #     obj["ideal_edge_lengths"],
-    #     ",",
-    #     obj["crossing_angle_maximization"],
-    #     ",",
-    #     obj["node_resolution"],
-    #     ",",
-    #     obj["gp"],
-    #     # ",",
-    #     # obj["np"],
-    # )
     return obj
 
 
@@ -325,12 +271,28 @@ def show_box_plot(data, title):
 
     # ボックスプロットの作成
     plt.figure(figsize=(10, 6))
-    sns.boxplot(x="Key", y="Value", data=df_melted, showfliers=False)
+    sns.boxplot(x="Key", y="Value", data=df_melted, showfliers=False, color="white")
     plt.title(title)
     plt.ylabel("rate (chen/optimal)")
-    plt.axhline(y=1.0, color="red")
-    plt.axhline(y=0.9, color="blue")
+    plt.axhline(y=1.0, color="blue", ls="--")
+    # plt.axhline(y=0.9, color="blue", ls="--", label="rate 0.9")
+    # plt.axhline(y=1.1, color="blue", label="rate 1.1")
+    # plt.legend()
     plt.show()
+
+
+def download_csv(data):
+    with open("weigthing_random.csv", mode="w", newline="") as file:
+        # 辞書のキーをフィールド名として使用
+        fieldnames = data[0].keys()  # ["name", "age", "city"]
+
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+        # ヘッダーを書き込み
+        writer.writeheader()
+
+        # データ行を書き込み
+        writer.writerows(data)
 
 
 def list2dict(data):
@@ -340,37 +302,67 @@ def list2dict(data):
     return data_dict
 
 
+def findStopCellSize(data):
+    stress = []
+    for k, value in data.items():
+        s = []
+        for d in value:
+            s.append(d["stress"])
+        sorted_s = sorted(s)
+        stress.append([sorted_s[len(sorted_s) // 2], k])
+
+    stop_len = 5
+
+    for i in range(len(stress) - stop_len):
+        find = True
+        for j in range(stop_len):
+            if abs(stress[i][0] - stress[i + j][0]) > stress[i][0] * 0.025:
+                find = False
+                break
+        if find:
+            return stress[i][1]
+
+
 """
 chen_files, optimal_files, renamed_optimal_file = True/False, weigthing_optimal = True/False
 
 python3 journal/compareChenOptimal.py ./journal/data/chen/chen_torus_cell_size_networkx/log ./optimal_weigthing_networkx_0625/log True
-
-chen_files = [
-    "./journal/data/chen/chen_torus_cell_size_networkx/log/*",
-    "./journal/data/chen/chen_torus_cell_size_dough/log/*",
-    "./journal/data/chen/chen_torus_cell_size_random/log/*",
-    "./journal/data/chen/chen_torus_cell_size_sparse/log/*",
-    "./journal/data/chen/chen_networkx_50/log/*",
-]
-optimal_files = [
-    "./journal/data/optimal/optimal_torus_cell_size_networkx/log/*",
-    "./journal/data/optimal/optimal_torus_cell_size_dough/log/*",
-    "./journal/data/optimal/optimal_torus_cell_size_random/log/*",
-    "./journal/data/optimal/optimal_torus_cell_size_sparse/log/*",
-    "./journal/data/optimal/optimal_networkx_50/log/*",
-]
 """
 
 
 def main():
     args = sys.argv
     optimal_liner_files = glob.glob(args[1] + "/*")
+    uniform = args[2]
+
+    optimal_liner_files = [
+        # "./journal/data/weigthing_liner/networkx/log/*",
+        # "./journal/data/weigthing_liner/douh/log/*",
+        # "./journal/data/weigthing_liner/dough0920/log/*",
+        "./journal/data/weigthing_liner/random/log/*",
+        "./journal/data/weigthing_liner/random0920/log/*",
+        # "./test_liner_weighting_sparse/log/*",
+        # "./journal/data/weigthing_liner/sparse0929/log/*",
+        "./journal/data/weigthing_liner/test_random_1014/log/*",
+    ]
+
+    # optimal_liner_files = [
+    #     "./journal/data/liner/douh/log/*",
+    # "./journal/data/liner/networkx/log/*",
+    #     "./journal/data/liner/random/log/*",
+    #     # "./no_weigthing_liner_sparse/log/*",
+    #     "./graphDrawing/data/egraph/liner_egraph_sparse_20/log/*",
+    # ]
 
     graph_files = [
-        "./graphSet/networkx/*",
-        "./graphSet/doughNetGraph/default/*",
-        "./graphSet/randomPartitionNetwork /*",
-        "./graphSet/suiteSparse/*",
+        # "./graphSet0920/networkx/*",
+        # "./graphSet0920/doughNetGraph/default/*",
+        # "./graphSet0920/doughNetGraph0920/*",
+        # "./graphSet0920/randomPartitionNetwork /*",
+        "./graphSet0920/randomPartitionNetwork0920/*",
+        # "./graphSet0920/suiteSparse/*",
+        # "./graphSet0920/suiteSparse0920/*",
+        "./random_test_1014/*",
     ]
 
     graph_dict = {}
@@ -381,12 +373,21 @@ def main():
             file_name = re.split("[/]", f)[-1][:-5]
             graph_dict[file_name] = graph
 
-    with open("./graphSet/info202405_egraph.json") as f:
+    with open("./graphSet0920/info_weigthed.json") as f:
+        # with open("./graphSet/info202405_egraph.json") as f:
         # _graph_info = json.load(f)
         _graph_info = [g for g in json.load(f).values()]
 
     graph_info = list2dict(_graph_info)
+    print(graph_info)
+
+    # with open("./graphSet/chen_weighting_cell_size.json") as f:
+    with open("./graphSet0920/chen_weighting_cell_size_median.json") as f:
+        chen_cell_size_info = json.load(f)
     results = {}
+
+    chen_size_dict = {}
+    csv_data = []
 
     for files_name in optimal_liner_files:
         files = glob.glob(files_name)
@@ -396,55 +397,79 @@ def main():
             name = re.split("[/]", file)[-1][:-6]
             print(name)
 
-            graph = eg.Graph()
-            indices = {}
-            for u in graph_dict[name].nodes:
-                indices[u] = graph.add_node(u)
-            for u, v in graph_dict[name].edges:
-                graph.add_edge(indices[u], indices[v], (u, v))
+            if uniform == "True":
+                diameter = nx.diameter(graph)
+                chen_cell_size = (max(diameter, 2) + 1) / diameter
+                digit2 = ((chen_cell_size * 10) // 1) / 10
+                if not (str(chen_cell_size) in data["data"]):
+                    diff = chen_cell_size - digit2
+                    if diff < 0.03:
+                        chen_cell_size = digit2
+                    elif diff < 0.07:
+                        chen_cell_size = digit2 + 0.05
+                    else:
+                        chen_cell_size = digit2 + 0.1
+                    chen_cell_size = ((chen_cell_size * 100) // 1) / 100
+                    print("re", name, chen_cell_size)
+            elif name in chen_cell_size_info:
+                chen_cell_size = chen_cell_size_info[name]
+            else:
+                graph = eg.Graph()
+                indices = {}
+                for u in graph_dict[name].nodes:
+                    indices[u] = graph.add_node(u)
+                for u, v in graph_dict[name].edges:
+                    graph.add_edge(indices[u], indices[v], (u, v))
 
-            d = eg.all_sources_dijkstra(graph, Weighting(graph, 1))
-            diameter = max(
-                d.get(u, v) for u in graph.node_indices() for v in graph.node_indices()
-            )
-            d_sum = sum(
-                [d.get(indices[u], indices[v]) for u, v in graph_dict[name].edges]
-            )
-            # どうとるかで結構変わる？変わらない？
-            d_avg = d_sum / len(graph_dict[name].edges)
-            chen_cell_size = (max(diameter, 2) + d_avg) / diameter
-            # chen_cell_size = "1.0"  # , int(chen_cell_size * 100) // 100
-            digit2 = ((chen_cell_size * 10) // 1) / 10
-            print(digit2)
-            chen_cell_size = ((chen_cell_size * 100) // 1) / 100
-            print(chen_cell_size)
-
-            # continue
-
-            # print(chen_cell_size, data["data"].keys())
-
-            if not (str(chen_cell_size) in data["data"]):
-                diff = chen_cell_size - digit2
-                if diff < 0.03:
-                    chen_cell_size = digit2
-                elif diff < 0.07:
-                    chen_cell_size = digit2 + 0.05
-                else:
-                    chen_cell_size = digit2 + 0.1
+                d = eg.all_sources_dijkstra(graph, Weighting(graph, 1))
+                diameter = max(
+                    d.get(u, v)
+                    for u in graph.node_indices()
+                    for v in graph.node_indices()
+                )
+                edge_array = [
+                    d.get(indices[u], indices[v]) for u, v in graph_dict[name].edges
+                ]
+                d_sum = sum(edge_array)
+                # どうとるかで結構変わる？変わらない？
+                d_avg = d_sum / len(graph_dict[name].edges)
+                chen_cell_size = (max(diameter, 2) + d_avg) / diameter
+                # chen_cell_size = "1.0"  # , int(chen_cell_size * 100) // 100
+                digit2 = ((chen_cell_size * 10) // 1) / 10
+                print(digit2)
                 chen_cell_size = ((chen_cell_size * 100) // 1) / 100
-                print("re", chen_cell_size)
+                print(chen_cell_size)
+
+                if not (str(chen_cell_size) in data["data"]):
+                    diff = chen_cell_size - digit2
+                    if diff < 0.03:
+                        chen_cell_size = digit2
+                    elif diff < 0.07:
+                        chen_cell_size = digit2 + 0.05
+                    else:
+                        chen_cell_size = digit2 + 0.1
+                    chen_cell_size = ((chen_cell_size * 100) // 1) / 100
+                    print("re", chen_cell_size)
+
+            chen_size_dict[name] = chen_cell_size
+
+            if not name in graph_info:
+                graph_info[name] = {"type": "none"}
+                # print("skip", name)
+                # continue
 
             optimal_cell_size = data["optimal_cell_size"]
-            res_optimal = get_avg_metrics(
-                data["data"][str(optimal_cell_size)],
-                graph_dict[name],
-                weigthing=True,
+
+            print(chen_cell_size, optimal_cell_size)
+
+            # res_optimal = get_avg_metrics(data["data"][str(optimal_cell_size)])
+            res_optimal = get_median_metrics(
+                data["data"][str(optimal_cell_size)], "True"
             )
-            res_chen = get_avg_metrics(
-                data["data"][str(chen_cell_size)],
-                graph_dict[name],
-                weigthing=True,
-            )
+            # res_chen = get_avg_metrics(
+            #     data["data"][str(chen_cell_size)]
+            # )
+            res_chen = get_median_metrics(data["data"][str(chen_cell_size)], "True")
             results[name] = {}
             results[name]["optimal"] = res_optimal
             results[name]["chen"] = res_chen
@@ -455,17 +480,18 @@ def main():
                 name,
                 results[name]["type"],
             )
+            csv_obj = rate_res
+            csv_obj["name"] = name
+            csv_obj["chen"] = chen_cell_size
+            csv_obj["optimal"] = optimal_cell_size
+            csv_obj["type"] = graph_info[name]["type"]
+            csv_data.append(csv_obj)
             results[name]["rate"] = rate_res
 
-            # rate_res_median = get_rate(
-            #     results[name]["chen_median"],
-            #     results[name]["optimal_median"],
-            #     name,
-            #     results[name]["type"],
-            # )
-            # results[name]["rate"] = rate_res_median
-            # if results[name]["rate"]["stress"] <= 0.95:
-            #     print("stress is bad", name, results[name]["type"])
+    print("chen size dict", chen_size_dict)
+
+    download_csv(csv_data)
+    # exit()
 
     """
     比率での比較結果
@@ -483,15 +509,19 @@ def main():
         d["rate"] for d in list(filter(lambda x: x["type"] == "a", _results.values()))
     ]
 
-    show_box_plot(type_a_rate_data, "a")
+    print(type_a_rate_data)
+
+    show_box_plot(type_a_rate_data, "No-TORUS")
 
     type_b_rate_data = [
-        d["rate"]
-        for d in list(
-            filter(lambda x: x["type"] == "b" or x["type"] == "c", _results.values())
-        )
+        d["rate"] for d in list(filter(lambda x: x["type"] == "b", _results.values()))
     ]
-    show_box_plot(type_b_rate_data, "b or c")
+    show_box_plot(type_b_rate_data, "TORUS")
+
+    type_c_rate_data = [
+        d["rate"] for d in list(filter(lambda x: x["type"] == "c", _results.values()))
+    ]
+    show_box_plot(type_c_rate_data, "c")
 
     exit()
 

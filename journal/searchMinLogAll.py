@@ -1,3 +1,4 @@
+import argparse
 import glob
 import sys
 from pathlib import Path
@@ -32,15 +33,9 @@ def create_graph(graph, file_name, dir_name, multiple_num, i, weigthing):
     time = setup.get_time()
     index_time = str(i) + str(time)
     drawGraph.set_time(index_time)
-    if weigthing:
-        torus_log = egraphTorusSGD.torus_sgd(
-            graph, file_name, dir_name, multiple_num, i, index_time, weigthing=True
-        )
-    else:
-        torus_log = egraphTorusSGD.torus_sgd(
-            graph, file_name, dir_name, multiple_num, i, index_time
-        )
-
+    torus_log = egraphTorusSGD.torus_sgd(
+        graph, file_name, dir_name, multiple_num, i, index_time, weigthing=weigthing
+    )
     return torus_log
 
 
@@ -66,13 +61,13 @@ def save_graph(data, x, optimal_cell, chen_cell_size, dir_name, name, metrics):
     plt.savefig(img_path)
 
 
-def get_stress_by_len(graph, file_name, dir_name, weigthing):
+def get_stress_by_len(graph, file_name, dir_name, weigthing, loop):
     data = []
     all_log = {}
     for i in range(1, COUNT + 1):
         initGraph.clear()
         n = math.floor(i * 0.05 * 100) / 100
-        for j in range(LOOP):
+        for j in range(loop):
             print(file_name, n)
             torus_log = create_graph(graph, file_name, dir_name, n, j, weigthing)
             data.append([n, torus_log["stress"]])
@@ -94,11 +89,25 @@ graph_file_dir_path, log_file_path, weigthing=True/False
 
 
 def main():
-    args = sys.argv
-    files = glob.glob("./" + args[1] + "/*")
-    log_file_name = args[2]
-    weigthing = args[3]
+    parser = argparse.ArgumentParser()
 
+    parser.add_argument("graph_file_name")
+    parser.add_argument("log_file_name")
+    parser.add_argument("--weigthing", action="store_true")
+    parser.add_argument("--loop", default=20, type=int)
+    parser.add_argument("--file_only", action="store_true")
+
+    args = parser.parse_args()
+
+    if args.file_only:
+        files = [args.graph_file_name]
+    else:
+        files = glob.glob("./" + args.graph_file_name + "/*")
+
+    searach_min_log_all(files, args.log_file_name, args.weigthing, args.loop)
+
+
+def searach_min_log_all(files, log_file_name, weigthing, loop):
     graphs = []
     for filepath in files:
         graph = json_graph.node_link_graph(json.load(open(filepath)))
@@ -114,8 +123,10 @@ def main():
     for g in sorted_graphs:
         if os.path.isfile(log_file_name + "/log/" + g["name"] + "-.json"):
             continue
-        print(g["name"], "size", len(g["graph"].nodes))
-        all_log = get_stress_by_len(g["graph"], g["name"], log_file_name, weigthing)
+        print(g["name"], "size", len(g["graph"].nodes), "weighting", weigthing)
+        all_log = get_stress_by_len(
+            g["graph"], g["name"], log_file_name, weigthing, loop
+        )
         optimal_cell_size = create_metrics_graph(
             all_log, g["graph"], log_file_name, g["name"]
         )

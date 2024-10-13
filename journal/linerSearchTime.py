@@ -17,13 +17,9 @@ from networkx.readwrite import json_graph
 import json
 import setup
 from algorithm.SGDBase import egraphTorusSGD
-from common import drawGraph, log
+from common import log
 import re
-import matplotlib.pyplot as plt
 import os
-import math
-from common import log, initGraph
-import networkx as nx
 
 
 def list2dict(data):

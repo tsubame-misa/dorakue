@@ -16,7 +16,11 @@ import time
 from algorithm.SGDBase.egraphCellOptimazation import cell_optimazation
 
 """
-黄金分割探索をする（+実行時間計測)
+黄金分割探索の実行時間を測る
+files = ./graphSet/networkx
+files = ./graphSet/doughNetGraph/default
+files = ./graphSet/randomPartitionNetwork 
+files = ./graphSet/suiteSparse
 """
 
 
@@ -24,32 +28,25 @@ def main():
     parser = argparse.ArgumentParser()  # parserを定義
 
     # 受け取る引数を追加する
+    parser.add_argument("graph_file")  # 必須の引数を追加
     parser.add_argument("log_file_name")
     parser.add_argument("--weighting", action="store_true")
     parser.add_argument("--loop", default=20)
+
     args = parser.parse_args()  # 引数を解析
 
-    _dir = {
-        "./graphSet0920/networkx/*",
-        "./graphSet0920/doughNetGraph/default/*",
-        "./graphSet0920/doughNetGraph0920/*",
-        "./graphSet0920/randomPartitionNetwork/*",
-        "./graphSet0920/randomPartitionNetwork0920/*",
-        "./graphSet0920/suiteSparse/*",
-        "./graphSet0920/suiteSparse0920/*",
-    }
-    golden_section_search(_dir, args.log_file_name, args.weighting, int(args.loop))
+    files = glob.glob(args.graph_file + "/*")
+
+    golden_section_search(files, args.log_file_name, args.weighting, int(args.loop))
 
 
-def golden_section_search(dir, log_file_name, weigthing, loop):
+def golden_section_search(files, log_file_name, weigthing, loop):
     graphs = []
-    for d in dir:
-        files = glob.glob(d)
-        for filepath in files:
-            graph = json_graph.node_link_graph(json.load(open(filepath)))
-            file_name = re.split("[/]", filepath)[-1][:-5]
-            obj = {"name": file_name, "graph": graph}
-            graphs.append(obj)
+    for filepath in files:
+        graph = json_graph.node_link_graph(json.load(open(filepath)))
+        file_name = re.split("[/]", filepath)[-1][:-5]
+        obj = {"name": file_name, "graph": graph}
+        graphs.append(obj)
     sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes))
 
     setup.set_dir_name(log_file_name)

@@ -26,11 +26,8 @@ def generateGraph(node, name, kind, node2):
             beta=0.95,
             gamma=0.025,
             delta_in=2.0,
-            delta_out=2.0,
+            delta_out=3.0,
         )
-        # G = nx.scale_free_graph(
-        #     node,
-        # )
     elif kind == "1":
         print("small")
         G = nx.watts_strogatz_graph(node, 5, 0.35)
@@ -39,7 +36,7 @@ def generateGraph(node, name, kind, node2):
     elif kind == "3":
         G = nx.complete_bipartite_graph(node, node2)
     elif kind == "4":
-        G = nx.random_partition_graph([node] * 10, p_in=0.9, p_out=0.02)
+        G = nx.random_partition_graph([node] * 5, p_in=0.8, p_out=0.02)
 
     undirected_G = G.to_undirected()
     largest_cc = max(nx.connected_components(undirected_G), key=len)

@@ -38,6 +38,9 @@ graph_file, cell_size_file, log_file_name, weigthing=True/False
 #     "./graphDrawing/data/egraph/liner_egraph_random_20/log/save_best_len_log/*"
 # )
 
+journal/optimaizeTorusLayout.py ./graphSet/doughNetGraph/default ./test_liner_weigthing_douh/log optimal_weigthing_dough_0625 --weigthing True
+python3 journal/optimaizeTorusLayout.py ./graphSet/randomPartitionNetwork\   ./test_liner_weigthing_random/log optimal_weigthing_random --weigthing True
+
 """
 
 
@@ -84,8 +87,8 @@ def optimizeTorusLayout(files, cell_size_files, log_file_name, weigthing, loop):
 
     for g in sorted_graphs:
         print(g["name"], "------------------------------")
-        # if os.path.isfile(log_file_name + "/log/" + g["name"] + "-all-.json"):
-        #     continue
+        if os.path.isfile(log_file_name + "/log/" + g["name"] + "-all-.json"):
+            continue
         data = []
         for i in range(loop):
             print(g["name"], i)
