@@ -90,8 +90,8 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
         d.get(u, v) for u in graph.node_indices() for v in graph.node_indices()
     )
 
-    gss_iterations = 8
-    sgd_iterations = 5
+    gss_iterations = 15
+    sgd_iterations = 10
     eps = 0.1
     t_max = gss_iterations * sgd_iterations
 
@@ -146,16 +146,17 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
     scheduler = Scheduler(1 / w_min, eps / w_max, t_max)
     eta = [scheduler(t) for t in range(t_max)]
 
-    # 0-3.5が丁度良さそう
-    low = 0
-    high = 3.5
-    lr_diff = high - low
-    x = (3 - math.sqrt(5)) / 2 * lr_diff
-
     if weigthing:
+        low = 0
+        high = 4
         distance = eg.all_sources_dijkstra(graph, Weighting(graph))
     else:
+        low = 0
+        high = 3.5
         distance = eg.all_sources_dijkstra(graph, lambda _: 1)
+
+    lr_diff = high - low
+    x = (3 - math.sqrt(5)) / 2 * lr_diff
 
     m1 = x
     low_drawing = eg.DrawingTorus2d.initial_placement(graph)
@@ -310,7 +311,7 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
         dir,
     )
 
-    print("size", size)
+    # print("size", size)
 
     ec = eg.crossing_edges(graph, drawing)
     log = {
