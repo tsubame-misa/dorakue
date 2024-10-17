@@ -138,7 +138,6 @@
     "cage4": { "diameter": 2, "type": "c" },
     "Ecoli_10NN": { "diameter": 9, "type": "a" },
     "spaceShuttleEntry_1": { "diameter": 4, "type": "a" },
-    "ex21": { "diameter": 9, "type": "a" },
     "dwt_209": { "diameter": 12, "type": "a" },
     "iris_dataset_30NN": { "diameter": 7, "type": "a" },
     "can_445": { "diameter": 12, "type": "b", "score": 0.6 },
@@ -148,7 +147,6 @@
     "plat362": { "diameter": 16, "type": "a" },
     "mesh2em5": { "diameter": 17, "type": "a" },
     "Trefethen_20b": { "diameter": 3, "type": "c" },
-    "hangGlider_1": { "diameter": 4, "type": "a" },
     "ash292": { "diameter": 25, "type": "a" },
     "lshp_577": { "diameter": 36, "type": "a" },
     "mycielskian5": { "diameter": 2, "type": "b", "score": 0.4 }
@@ -162,7 +160,6 @@
     "mesh1em1": { "diameter": 4, "type": "c", "score": 0.55 },
     "sphere2": { "diameter": 4, "type": "c" },
     "rgg010": { "diameter": 4, "type": "b" },
-    "pores_1": { "diameter": 4, "type": "b", "score": 0.2 },
     "bcspwr02": { "diameter": 4, "type": "a" },
     "can_62": { "diameter": 6, "type": "a" },
     "rw136": { "diameter": 4, "type": "a" },
@@ -171,7 +168,11 @@
     "Stranke94": { "diameter": 4, "type": "b" },
     "rajat11": { "diameter": 4, "type": "b", "score": 0.55 },
     "sphere3": { "diameter": 4, "type": "c" },
-    "Tina_AskCal": { "diameter": 4, "type": "a" }
+    "Tina_AskCal": { "diameter": 4, "type": "a" },
+    "nnc261": { "diameter": 36, "type": "a" },
+    "can_24": { "diameter": 36, "type": "a" },
+    "can_445": { "type": "b", "score": 0.6 },
+    "mesh1e1": { "type": "c", "score": 0.55 }
   },
   "RandomPartition2": {
     "10-30-0.8-0.0001-6": {
