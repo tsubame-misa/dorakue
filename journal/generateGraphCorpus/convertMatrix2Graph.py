@@ -22,7 +22,7 @@ def generateGraph(folder, log_folder):
         m = scio.mmread(path)
         # 正方行列だけ扱う
         if m.shape[0] != m.shape[1]:
-            exit()
+            continue
         name, ext = os.path.splitext(os.path.basename(path))
 
         G = nx.Graph()
@@ -51,8 +51,6 @@ def generateGraph(folder, log_folder):
             "links": [{"source": u, "target": v} for u, v in edges],
             "nodes": [{"id": i} for i in range(m.shape[0])],
         }
-
-        print(n_data)
 
         with open(log_folder + "/" + name + ".json", "w") as f:
             json.dump(n_data, f)
