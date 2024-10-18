@@ -75,7 +75,8 @@
   },
   "Realworld": {
     "04": { "modularity": -0.006172839506172853, "diameter": 3, "type": "a" },
-    "18": { "modularity": -0.0034722222222221604, "diameter": 3, "type": "b" }
+    "18": { "modularity": -0.0034722222222221604, "diameter": 3, "type": "b" },
+    "01": { "modularity": -0.006172839506172853, "diameter": 3, "type": "a" }
   },
   "Realworld2": {
     "samll_world_11_1": {
@@ -127,7 +128,12 @@
     },
     "scale_free_8_5": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
     "small_wold_11_5": { "modularity": -0.0078125, "diameter": 2, "type": "b" },
-    "scall_free_11_9": { "modularity": -0.0078125, "diameter": 2, "type": "b" }
+    "scall_free_11_9": { "modularity": -0.0078125, "diameter": 2, "type": "b" },
+    "samll_world_15_2": {
+      "modularity": -0.0078125,
+      "diameter": 2,
+      "type": "b"
+    }
   },
   "SuiteSparseMatrix": {
     "mesh2e1": { "diameter": 17, "type": "a" },
@@ -171,7 +177,6 @@
     "Tina_AskCal": { "diameter": 4, "type": "a" },
     "nnc261": { "diameter": 36, "type": "a" },
     "can_24": { "diameter": 36, "type": "a" },
-    "can_445": { "type": "b", "score": 0.6 },
     "mesh1e1": { "type": "c", "score": 0.55 }
   },
   "RandomPartition2": {
