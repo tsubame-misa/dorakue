@@ -129,11 +129,13 @@
     "scale_free_8_5": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
     "small_wold_11_5": { "modularity": -0.0078125, "diameter": 2, "type": "b" },
     "scall_free_11_9": { "modularity": -0.0078125, "diameter": 2, "type": "b" },
-    "samll_world_15_2": {
+    "samll_world_8_1": {
       "modularity": -0.0078125,
       "diameter": 2,
       "type": "b"
-    }
+    },
+    "scale_free_11_4": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
+    "scall_free_15_1": { "modularity": -0.0078125, "diameter": 2, "type": "a" }
   },
   "SuiteSparseMatrix": {
     "mesh2e1": { "diameter": 17, "type": "a" },
