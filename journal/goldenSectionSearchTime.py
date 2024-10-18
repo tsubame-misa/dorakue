@@ -29,22 +29,13 @@ def main():
     parser.add_argument("--loop", default=20)
     args = parser.parse_args()  # 引数を解析
 
-    _dir = {
-        "./graphSet0920/networkx/*",
-        "./graphSet0920/doughNetGraph/default/*",
-        "./graphSet0920/doughNetGraph0920/*",
-        "./graphSet0920/randomPartitionNetwork/*",
-        "./graphSet0920/randomPartitionNetwork0920/*",
-        "./graphSet0920/suiteSparse/*",
-        "./graphSet0920/suiteSparse0920/*",
-    }
-    golden_section_search(_dir, args.log_file_name, args.weighting, int(args.loop))
+    golden_section_search(args.log_file_name, args.weighting, int(args.loop))
 
 
-def golden_section_search(dir, log_file_name, weigthing, loop):
+def golden_section_search(log_file_name, weigthing, loop):
     graphs = []
-    for d in dir:
-        files = glob.glob(d)
+    for d in glob.glob("./graphSet0920/*"):
+        files = glob.glob(d + "/*")
         for filepath in files:
             graph = json_graph.node_link_graph(json.load(open(filepath)))
             file_name = re.split("[/]", filepath)[-1][:-5]

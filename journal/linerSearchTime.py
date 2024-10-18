@@ -22,13 +22,6 @@ import re
 import os
 
 
-def list2dict(data):
-    data_dict = {}
-    for d in data:
-        data_dict.update(d)
-    return data_dict
-
-
 def get_time_avg(data):
     times = [d["time"] for d in data]
     return sum(times) / len(times)
@@ -37,35 +30,20 @@ def get_time_avg(data):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("log_file_name")
+    parser.add_argument("--weighting", action="store_true")
     parser.add_argument("--loop", default=20)
     args = parser.parse_args()
     log_file_name = args.log_file_name
     loop = int(args.loop)
 
-    files = {
-        "./graphSet0920/networkx/*",
-        "./graphSet0920/doughNetGraph/default/*",
-        "./graphSet0920/doughNetGraph0920/*",
-        "./graphSet0920/randomPartitionNetwork/*",
-        "./graphSet0920/randomPartitionNetwork0920/*",
-        "./graphSet0920/suiteSparse/*",
-        "./graphSet0920/suiteSparse0920/*",
-    }
-
-    with open("./graphSet0920/info_weigthed.json") as f:
-        _graph_info = [g for g in json.load(f).values()]
-    graph_info = list2dict(_graph_info)
-
     with open("./graphSet0920/chen_weighting_cell_size_median.json") as f:
         chen_cell_size_info = json.load(f)
 
     graphs = []
-    for f in files:
-        files = glob.glob(f)
+    for f in glob.glob("./graphSet0920/*"):
+        files = glob.glob(f + "/*")
         for f in files:
             file_name = re.split("[/]", f)[-1][:-5]
-            if not file_name in graph_info:
-                continue
             graph = json_graph.node_link_graph(json.load(open(f)))
             obj = {"name": file_name, "graph": graph}
             graphs.append(obj)
