@@ -120,21 +120,9 @@
     "scale_free_15_5": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
     "scall_free_15_6": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
     "scall_free_15_8": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
-    "scale_free_8_4": {
-      "modularity": -0.0078125,
-      "diameter": 2,
-      "type": "a",
-      "biko": "末尾がおかしい"
-    },
     "scale_free_8_5": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
     "small_wold_11_5": { "modularity": -0.0078125, "diameter": 2, "type": "b" },
     "scall_free_11_9": { "modularity": -0.0078125, "diameter": 2, "type": "b" },
-    "samll_world_8_1": {
-      "modularity": -0.0078125,
-      "diameter": 2,
-      "type": "b"
-    },
-    "scale_free_11_4": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
     "scall_free_15_1": { "modularity": -0.0078125, "diameter": 2, "type": "a" }
   },
   "SuiteSparseMatrix": {
