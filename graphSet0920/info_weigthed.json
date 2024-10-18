@@ -110,10 +110,6 @@
       "diameter": 2,
       "type": "b"
     },
-    "scale_free_8_23": {
-      "diameter": 2,
-      "type": "a"
-    },
     "scale_free_11_3": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
     "scall_free_11_7": { "modularity": -1, "diameter": 2, "type": "a" },
     "scale_free_15_4": { "modularity": -0.0078125, "diameter": 2, "type": "a" },
