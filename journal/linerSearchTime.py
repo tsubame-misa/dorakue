@@ -48,7 +48,7 @@ def main():
             obj = {"name": file_name, "graph": graph}
             graphs.append(obj)
 
-    sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes))
+    sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes), reverse=True)
 
     for g in sorted_graphs:
         if os.path.isfile(log_file_name + "/log/" + g["name"] + "-all-.json"):
@@ -68,8 +68,8 @@ def main():
             index_time = str(i) + str(_time)
             start = time.perf_counter()  # 計測開始
             _log = egraphTorusSGD.torus_sgd(
-                graph,
-                file_name,
+                g["graph"],
+                g["name"],
                 log_file_name,
                 chen_cell_size_info[g["name"]],
                 weigthing=True,

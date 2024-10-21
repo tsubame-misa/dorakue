@@ -41,7 +41,7 @@ def golden_section_search(log_file_name, weigthing, loop):
             file_name = re.split("[/]", filepath)[-1][:-5]
             obj = {"name": file_name, "graph": graph}
             graphs.append(obj)
-    sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes))
+    sorted_graphs = sorted(graphs, key=lambda x: len(x["graph"].nodes), reverse=True)
 
     setup.set_dir_name(log_file_name)
     log.create_log_folder()

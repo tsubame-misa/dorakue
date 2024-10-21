@@ -16,25 +16,6 @@ class Scheduler:
         return self.a * math.exp(self.b * t)
 
 
-"""
-liner版
-ストレスは少し上がってしまった
-"""
-# class Scheduler:
-#     def __init__(self, eta_max, eta_min, t_max):
-#         self.b = eta_max
-#         self.a = (self.b - eta_min)/(t_max - 1)
-
-#     def __call__(self, t):
-#         return self.a * t + self.b
-
-
-# def dist(u, v):
-#     dx = u[0] - v[0]
-#     dy = u[1] - v[1]
-#     return (dx ** 2 + dy ** 2) ** 0.5
-
-
 class Weighting:
     def __init__(self, graph):
         self.graph = graph
@@ -82,12 +63,12 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
     n = graph.node_count()
 
     if weigthing:
-        d = eg.all_sources_dijkstra(graph, Weighting(graph))
+        distance = eg.all_sources_dijkstra(graph, Weighting(graph))
     else:
-        d = eg.all_sources_dijkstra(graph, lambda _: 1)
+        distance = eg.all_sources_dijkstra(graph, lambda _: 1)
 
     diameter = max(
-        d.get(u, v) for u in graph.node_indices() for v in graph.node_indices()
+        distance.get(u, v) for u in graph.node_indices() for v in graph.node_indices()
     )
 
     gss_iterations = 15
@@ -96,8 +77,6 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
     t_max = gss_iterations * sgd_iterations
 
     if weigthing:
-        # distance = eg.all_sources_dijkstra(graph, lambda _: 1)
-        distance = eg.all_sources_dijkstra(graph, Weighting(graph))
         w_min = (
             1
             / max(
@@ -119,7 +98,6 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
             ** 2
         )
     else:
-        distance = eg.all_sources_dijkstra(graph, lambda _: 1)
         w_min = (
             1
             / max(
@@ -149,11 +127,9 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
     if weigthing:
         low = 0
         high = 4
-        distance = eg.all_sources_dijkstra(graph, Weighting(graph))
     else:
         low = 0
         high = 3.5
-        distance = eg.all_sources_dijkstra(graph, lambda _: 1)
 
     lr_diff = high - low
     x = (3 - math.sqrt(5)) / 2 * lr_diff

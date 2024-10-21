@@ -2,38 +2,36 @@ import os
 import networkx as nx
 import egraph as eg
 import matplotlib.pyplot as plt
-from common import egraphCalcDrawInfo
 import networkx as nx
-import egraph as eg
 import matplotlib.pyplot as plt
+import math
 
 
-def centered_graph(pos, graph):
-    min_edge_len = float("inf")
-    for p in pos:
-        diff_x, diff_y, _pos = egraphCalcDrawInfo.shift_center(pos, p, 1, 1)
-        max_edge_len = max(
-            egraphCalcDrawInfo.dist_around(_pos, u, v) for u, v in graph.edges
-        )
-        if min_edge_len > max_edge_len:
-            min_edge_len = max_edge_len
-            center_idx = p
+class Scheduler:
+    def __init__(self, eta_max, eta_min, t_max):
+        self.a = eta_max
+        self.b = math.log(eta_min / eta_max) / (t_max - 1)
 
-    diff_x, diff_y, fin_pos = egraphCalcDrawInfo.shift_center(pos, center_idx, 1, 1)
-
-    return fin_pos
+    def __call__(self, t):
+        return self.a * math.exp(self.b * t)
 
 
 class Weighting:
-    def __init__(self, graph, size):
+    def __init__(self, graph):
         self.graph = graph
-        self.size = size
 
     def __call__(self, e):
         u, v = self.graph.edge_endpoints(e)
         u_set = set(self.graph.neighbors(u))
         v_set = set(self.graph.neighbors(v))
-        return (len(u_set | v_set) - len(u_set & v_set)) / self.size
+        return len(u_set | v_set) - len(u_set & v_set)
+
+
+def optimize(sgd, drawing, etas, size):
+    for eta in etas:
+        rng2 = eg.Rng.seed_from(int(size * 100 // 1))
+        sgd.shuffle(rng2)
+        sgd.apply(drawing, eta / size**2)
 
 
 def torus_sgd(
@@ -41,10 +39,10 @@ def torus_sgd(
     name,
     dir,
     multiple_num=1.0,
-    random_idx=0,
     time="xxxx",
     is_chen=False,
     weigthing=False,
+    node_size=10,
 ):
     graph = eg.Graph()
     indices = {}
@@ -53,37 +51,79 @@ def torus_sgd(
     for u, v in original_graph.edges:
         graph.add_edge(indices[u], indices[v], (u, v))
 
+    n = graph.node_count()
+
     if weigthing:
-        d = eg.all_sources_dijkstra(graph, Weighting(graph, 1))
+        distance = eg.all_sources_dijkstra(graph, Weighting(graph))
     else:
-        d = eg.all_sources_dijkstra(graph, lambda _: 1)
+        distance = eg.all_sources_dijkstra(graph, lambda _: 1)
 
     diameter = max(
-        d.get(u, v) for u in graph.node_indices() for v in graph.node_indices()
+        distance.get(u, v) for u in graph.node_indices() for v in graph.node_indices()
     )
+
+    eps = 0.1
+    t_max = 20
+
+    if weigthing:
+        w_min = (
+            1
+            / max(
+                distance.get(i, j)
+                for i in range(n)
+                for j in range(n)
+                if distance.get(i, j) != 0
+            )
+            ** 2
+        )
+        w_max = (
+            1
+            / min(
+                distance.get(i, j)
+                for i in range(n)
+                for j in range(n)
+                if distance.get(i, j) != 0
+            )
+            ** 2
+        )
+    else:
+        w_min = (
+            1
+            / max(
+                distance.get(i, j)
+                for i in range(n)
+                for j in range(n)
+                if distance.get(i, j) != 0
+            )
+            ** 2
+        )
+        w_max = (
+            1
+            / min(
+                distance.get(i, j)
+                for i in range(n)
+                for j in range(n)
+                if distance.get(i, j) != 0
+            )
+            ** 2
+        )
+
+    scheduler = Scheduler(1 / w_min, eps / w_max, t_max)
+    eta = [scheduler(t) for t in range(t_max)]
 
     if is_chen:
+        # weigthingだと +1 の分の長さが不明なのでどうしたら良いかなという
+        # 平均, 最小値
         multiple_num = (max(diameter, 2) + 1) / diameter
-
-    size = diameter * multiple_num
-    if weigthing:
-        d = eg.all_sources_dijkstra(graph, Weighting(graph, size))
-    else:
-        d = eg.all_sources_dijkstra(graph, lambda _: 1 / size)
+    size = multiple_num
 
     drawing = eg.DrawingTorus2d.initial_placement(graph)
-    rng = eg.Rng.seed_from(random_idx)  # random seed
-    sgd = eg.FullSgd.new_with_distance_matrix(d)
-    scheduler = sgd.scheduler(
-        100,  # number of iterations
-        0.1,  # eps: eta_min = eps * min d[i, j] ^ 2
-    )
-
-    def step(eta):
-        sgd.shuffle(rng)
-        sgd.apply(drawing, eta)
-
-    scheduler.run(step)
+    low_distance = eg.DistanceMatrix(graph)
+    for i in range(n):
+        for j in range(n):
+            low_distance.set(i, j, distance.get(i, j) / (diameter * size))
+    sgd = eg.FullSgd.new_with_distance_matrix(low_distance)
+    optimize(sgd, drawing, eta[:t_max], diameter * size)
 
     pos = {u: (drawing.x(i) * size, drawing.y(i) * size) for u, i in indices.items()}
     nx_edge_graph = nx.Graph()
@@ -101,7 +141,7 @@ def torus_sgd(
     ax.set_xlim(0, size)
     ax.set_ylim(0, size)
     nx.draw_networkx_nodes(
-        original_graph, pos, ax=ax, node_color="#6f6f6fcf", node_size=10
+        original_graph, pos, ax=ax, node_color="#6f6f6fcf", node_size=node_size
     )
     nx.draw_networkx_edges(nx_edge_graph, edge_pos, ax=ax)
 
