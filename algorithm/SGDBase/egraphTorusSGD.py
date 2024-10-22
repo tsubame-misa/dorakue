@@ -163,8 +163,8 @@ def torus_sgd(
     ec = eg.crossing_edges(graph, drawing)
     log = {
         "multiple_num": multiple_num,
-        "stress": eg.stress(drawing, d),
-        "ideal_edge_lengths": eg.ideal_edge_lengths(graph, drawing, d),
+        "stress": eg.stress(drawing, distance),
+        "ideal_edge_lengths": eg.ideal_edge_lengths(graph, drawing, distance),
         "edge_crossings": eg.crossing_number_with_crossing_edges(ec),
         "crossing_angle_maximization": eg.crossing_angle_with_crossing_edges(ec),
         "node_resolution": eg.node_resolution(drawing),
