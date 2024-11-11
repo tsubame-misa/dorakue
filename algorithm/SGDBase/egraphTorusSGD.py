@@ -118,11 +118,11 @@ def torus_sgd(
     size = multiple_num
 
     drawing = eg.DrawingTorus2d.initial_placement(graph)
-    low_distance = eg.DistanceMatrix(graph)
+    distance_matrix = eg.DistanceMatrix(graph)
     for i in range(n):
         for j in range(n):
-            low_distance.set(i, j, distance.get(i, j) / (diameter * size))
-    sgd = eg.FullSgd.new_with_distance_matrix(low_distance)
+            distance_matrix.set(i, j, distance.get(i, j) / (diameter * size))
+    sgd = eg.FullSgd.new_with_distance_matrix(distance_matrix)
     optimize(sgd, drawing, eta[:t_max], diameter * size)
 
     pos = {u: (drawing.x(i) * size, drawing.y(i) * size) for u, i in indices.items()}
@@ -147,6 +147,7 @@ def torus_sgd(
 
     if not os.path.isdir(dir):
         os.mkdir(dir)
+
     img_path = (
         "./"
         + dir
@@ -155,16 +156,17 @@ def torus_sgd(
         + "-"
         + str(multiple_num)
         + "-"
-        + time
+        + str(time)
         + ".png"
     )
     plt.savefig(img_path)
 
     ec = eg.crossing_edges(graph, drawing)
+
     log = {
         "multiple_num": multiple_num,
-        "stress": eg.stress(drawing, distance),
-        "ideal_edge_lengths": eg.ideal_edge_lengths(graph, drawing, distance),
+        "stress": eg.stress(drawing, distance_matrix),
+        "ideal_edge_lengths": eg.ideal_edge_lengths(graph, drawing, distance_matrix),
         "edge_crossings": eg.crossing_number_with_crossing_edges(ec),
         "crossing_angle_maximization": eg.crossing_angle_with_crossing_edges(ec),
         "node_resolution": eg.node_resolution(drawing),
