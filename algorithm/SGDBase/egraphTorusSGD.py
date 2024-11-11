@@ -27,9 +27,9 @@ class Weighting:
         return len(u_set | v_set) - len(u_set & v_set)
 
 
-def optimize(sgd, drawing, etas, size):
+def optimize(sgd, drawing, etas, size, idx):
     for eta in etas:
-        rng2 = eg.Rng.seed_from(int(size * 100 // 1))
+        rng2 = eg.Rng.seed_from(int(size * 100 // idx))
         sgd.shuffle(rng2)
         sgd.apply(drawing, eta / size**2)
 
@@ -39,6 +39,7 @@ def torus_sgd(
     name,
     dir,
     multiple_num=1.0,
+    idx=0,
     time="xxxx",
     is_chen=False,
     weigthing=False,
@@ -123,7 +124,7 @@ def torus_sgd(
         for j in range(n):
             distance_matrix.set(i, j, distance.get(i, j) / (diameter * size))
     sgd = eg.FullSgd.new_with_distance_matrix(distance_matrix)
-    optimize(sgd, drawing, eta[:t_max], diameter * size)
+    optimize(sgd, drawing, eta[:t_max], diameter * size, idx)
 
     pos = {u: (drawing.x(i) * size, drawing.y(i) * size) for u, i in indices.items()}
     nx_edge_graph = nx.Graph()
