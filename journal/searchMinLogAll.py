@@ -34,7 +34,7 @@ def create_graph(graph, file_name, dir_name, multiple_num, i, weigthing):
     index_time = str(i) + str(time)
     drawGraph.set_time(index_time)
     torus_log = egraphTorusSGD.torus_sgd(
-        graph, file_name, dir_name, multiple_num, i, index_time, weigthing=weigthing
+        graph, file_name, dir_name, multiple_num, i + 1, index_time, weigthing=weigthing
     )
     return torus_log
 
@@ -75,7 +75,6 @@ def get_stress_by_len(graph, file_name, dir_name, weigthing, loop):
                 all_log[n].append(torus_log)
             else:
                 all_log[n] = [torus_log]
-
     return all_log
 
 
