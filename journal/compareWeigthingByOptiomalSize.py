@@ -22,126 +22,6 @@ import json
 """
 
 
-class Weighting:
-    def __init__(self, graph, size):
-        self.graph = graph
-        self.size = size
-
-    def __call__(self, e):
-        u, v = self.graph.edge_endpoints(e)
-        u_set = set(self.graph.neighbors(u))
-        v_set = set(self.graph.neighbors(v))
-        return (len(u_set | v_set) - len(u_set & v_set)) / self.size
-
-
-def torus_dist(u, v, size):
-    x_list = [v[0] - size, v[0], v[0] + size]
-    y_list = [v[1] - size, v[1], v[1] + size]
-
-    best_pos = [v[0], v[1]]
-    _dist = float("inf")
-
-    for x in x_list:
-        for y in y_list:
-            ax = u[0] - x
-            ay = u[1] - y
-            adist = (ax**2 + ay**2) ** 0.5
-            if _dist > adist:
-                best_pos[0] = ax
-                best_pos[1] = ay
-                _dist = adist
-
-    return _dist
-
-
-def calc_gabiel_property(pos, graph):
-    gp = 0
-    for i, j in graph.edges:
-        for v in graph.nodes:
-            if i == v or j == v:
-                continue
-            pos_i = pos[str(i)]
-            pos_j = pos[str(j)]
-            pos_v = pos[str(v)]
-            r_ij = math.hypot(pos_i[0] - pos_j[0], pos_i[1] - pos_j[1]) / 2
-            c_ij = [(pos_i[0] + pos_j[0]) / 2, (pos_i[1] + pos_j[1]) / 2]
-            d = r_ij - math.hypot(pos_v[0] - c_ij[0], pos_v[1] - c_ij[1])
-            if d > 0:
-                # 円の内側にノードがあるのでペナルティ
-                gp += max(0, d**2)
-            # gp += max(0, d**2)
-
-    return gp
-
-
-def neighborhood_preservation(pos, graph):
-    dist = [[[float("inf"), i] for i in range(len(pos))] for j in range(len(pos))]
-    node_name = [str(k) for k in graph.nodes.keys()]
-    for i in range(len(pos) - 1):
-        for j in range(i + 1, len(pos)):
-            pos_i = pos[node_name[i]]
-            pos_j = pos[node_name[j]]
-            d = math.hypot(pos_i[0] - pos_j[0], pos_i[1] - pos_j[1])
-            dist[i][j][0] = d
-            dist[j][i][0] = d
-
-    np = 0
-    for v in graph.nodes:
-        v_index = node_name.index(str(v))
-        degree = graph.degree(v)
-        sorted_d = sorted(dist[v_index], key=lambda x: x[0])
-        knn = set([i for value, i in sorted_d[:degree]])
-        rinsetu = set(nx.all_neighbors(graph, v))
-        jaccard = len(knn & rinsetu) / len(knn | rinsetu)
-
-        np += jaccard
-    np /= len(graph.nodes)
-    return np
-
-
-def calc_edge_length_variance(pos, original_graph, multiple_num, weigthing=False):
-    graph = eg.Graph()
-    indices = {}
-    for u in original_graph.nodes:
-        indices[u] = graph.add_node(u)
-    for u, v in original_graph.edges:
-        graph.add_edge(indices[u], indices[v], (u, v))
-
-    if weigthing:
-        d = eg.all_sources_dijkstra(graph, Weighting(graph, 1))
-    else:
-        d = eg.all_sources_dijkstra(graph, lambda _: 1)
-
-    diameter = max(
-        d.get(u, v) for u in graph.node_indices() for v in graph.node_indices()
-    )
-
-    size = diameter * multiple_num
-
-    dist_array = []
-    for i, j in original_graph.edges:
-        pos_i = pos[str(i)]
-        pos_j = pos[str(j)]
-        # torus なら torus上の距離でやらないといけない
-        d = torus_dist(pos_i, pos_j, size)
-        # d = math.hypot(pos_i[0] - pos_j[0], pos_i[1] - pos_j[1])
-        dist_array.append(d)
-    d_avg = sum(dist_array) / len(original_graph.edges)
-    elv = 0
-    for d in dist_array:
-        elv += (d - d_avg) ** 2
-    return elv / (len(original_graph.edges))
-
-
-def calc_minimum_angle(pos, graph):
-    # for v in graph.nodes:
-    #     neighbors = nx.all_neighbors(graph, v)
-    # print(neighbors)
-    # ideal_theta = 360 / len(neighbors)
-    # exit()
-    return
-
-
 def get_avg_metrics(data, graph, rename=False, weigthing=False):
     stress = []
     ec = []
@@ -157,16 +37,6 @@ def get_avg_metrics(data, graph, rename=False, weigthing=False):
     # exit()
 
     for d in data:
-        # _np = neighborhood_preservation(d["pos"], graph)
-        # np.append(_np)
-        # _gp = calc_gabiel_property(d["pos"], graph)
-        # gp.append(_gp)
-        # _elv = calc_edge_length_variance(
-        #     d["pos"], graph, d["multiple_num"], weigthing
-        # )
-        # elv.append(_elv)
-        # _ma = calc_minimum_angle(d["pos"], graph)
-        # ma.append(_ma)
         stress.append(d["stress"])
         ec.append(d["edge_crossings"])
         iel.append(d["ideal_edge_lengths"])
@@ -337,57 +207,12 @@ def list2dict(data):
     return data_dict
 
 
-"""
-chen_files, optimal_files, renamed_optimal_file = True/False, weigthing_optimal = True/False
-
-python3 journal/compareChenOptimal.py ./journal/data/chen/chen_torus_cell_size_networkx/log ./optimal_weigthing_networkx_0625/log True
-
-chen_files = [
-    "./journal/data/chen/chen_torus_cell_size_networkx/log/*",
-    "./journal/data/chen/chen_torus_cell_size_dough/log/*",
-    "./journal/data/chen/chen_torus_cell_size_random/log/*",
-    "./journal/data/chen/chen_torus_cell_size_sparse/log/*",
-    "./journal/data/chen/chen_networkx_50/log/*",
-]
-optimal_files = [
-    "./journal/data/optimal/optimal_torus_cell_size_networkx/log/*",
-    "./journal/data/optimal/optimal_torus_cell_size_dough/log/*",
-    "./journal/data/optimal/optimal_torus_cell_size_random/log/*",
-    "./journal/data/optimal/optimal_torus_cell_size_sparse/log/*",
-    "./journal/data/optimal/optimal_networkx_50/log/*",
-]
-"""
-
-
 def main():
-    args = sys.argv
-    # optimal_liner_files = glob.glob(args[1] + "/*")
-
-    # TODO: 平均データでやる(現状1つ)
-    # TODO: 平均データでやる(現状5つ)
-    normal_files = [
-        "./journal/data/liner/networkx_5/log/*",
-        "./journal/data/liner/liner_dough_5/log/*",
-        "./journal/data/liner/liner_random_5/log/*",
-        "./liner_sparse5/log/*",
-        # "./graphDrawing/data/egraph/liner_egraph_networkx_20/log/*",
-        # "./graphDrawing/data/egraph/liner_egraph_dough_20/log/*",
-        # "./graphDrawing/data/egraph/liner_egraph_random_20/log/*",
-        # "./graphDrawing/data/egraph/liner_egraph_sparse_20/log/*",
-    ]
+    normal_files = [f + "/log/*" for f in glob.glob("./journal/data/liner/*")]
     weighting_files = [
-        "./journal/data/weigthing_liner/networkx/log/*",
-        "./journal/data/weigthing_liner/douh/log/*",
-        "./journal/data/weigthing_liner/random/log/*",
-        "./test_liner_weighting_sparse/log/*",
+        f + "/log/*" for f in glob.glob("./journal/data/weigthing_liner/*")
     ]
-
-    graph_files = [
-        "./graphSet/networkx/*",
-        "./graphSet/doughNetGraph/default/*",
-        "./graphSet/randomPartitionNetwork /*",
-        "./graphSet/suiteSparse/*",
-    ]
+    graph_files = [f + "/*" for f in glob.glob("./graphSet0920/*")]
 
     graph_dict = {}
     for gf in graph_files:
@@ -397,8 +222,7 @@ def main():
             file_name = re.split("[/]", f)[-1][:-5]
             graph_dict[file_name] = graph
 
-    with open("./graphSet/info202405_egraph.json") as f:
-        # _graph_info = json.load(f)
+    with open("./graphSet0920/info_weigthed.json") as f:
         _graph_info = [g for g in json.load(f).values()]
 
     graph_info = list2dict(_graph_info)
@@ -413,6 +237,9 @@ def main():
                 data = json.load(f)
             name = re.split("[/]", file)[-1][:-6]
             print(name)
+
+            if not name in graph_info:
+                continue
 
             optimal_size = data["optimal_cell_size"]
 

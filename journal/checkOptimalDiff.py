@@ -32,8 +32,9 @@ def get_decreas_stop_size(data, optimal_cell_size):
     return optimal_cell_size
 
 
-def get_score(data, _type, optimal_cell_size):
+def get_score(data, _type, optimal_cell_size, original_type):
     cnt = 0
+    cnt_2 = 0
     threshold = 0.1
 
     for d in data:
@@ -43,6 +44,11 @@ def get_score(data, _type, optimal_cell_size):
             and round(abs(d["multiple_num"] - optimal_cell_size), 1) <= threshold
         ):
             cnt += 1
+            cnt_2 += 1
+        elif _type == "TORUS":
+            if round(abs(d["multiple_num"] - optimal_cell_size), 1) <= 0.2:
+                cnt_2 += 1
+            print(d["multiple_num"] - threshold, d["multiple_num"])
 
         if _type == "NO-TORUS" and d["multiple_num"] - threshold >= optimal_cell_size:
             cnt += 1
@@ -54,26 +60,28 @@ def get_score(data, _type, optimal_cell_size):
     result = sorted([d["multiple_num"] for d in data])
     print("optimal", optimal_cell_size, "result", result[len(data) // 2], score)
 
-    if score < 0.75:
-        print("error", _type, score)
+    if score < 0.7 and cnt_2 < 14:
+        print("error", _type, original_type, score, cnt_2)
 
     return cnt / len(data)
 
 
 def main():
-    _dir = "./journal/data/weighting_gss/*"
-    _dirs = [d + "/log/*" for d in glob.glob(_dir)]
+    # _dir = "./journal/data/weighting_gss/*"
+    _dir = "./test_gss_time/log/*"
+    files = [d for d in glob.glob(_dir)]
+    print(files)
 
-    _dirs = [
-        # "./journal/data/weighting_gss/gss_weighted_networkx0915_iteration10_loop15_0-5/log/*"
-        # "./journal/data/weighting_gss/gss_randomPartition0920/log/*",
-        # "./journal/data/weighting_gss/gss_weighted_random0915_iteration10_loop15_0-5/log/*",
-        "./journal/data/weighting_gss/gss_regenerate_dought0920/log/*",
-        "./journal/data/weighting_gss/gss_weighted_dough0915_iteration10_loop15_0-5/log/*",
-        # "./journal/data/weighting_gss/gss_sparse0928/log/*",
-        # "./journal/data/weighting_gss/gss_weighted_sparse0915_iteration10_loop15-0-5/log/*",
-        # "./random_test_1014_gss/log/*",
-    ]
+    # _dirs = [
+    #     "./journal/data/weighting_gss/gss_weighted_networkx0915_iteration10_loop15_0-5/log/*",
+    #     "./journal/data/weighting_gss/gss_randomPartition0920/log/*",
+    #     "./journal/data/weighting_gss/gss_weighted_random0915_iteration10_loop15_0-5/log/*",
+    #     "./journal/data/weighting_gss/gss_regenerate_dought0920/log/*",
+    #     "./journal/data/weighting_gss/gss_weighted_dough0915_iteration10_loop15_0-5/log/*",
+    #     "./journal/data/weighting_gss/gss_sparse0928/log/*",
+    #     "./journal/data/weighting_gss/gss_weighted_sparse0915_iteration10_loop15-0-5/log/*",
+    #     "./sparse1014_gss/log/*",
+    # ]
 
     liner_files = glob.glob("./journal/data/weigthing_liner/*")
 
@@ -90,10 +98,29 @@ def main():
             with open(log) as f:
                 data = json.load(f)
 
-            if graph_info[name]["type"] == "a":
+            print(name, graph_info[name])
+
+            graph_info[name]["original_type"] = graph_info[name]["type"]
+
+            if (
+                graph_info[name]["type"] == "a"
+                or graph_info[name]["type"] == "NO-TORUS"
+            ):
                 graph_info[name]["type"] = "NO-TORUS"
             else:
                 graph_info[name]["type"] = "TORUS"
+
+            # if (
+            #     graph_info[name]["type"] == "a"
+            #     or graph_info[name]["type"] == "NO-TORUS"
+            # ):
+            #     graph_info[name]["type"] = "NO-TORUS"
+            # elif graph_info[name]["type"] == "b":
+            #     graph_info[name]["type"] = "TORUS-1"
+            # else:
+            #     graph_info[name]["type"] = "TORUS-2"
+
+            print(name, graph_info[name])
 
             graph_info[name]["optimal_cell_size"] = data["optimal_cell_size"]
             if graph_info[name]["type"] == "NO-TORUS":
@@ -102,22 +129,29 @@ def main():
                 )
     result = []
 
-    for d in _dirs:
-        files = glob.glob(d)
-        for filepath in files:
-            print(filepath)
-            with open(filepath) as f:
-                data = json.load(f)
-            name = re.split("[/]", filepath)[-1][:-10]
-            if not name in graph_info:
-                print("skip", name)
-                continue
-            print(name, "------------------")
-            score = get_score(
-                data, graph_info[name]["type"], graph_info[name]["optimal_cell_size"]
-            )
-            result.append([score, graph_info[name]["type"]])
-            print(name, score)
+    print(graph_info)
+
+    # for d in _dirs:
+    #     files = glob.glob(d)
+    #     print("files", files)
+    for filepath in files:
+        with open(filepath) as f:
+            data = json.load(f)
+        name = re.split("[/]", filepath)[-1][:-10]
+        if not name in graph_info:
+            print("skip", name)
+            continue
+        print(name, graph_info[name]["type"], "------------------")
+        if not "optimal_cell_size" in graph_info[name]:
+            continue
+        score = get_score(
+            data,
+            graph_info[name]["type"],
+            graph_info[name]["optimal_cell_size"],
+            graph_info[name]["original_type"],
+        )
+        result.append([score, graph_info[name]["type"]])
+        print(name, score)
 
     print(result)
     print(len(result))

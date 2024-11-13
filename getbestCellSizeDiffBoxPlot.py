@@ -33,25 +33,8 @@ def list2dict(data):
 
 
 def main():
-    # log_files = [
-    #     "./graphDrawing/data/egraph/liner_egraph_networkx_20/log/save_best_len_log/*",
-    #     "./graphDrawing/data/egraph/liner_egraph_dough_20/log/save_best_len_log/*",
-    #     "./graphDrawing/data/egraph/liner_egraph_random_20/log/save_best_len_log/*",
-    #     "./graphDrawing/data/egraph/liner_egraph_sparse_20/log/save_best_len_log/*",
-    # ]
-    # rename = False
-
-    log_files = [
-        "./journal/data/weigthing_liner/networkx/log/*",
-        "./journal/data/weigthing_liner/dough0920/log/*",
-        "./journal/data/weigthing_liner/douh/log/*",
-        "./journal/data/weigthing_liner/random0920/log/*",
-        "./journal/data/weigthing_liner/random/log/*",
-        "./journal/data/weigthing_liner/sparse/log/*",
-        "./journal/data/weigthing_liner/sparse0929/log/*",
-        "./journal/data/weigthing_liner/sparse1014/log/*",
-    ]
-    rename = True
+    # log_files = [f + "/log/*" for f in glob.glob("./journal/data/weigthing_liner/*")]
+    log_files = [f + "/log/*" for f in glob.glob("./journal/data/liner/*")]
 
     with open("./graphSet0920/info_weigthed.json") as f:
         _graph_info = [g for g in json.load(f).values()]
@@ -72,11 +55,7 @@ def main():
                 continue
             with open(file) as f:
                 data = json.load(f)
-            if rename:
-                diff = chen_cell_size[file_name] - data["optimal_cell_size"]
-            else:
-                diff = chen_cell_size[file_name] - data["best_multiple_num"]
-
+            diff = chen_cell_size[file_name] - data["optimal_cell_size"]
             if graph_info[file_name]["type"] == "a":
                 cell_size["NO-TORUS"].append(diff)
             else:

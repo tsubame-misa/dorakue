@@ -13,25 +13,8 @@ def list2dict(data):
 
 
 def main():
-    # log_files = [
-    #     "./graphDrawing/data/egraph/liner_egraph_networkx_20/log/save_best_len_log/*",
-    #     "./graphDrawing/data/egraph/liner_egraph_dough_20/log/save_best_len_log/*",
-    #     "./graphDrawing/data/egraph/liner_egraph_random_20/log/save_best_len_log/*",
-    #     "./graphDrawing/data/egraph/liner_egraph_sparse_20/log/save_best_len_log/*",
-    # ]
-    # rename = False
-
-    log_files = [
-        "./journal/data/weigthing_liner/networkx/log/*",
-        "./journal/data/weigthing_liner/dough0920/log/*",
-        "./journal/data/weigthing_liner/douh/log/*",
-        "./journal/data/weigthing_liner/random0920/log/*",
-        "./journal/data/weigthing_liner/random/log/*",
-        "./journal/data/weigthing_liner/sparse/log/*",
-        "./journal/data/weigthing_liner/sparse0929/log/*",
-        "./journal/data/weigthing_liner/sparse1014/log/*",
-    ]
-    rename = True
+    # log_files = [f + "/log/*" for f in glob.glob("./journal/data/weigthing_liner/*")]
+    log_files = [f + "/log/*" for f in glob.glob("./journal/data/liner/*")]
 
     with open("./graphSet0920/info_weigthed.json") as f:
         _graph_info = [g for g in json.load(f).values()]
@@ -51,14 +34,9 @@ def main():
             print(file_name)
             with open(file) as f:
                 data = json.load(f)
-            if rename:
-                optimal = data["optimal_cell_size"]
-                graph_info[file_name]["append"] = True
-                cell_size.append(optimal)
-            else:
-                print(file)
-                cell_size.append(data["best_multiple_num"])
-                graph_info[file_name]["append"] = True
+            optimal = data["optimal_cell_size"]
+            graph_info[file_name]["append"] = True
+            cell_size.append(optimal)
 
     print(len(cell_size))
     sns.histplot(cell_size, bins=12, color="skyblue", edgecolor="black")

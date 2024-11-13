@@ -291,56 +291,12 @@ def list2dict(data):
     return data_dict
 
 
-"""
-chen_files, optimal_files, renamed_optimal_file = True/False, weigthing_optimal = True/False
-
-python3 journal/compareChenOptimal.py ./journal/data/chen/chen_torus_cell_size_networkx/log ./optimal_weigthing_networkx_0625/log True
-
-chen_files = [
-    "./journal/data/chen/chen_torus_cell_size_networkx/log/*",
-    "./journal/data/chen/chen_torus_cell_size_dough/log/*",
-    "./journal/data/chen/chen_torus_cell_size_random/log/*",
-    "./journal/data/chen/chen_torus_cell_size_sparse/log/*",
-    "./journal/data/chen/chen_networkx_50/log/*",
-]
-optimal_files = [
-    "./journal/data/optimal/optimal_torus_cell_size_networkx/log/*",
-    "./journal/data/optimal/optimal_torus_cell_size_dough/log/*",
-    "./journal/data/optimal/optimal_torus_cell_size_random/log/*",
-    "./journal/data/optimal/optimal_torus_cell_size_sparse/log/*",
-    "./journal/data/optimal/optimal_networkx_50/log/*",
-]
-"""
-
-
 def main():
-    args = sys.argv
-    # optimal_liner_files = glob.glob(args[1] + "/*")
-
-    # TODO: 平均データでやる(現状5つ)
-    normal_files = [
-        "./journal/data/liner/networkx_5/log/*",
-        "./journal/data/liner/liner_dough_5/log/*",
-        "./journal/data/liner/liner_random_5/log/*",
-        "./liner_sparse5/log/*",
-        # "./graphDrawing/data/egraph/liner_egraph_networkx_20/log/*",
-        # "./graphDrawing/data/egraph/liner_egraph_dough_20/log/*",
-        # "./graphDrawing/data/egraph/liner_egraph_random_20/log/*",
-        # "./graphDrawing/data/egraph/liner_egraph_sparse_20/log/*",
-    ]
+    normal_files = [f + "/log/*" for f in glob.glob("./journal/data/liner/*")]
     weighting_files = [
-        "./journal/data/weigthing_liner/networkx/log/*",
-        "./journal/data/weigthing_liner/douh/log/*",
-        "./journal/data/weigthing_liner/random/log/*",
-        "./test_liner_weighting_sparse/log/*",
+        f + "/log/*" for f in glob.glob("./journal/data/weigthing_liner/*")
     ]
-
-    graph_files = [
-        "./graphSet/networkx/*",
-        "./graphSet/doughNetGraph/default/*",
-        "./graphSet/randomPartitionNetwork /*",
-        "./graphSet/suiteSparse/*",
-    ]
+    graph_files = [f + "/*" for f in glob.glob("./graphSet0920/*")]
 
     graph_dict = {}
     for gf in graph_files:
@@ -350,12 +306,10 @@ def main():
             file_name = re.split("[/]", f)[-1][:-5]
             graph_dict[file_name] = graph
 
-    with open("./graphSet/info202405_egraph.json") as f:
-        # _graph_info = json.load(f)
+    with open("./graphSet0920/info_weigthed.json") as f:
         _graph_info = [g for g in json.load(f).values()]
 
-    # with open("./graphSet/chen_weighting_cell_size.json") as f:
-    with open("./graphSet/chen_weighting_cell_size_median.json") as f:
+    with open("./graphSet0920/chen_weighting_cell_size_median.json") as f:
         chen_cell_size_info = json.load(f)
 
     graph_info = list2dict(_graph_info)
@@ -371,6 +325,9 @@ def main():
                 data = json.load(f)
             name = re.split("[/]", file)[-1][:-6]
             print(name)
+
+            if not name in graph_info:
+                continue
 
             if name in chen_cell_size_info:
                 chen_cell_size = chen_cell_size_info[name]
@@ -394,12 +351,12 @@ def main():
                 # どうとるかで結構変わる？変わらない？
                 # 代表値
                 # 最頻値・
-                d_avg = d_sum / len(graph_dict[name].edges)
-                # sorted_edge = sorted(
-                #     [d.get(indices[u], indices[v]) for u, v in graph_dict[name].edges]
-                # )
-                # d_median = sorted_edge[len(graph_dict[name].edges) // 2]
-                chen_cell_size = (max(diameter, 2) + d_avg) / diameter
+                # d_avg = d_sum / len(graph_dict[name].edges)
+                sorted_edge = sorted(
+                    [d.get(indices[u], indices[v]) for u, v in graph_dict[name].edges]
+                )
+                d_median = sorted_edge[len(graph_dict[name].edges) // 2]
+                chen_cell_size = (max(diameter, 2) + d_median) / diameter
                 # chen_cell_size = "1.0"  # , int(chen_cell_size * 100) // 100
                 digit2 = ((chen_cell_size * 10) // 1) / 10
                 # print(digit2)

@@ -34,114 +34,6 @@ class Weighting:
         return (len(u_set | v_set) - len(u_set & v_set)) / self.size
 
 
-def torus_dist(u, v, size):
-    x_list = [v[0] - size, v[0], v[0] + size]
-    y_list = [v[1] - size, v[1], v[1] + size]
-
-    best_pos = [v[0], v[1]]
-    _dist = float("inf")
-
-    for x in x_list:
-        for y in y_list:
-            ax = u[0] - x
-            ay = u[1] - y
-            adist = (ax**2 + ay**2) ** 0.5
-            if _dist > adist:
-                best_pos[0] = ax
-                best_pos[1] = ay
-                _dist = adist
-
-    return _dist
-
-
-def calc_gabiel_property(pos, graph):
-    gp = 0
-    for i, j in graph.edges:
-        for v in graph.nodes:
-            if i == v or j == v:
-                continue
-            pos_i = pos[str(i)]
-            pos_j = pos[str(j)]
-            pos_v = pos[str(v)]
-            r_ij = math.hypot(pos_i[0] - pos_j[0], pos_i[1] - pos_j[1]) / 2
-            c_ij = [(pos_i[0] + pos_j[0]) / 2, (pos_i[1] + pos_j[1]) / 2]
-            d = r_ij - math.hypot(pos_v[0] - c_ij[0], pos_v[1] - c_ij[1])
-            if d > 0:
-                # 円の内側にノードがあるのでペナルティ
-                gp += max(0, d**2)
-            # gp += max(0, d**2)
-
-    return gp
-
-
-def neighborhood_preservation(pos, graph):
-    dist = [[[float("inf"), i] for i in range(len(pos))] for j in range(len(pos))]
-    node_name = [str(k) for k in graph.nodes.keys()]
-    for i in range(len(pos) - 1):
-        for j in range(i + 1, len(pos)):
-            pos_i = pos[node_name[i]]
-            pos_j = pos[node_name[j]]
-            d = math.hypot(pos_i[0] - pos_j[0], pos_i[1] - pos_j[1])
-            dist[i][j][0] = d
-            dist[j][i][0] = d
-
-    np = 0
-    for v in graph.nodes:
-        v_index = node_name.index(str(v))
-        degree = graph.degree(v)
-        sorted_d = sorted(dist[v_index], key=lambda x: x[0])
-        knn = set([i for value, i in sorted_d[:degree]])
-        rinsetu = set(nx.all_neighbors(graph, v))
-        jaccard = len(knn & rinsetu) / len(knn | rinsetu)
-
-        np += jaccard
-    np /= len(graph.nodes)
-    return np
-
-
-def calc_edge_length_variance(pos, original_graph, multiple_num, weigthing=False):
-    graph = eg.Graph()
-    indices = {}
-    for u in original_graph.nodes:
-        indices[u] = graph.add_node(u)
-    for u, v in original_graph.edges:
-        graph.add_edge(indices[u], indices[v], (u, v))
-
-    if weigthing:
-        d = eg.all_sources_dijkstra(graph, Weighting(graph, 1))
-    else:
-        d = eg.all_sources_dijkstra(graph, lambda _: 1)
-
-    diameter = max(
-        d.get(u, v) for u in graph.node_indices() for v in graph.node_indices()
-    )
-
-    size = diameter * multiple_num
-
-    dist_array = []
-    for i, j in original_graph.edges:
-        pos_i = pos[str(i)]
-        pos_j = pos[str(j)]
-        # torus なら torus上の距離でやらないといけない
-        d = torus_dist(pos_i, pos_j, size)
-        # d = math.hypot(pos_i[0] - pos_j[0], pos_i[1] - pos_j[1])
-        dist_array.append(d)
-    d_avg = sum(dist_array) / len(original_graph.edges)
-    elv = 0
-    for d in dist_array:
-        elv += (d - d_avg) ** 2
-    return elv / (len(original_graph.edges))
-
-
-def calc_minimum_angle(pos, graph):
-    # for v in graph.nodes:
-    #     neighbors = nx.all_neighbors(graph, v)
-    # print(neighbors)
-    # ideal_theta = 360 / len(neighbors)
-    # exit()
-    return
-
-
 def get_avg_metrics(data):
     stress = []
     ec = []
@@ -258,31 +150,19 @@ def show_box_plot(data, title):
     # データを長い形式に変換
     df_melted = df.melt(var_name="Key", value_name="Value")
 
-    # for c_name in df.columns:
-    #     df_c = df[c_name]
-    #     # ボックスプロットの作成
-    #     plt.figure(figsize=(10, 6))
-    #     sns.boxplot(df_c, showfliers=False)
-    #     plt.title(title + " " + c_name)
-    #     plt.ylabel("rate (chen/optimal)")
-    #     plt.axhline(y=1.0, color="red")
-    #     plt.axhline(y=0.9, color="blue")
-    #     plt.show()
-
     # ボックスプロットの作成
     plt.figure(figsize=(10, 6))
     sns.boxplot(x="Key", y="Value", data=df_melted, showfliers=False, color="white")
     plt.title(title)
     plt.ylabel("rate (chen/optimal)")
+    plt.axhline(y=1.1, color="green", ls="--")
     plt.axhline(y=1.0, color="blue", ls="--")
-    # plt.axhline(y=0.9, color="blue", ls="--", label="rate 0.9")
-    # plt.axhline(y=1.1, color="blue", label="rate 1.1")
-    # plt.legend()
+    plt.axhline(y=0.9, color="red", ls="--")
     plt.show()
 
 
 def download_csv(data):
-    with open("weigthing_random.csv", mode="w", newline="") as file:
+    with open("weigthing_sparse.csv", mode="w", newline="") as file:
         # 辞書のキーをフィールド名として使用
         fieldnames = data[0].keys()  # ["name", "age", "city"]
 
@@ -335,34 +215,35 @@ def main():
     optimal_liner_files = glob.glob(args[1] + "/*")
     uniform = args[2]
 
-    optimal_liner_files = [
-        # "./journal/data/weigthing_liner/networkx/log/*",
-        # "./journal/data/weigthing_liner/douh/log/*",
-        # "./journal/data/weigthing_liner/dough0920/log/*",
-        "./journal/data/weigthing_liner/random/log/*",
-        "./journal/data/weigthing_liner/random0920/log/*",
-        # "./test_liner_weighting_sparse/log/*",
-        # "./journal/data/weigthing_liner/sparse0929/log/*",
-        "./journal/data/weigthing_liner/test_random_1014/log/*",
-    ]
-
     # optimal_liner_files = [
-    #     "./journal/data/liner/douh/log/*",
-    # "./journal/data/liner/networkx/log/*",
-    #     "./journal/data/liner/random/log/*",
-    #     # "./no_weigthing_liner_sparse/log/*",
-    #     "./graphDrawing/data/egraph/liner_egraph_sparse_20/log/*",
+    #     "./journal/data/weigthing_liner/networkx/log/*",
+    #     "./journal/data/weigthing_liner/douh/log/*",
+    #     "./journal/data/weigthing_liner/dough0920/log/*",
+    #     "./journal/data/weigthing_liner/random/log/*",
+    #     "./journal/data/weigthing_liner/random0920/log/*",
+    #     "./journal/data/weigthing_liner/sparse/log/*",
+    #     "./journal/data/weigthing_liner/sparse0929/log/*",
+    #     "./journal/data/weigthing_liner/sparse1014/log/*",
     # ]
 
+    optimal_liner_files = [
+        "./journal/data/liner/networkx/log/*",
+        "./journal/data/liner/dough/log/*",
+        "./journal/data/liner/dough0920/log/*",
+        "./journal/data/liner/random/log/*",
+        "./journal/data/liner/random0920/log/*",
+        "./journal/data/liner/sparse/log/*",
+        "./journal/data/liner/sparse0920/log/*",
+    ]
+
     graph_files = [
-        # "./graphSet0920/networkx/*",
-        # "./graphSet0920/doughNetGraph/default/*",
-        # "./graphSet0920/doughNetGraph0920/*",
-        # "./graphSet0920/randomPartitionNetwork /*",
+        "./graphSet0920/networkx/*",
+        "./graphSet0920/doughNetGraph/*",
+        "./graphSet0920/doughNetGraph0920/*",
+        "./graphSet0920/randomPartitionNetwork/*",
         "./graphSet0920/randomPartitionNetwork0920/*",
-        # "./graphSet0920/suiteSparse/*",
-        # "./graphSet0920/suiteSparse0920/*",
-        "./random_test_1014/*",
+        "./graphSet0920/suiteSparse/*",
+        "./graphSet0920/suiteSparse0920/*",
     ]
 
     graph_dict = {}
@@ -416,6 +297,9 @@ def main():
             else:
                 graph = eg.Graph()
                 indices = {}
+                if not name in graph_dict:
+                    continue
+
                 for u in graph_dict[name].nodes:
                     indices[u] = graph.add_node(u)
                 for u, v in graph_dict[name].edges:
@@ -455,8 +339,8 @@ def main():
 
             if not name in graph_info:
                 graph_info[name] = {"type": "none"}
-                # print("skip", name)
-                # continue
+                print("skip", name)
+                continue
 
             optimal_cell_size = data["optimal_cell_size"]
 
@@ -480,17 +364,19 @@ def main():
                 name,
                 results[name]["type"],
             )
-            csv_obj = rate_res
-            csv_obj["name"] = name
-            csv_obj["chen"] = chen_cell_size
-            csv_obj["optimal"] = optimal_cell_size
-            csv_obj["type"] = graph_info[name]["type"]
-            csv_data.append(csv_obj)
+            # csv_obj = rate_res
+            # csv_obj["name"] = name
+            # csv_obj["chen"] = chen_cell_size
+            # csv_obj["optimal"] = optimal_cell_size
+            # csv_obj["type"] = graph_info[name]["type"]
+            # csv_data.append(csv_obj)
             results[name]["rate"] = rate_res
 
     print("chen size dict", chen_size_dict)
 
-    download_csv(csv_data)
+    print(len(results.values()))
+
+    # download_csv(csv_data)
     # exit()
 
     """
