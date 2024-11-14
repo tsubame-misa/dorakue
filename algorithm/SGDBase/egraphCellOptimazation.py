@@ -52,7 +52,7 @@ def show_stress_graph(x, y, file_name, dir_name):
     plt.savefig(img_path)
 
 
-def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=False):
+def cell_optimazation(original_graph, name, dir, idx=1, time="xxxx", weigthing=False):
     graph = eg.Graph()
     indices = {}
     for u in original_graph.nodes:
@@ -71,8 +71,9 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
         distance.get(u, v) for u in graph.node_indices() for v in graph.node_indices()
     )
 
-    gss_iterations = 15
+    gss_iterations = 14
     sgd_iterations = 10
+    default_sgd_iteration = 20
     eps = 0.1
     t_max = gss_iterations * sgd_iterations
 
@@ -124,6 +125,8 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
     scheduler = Scheduler(1 / w_min, eps / w_max, t_max)
     eta = [scheduler(t) for t in range(t_max)]
 
+    default_eta = [scheduler(t) for t in range(default_sgd_iteration)]
+
     if weigthing:
         low = 0
         high = 4
@@ -141,7 +144,8 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
         for j in range(n):
             low_distance.set(i, j, distance.get(i, j) / (diameter * m1))
     low_sgd = eg.FullSgd.new_with_distance_matrix(low_distance)
-    optimize(low_sgd, low_drawing, eta[:sgd_iterations], diameter * m1, idx)
+    # optimize(low_sgd, low_drawing, eta[:sgd_iterations], diameter * m1, idx)
+    optimize(low_sgd, low_drawing, default_eta, diameter * m1, idx)
 
     m2 = high - x
     high_drawing = eg.DrawingTorus2d.initial_placement(graph)
@@ -150,15 +154,16 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
         for j in range(n):
             high_distance.set(i, j, distance.get(i, j) / (diameter * m2))
     high_sgd = eg.FullSgd.new_with_distance_matrix(high_distance)
-    optimize(high_sgd, high_drawing, eta[:sgd_iterations], diameter * m2, idx)
+    # optimize(high_sgd, high_drawing, eta[:sgd_iterations], diameter * m2, idx)
+    optimize(low_sgd, low_drawing, default_eta, diameter * m1, idx)
 
     data = [
         [m1, eg.stress(low_drawing, low_distance)],
         [m2, eg.stress(high_drawing, high_distance)],
     ]
 
-    for i in range(1, gss_iterations):
-        # print(m1, m2)
+    for i in range(0, gss_iterations):
+        # for i in range(1, gss_iterations):
         if eg.stress(low_drawing, low_distance) > eg.stress(
             high_drawing, high_distance
         ):
@@ -168,11 +173,11 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
             m2 = high - (lr_diff - 2 * x)
 
             # low <- high
-            for i in range(n):
-                low_drawing.set_x(i, high_drawing.x(i))
-                low_drawing.set_y(i, high_drawing.y(i))
-                for j in range(n):
-                    low_distance.set(i, j, high_distance.get(i, j))
+            for u in range(n):
+                low_drawing.set_x(u, high_drawing.x(u))
+                low_drawing.set_y(u, high_drawing.y(u))
+                for v in range(n):
+                    low_distance.set(u, v, high_distance.get(u, v))
             low_sgd = high_sgd
             optimize(
                 low_sgd,
@@ -183,9 +188,9 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
             )
 
             # high <- high - (lr_diff - 2 * x)
-            for i in range(n):
-                for j in range(n):
-                    high_distance.set(i, j, high_distance.get(i, j) * m1 / m2)
+            for u in range(n):
+                for v in range(n):
+                    high_distance.set(u, v, high_distance.get(u, v) * m1 / m2)
             high_sgd = eg.FullSgd.new_with_distance_matrix(high_distance)
             optimize(
                 high_sgd,
@@ -201,11 +206,11 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
             m1 = low + lr_diff - 2 * x
 
             # high <- low
-            for i in range(n):
-                high_drawing.set_x(i, low_drawing.x(i))
-                high_drawing.set_y(i, low_drawing.y(i))
-                for j in range(n):
-                    high_distance.set(i, j, low_distance.get(i, j))
+            for u in range(n):
+                high_drawing.set_x(u, low_drawing.x(u))
+                high_drawing.set_y(u, low_drawing.y(u))
+                for v in range(n):
+                    high_distance.set(i, j, low_distance.get(u, v))
             high_sgd = low_sgd
             optimize(
                 high_sgd,
@@ -216,9 +221,9 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
             )
 
             # low <- low + (lr_diff - 2 * x)
-            for i in range(n):
-                for j in range(n):
-                    low_distance.set(i, j, low_distance.get(i, j) * m2 / m1)
+            for u in range(n):
+                for v in range(n):
+                    low_distance.set(u, v, low_distance.get(u, v) * m2 / m1)
             low_sgd = eg.FullSgd.new_with_distance_matrix(low_distance)
             optimize(
                 low_sgd,
@@ -229,6 +234,7 @@ def cell_optimazation(original_graph, name, dir, idx=0, time="xxxx", weigthing=F
             )
 
         lr_diff = high - low
+        # print(i, "diff", lr_diff)
         x = (3 - math.sqrt(5)) / 2 * lr_diff
     if eg.stress(low_drawing, low_distance) > eg.stress(high_drawing, high_distance):
         drawing = high_drawing
